@@ -39,7 +39,7 @@ Shell 是应用级空间桌面；Monado 继续负责 runtime 级调度、光学�
 
 ## 仓库、源码包和二进制包
 
-新增仓库名是设计提案，不能把下表当成已经存在的远程发布地址。精确状态见 [机器可读设计目录](../desktop-stack.json)。
+新增仓库名是设计提案，不能把下表当成已经存在的远程发布地址。精确状态见 [机器可读设计目录]({{ '/desktop-stack.json' | relative_url }})。
 
 | 维护入口 | 源码包 | 二进制包 | 主要职责 |
 |---|---|---|---|
@@ -96,7 +96,7 @@ Rust crate 的版本和系统包版本分别管理。协议开发包由 Shell �
 
 缓冲传输通过 Unix FD 通道：描述 DRM fourcc、modifier、各 plane 的 offset/stride、尺寸、alpha/色彩、damage、帧身份及同步方式。Shell 等待 acquire 同步后使用，GPU 完成读取后回送 release；Wayland 服务据此释放应用缓冲，不能收到 IPC 就提前释放。OpenXR runtime swapchain 与 Wayland buffer 是不同资源域；当前 Venus 的同 GPU OPAQUE_FD 验收不构成通用 DMA-BUF 导入的验收。[Wayland 缓冲生命周期](https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_buffer)。
 
-DMA-BUF 快路径只有在格式/modifier 与同步实际可用时启用。第一版正确性基线是共享内存加显式拷贝；显式同步扩展在实现后协商，未经验证的隐式同步不作为默默启用的兼容路径。缓冲所有权、FD 规则与消息顺序见 [组件接口设计](xr-desktop-protocol.md)。
+DMA-BUF 快路径只有在格式/modifier 与同步实际可用时启用。第一版正确性基线是共享内存加显式拷贝；显式同步扩展在实现后协商，未经验证的隐式同步不作为默默启用的兼容路径。缓冲所有权、FD 规则与消息顺序见 [组件接口设计]({{ '/wiki/xr-desktop-protocol/' | relative_url }})。
 
 ## 输入、Dock 与系统组件
 
