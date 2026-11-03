@@ -1,115 +1,118 @@
 ---
 layout: default
-title: XR Shell 组件接口设计
+title: XR Shell 最小组件合同
 ---
 
-# XR Shell 组件接口 · r1 草案
+# XR Shell 组件合同 · v1 draft
 
-本文定义待实现的边界，不是已有 wire 实现或稳定 SDK。正式类型、协议版本和客户端代码将由 `xr-shell/crates/protocols` 唯一维护；其他组件消费其发布版本，不复制第二份定义。
+合同标识：`xr-desktop/1.0-draft`。本页是 M0 设计合同，**没有已实现的 IPC、稳定 ABI 或互操作验收**。M1 只实现 Rust 全景 Shell，不实现本页的 socket、场景客户端、窗口服务或控件协议。M2 开始实现前，由双方负责人评审并把正式类型和客户端移入 `xr-shell` 拥有的协议 SDK；本文与[机器目录]({{ '/wiki/data/xr-desktop-contract-v1.json' | relative_url }})随后跟随该 SDK 版本，不成为第二份实现。
 
-## 三条通道
+## 唯一所有者与通道
 
-| 通道 | 用途 | 传输与所有权 |
+| 对象/接口 | 唯一所有者 | 消费者与约束 |
 |---|---|---|
-| 会话控制 | 启停、运行状态、原生 XR 应用切换 | 既有 session-manager 的版本化控制接口；不在此另建第二套生命周期服务 |
-| 组件场景 | Dock/UI 节点、布局意图、交互事件、窗口状态订阅 | Shell 的 Unix `SOCK_SEQPACKET`；以 component/session generation 限定对象生命周期 |
-| 窗口图像 | wl_shm 或 DMA-BUF 资源及提交/释放 | Unix 消息附带 SCM_RIGHTS；像素不经 JSON、D-Bus 或网页 |
+| 协议定义与客户端 SDK | `xr-shell` 的协议模块 | Dock、Kit 客户端适配器、窗口服务和 system-ui 消费固定版本；SDK 不是外部未知组件 |
+| OpenXR 会话、Vulkan 资源、帧提交 | `xr-shell` | 组件发送场景意图，不发送 GPU 指针或创建第二个 XR session |
+| 空间窗口变换、命中、capture、空间焦点 | `xr-shell` | 窗口服务接收版本化焦点和 surface-local 输入 |
+| `wl_surface`、commit/configure、seat/grab/serial | `xr-wayland` / `xr-window-server` | Shell 不制造 Wayland serial；Dock 不修改窗口权威状态 |
+| 控件模型、布局、样式 token | `xr-spatial-kit` | 提供库与数据，无常驻进程；材质 backend 在 Shell 内使用 |
+| 任务与固定应用模型 | `xr-dock` | 缓存快照并发出意图；以 Shell/窗口服务返回结果更新任务状态 |
+| 系统适配与组件业务 | `xr-system-ui` | D-Bus/GSettings/IME 适配不进入渲染线程 |
+| 启停、XR 应用切换、服务资源归属 | 既有 `xr-session-manager` | 本合同不建立第二套生命周期 API |
 
-Socket 位于当前用户的 `$XDG_RUNTIME_DIR/xr-desktop/`，目录 0700；基于 peer credentials 确认连接用户。首版仅接收由会话配置显式启动的同用户组件；这不是任意第三方应用的系统级权限边界。组件通道不能启动任意命令或写任意文件。
+场景和图像通道采用 Shell 创建的 Unix `SOCK_SEQPACKET`，位于 `$XDG_RUNTIME_DIR/xr-desktop/`，目录 0700；用 peer credentials 确认同一用户，并限制为会话配置显式启动的组件。它是会话内组件接口，不是任意第三方应用的权限沙箱。控制通道沿用 session-manager 的版本化接口；像素不经 D-Bus、网页或 JSON。
 
-首版元数据可以使用有界 JSON，每个数据报一个消息；资源 FD 单独通过 ancillary data 传递。实现前固定最大消息尺寸、节点数、FD 数和断连清理行为，握手包含协议 major/minor、组件角色与 capabilities。不兼容 major 明确拒绝；可选能力通过 capability 协商。
+## 版本、能力与消息外壳
 
-## 场景模型
+第一条数据报为 `Hello`，带 `protocol_major=1`、`protocol_minor=0`、`role`、`required_capabilities` 和 `optional_capabilities`。角色限定为 `dock`、`system_ui` 或 `window_server`。Shell 回送 `Welcome`，选择共同支持的 minor、返回能力交集、限制、`session_generation`、`component_id` 和 `component_generation`。不支持的 major 或缺少 required capability 明确拒绝，不降级成未声明协议。
 
-客户端提交 retained scene，而不是 Vulkan 命令、GPU 指针或每帧 draw call。首版节点限于 Group、Card、Text、Icon、Button、Slider 和 SurfaceReference。节点引用由 Shell 分配的资源 ID；材质从 Kit 的已知样式选择，不能直接注入 shader。
+`core.v1` 是共同基线；其余能力按需协商：
 
-事务例子（示意，字段仍待代码实现）：
+| capability | 消息与语义 | 典型消费者 |
+|---|---|---|
+| `core.v1` | Hello/Welcome、Error、generation、断连清理 | 所有组件 |
+| `scene.v1` | SceneTransaction、SceneApplied、SceneRejected | Dock、system-ui |
+| `snapshot.v1` | GetSnapshot、Snapshot、StateChanged、WindowState、WindowRemoved | Dock、system-ui、窗口服务 |
+| `input.v1` | InputEvent、Cancel、capture 生命周期 | Dock、system-ui |
+| `shm.v1` | ShmBufferCommit、BufferRelease；只读快照 FD | 窗口服务 |
+| `focus.v1` | FocusChanged、FocusApplied、带 focus_epoch 的 SurfaceInput | 窗口服务 |
+
+新 capability 必须有实现与对应验收后才能作为已支持能力对外交付；隔离的 M2 验收候选可以启用正在验证的能力，但其机器状态仍为待验收，不把候选握手当成通过证据。M0/M1 均不实现或报告这些组件能力。首版不含 DMA-BUF、任意 shader、直接 OS 操作或远程 TCP 访问。
+
+握手后每条消息包含 `type`、`request_id`、`session_generation`、`component_id`、`component_generation` 和 `payload`。所有 u64 对象 ID、计数器、generation、revision、frame ID 和 epoch 用十进制字符串编码，避免跨语言数值截断；major/minor、尺寸、索引等有界整数仍为 JSON number。浮点只接受有限数。Unix FD 由 SCM_RIGHTS 传递，payload 中的 `fd_index` 仅索引当前数据报附带的 FD 数组。
+
+首版限制为每条元数据最多 65536 字节、每事务最多 128 个操作、每组件最多 512 个节点、节点局部 ID 匹配 `[A-Za-z0-9_-]{1,64}`、单个文本最多 2048 个 UTF-8 字节。`shm.v1` 每个提交恰好一个 FD；其他本页消息不得携带 FD。能力协商可以下调限制，不可超出所选协议定义。超过限制、缺少必需字段、未知消息/操作或消息角色不符时回送有类型的 Error 并释放收到的 FD，不能部分应用消息。Error 至少包含 code、关联 request_id 和可读说明；必要时附当前 revision/epoch。最小 code 为 unsupported_version、missing_capability、stale_generation、stale_revision、invalid_message、wrong_role、limit_exceeded、unknown_surface、stale_focus_epoch、invalid_buffer。
+
+## Generation、revision 与快照
+
+Shell 每次启动产生新的 `session_generation`。每次接受组件连接产生新的 `component_generation`；任何旧 generation 请求均拒绝。Shell 为每个连接建立不可删除的 `root` 节点，初始场景 revision 为 `"0"`；Welcome 返回该根标识。组件局部 node ID 在 `(session_generation, component_id, component_generation)` 内唯一；surface ID 在窗口服务 generation 内唯一。窗口服务重启后旧 surface 不得被新服务同号对象继承。
+
+组件通过 `GetSnapshot` 请求 Shell 的当前模型，`Snapshot` 携带 `state_revision`、组件场景 revision、窗口列表、空间焦点与其 `focus_epoch`。其后的 `StateChanged` 逐条携带连续 `state_revision`；检测到缺号时停止应用增量并重新请求快照。Dock 不把本地“已发送启动/关闭请求”视为窗口已存在/已关闭。
+
+窗口服务是应用窗口协议状态权威，Shell 是合并空间状态的发布者。只有 window_server 角色可以发送带服务 generation、surface key 和完整窗口协议状态的 `WindowState` 或对应的 `WindowRemoved`；Shell 验证并更新其已发布模型。Snapshot 中每个窗口保留 `window_server_generation`、`surface_id`、`app_id`、标题、父子关系、逻辑尺寸与应用确认的尺寸状态；空间位置、物理尺寸和工作区另列。旧纹理可临时缩放，但 `resize` 意图不替代应用的 configure/ack/commit。
+
+## SceneTransaction
+
+`SceneTransaction` 带 `base_revision`、`revision` 和操作数组；成功要求 `base_revision` 等于已接受的组件场景 revision，`revision = base_revision + 1`。Shell 先校验整笔事务，再在帧边界原子应用并返回 `SceneApplied`。失败返回 `SceneRejected` 与当前 revision；没有部分场景或部分输入区域生效。
+
+首版仅支持 `upsert_node`、`remove_node`、`set_root_policy`。node kind 为 Group、Card、Text、Icon、Button、Slider、SurfaceReference；父节点必须存在于提交后树中，禁止环和跨组件父引用。样式引用使用 Kit 已支持的 style ID，资源使用 Shell 已登记 ID；协议不传代码、回调地址、shader 或文件路径。root policy 限定 `world_locked` 和 `dock_lazy_follow`，其最终 pose 由 Shell 计算。
+
+以下仅展示 payload，完整消息仍需上述外壳；数字字符串表示 wire u64：
 
 ```json
 {
-  "type": "SceneTransaction",
-  "generation": 3,
-  "revision": 18,
-  "component": "dock",
-  "commands": [
-    {"op": "set_anchor", "node": "root", "policy": "dock_lazy_follow"},
-    {"op": "upsert", "id": "launcher", "parent": "root", "kind": "button",
-     "style": "dock.application", "action": "open-launcher"}
+  "base_revision": "17",
+  "revision": "18",
+  "operations": [
+    {"op": "upsert_node", "node_id": "launcher", "parent_id": "root",
+     "kind": "Button", "style_id": "dock.application", "action_id": "open-launcher"}
   ]
 }
 ```
 
-Root pose、世界变换、raycast、pointer capture 与焦点由 Shell 仲裁。Dock 发送布局参数，Shell 在 predictedDisplayTime 下更新跟随姿态。重连时分配新的 generation；旧 ID、旧事件和旧事务不能影响新场景。事务按 revision 原子应用，避免半更新布局接收输入。
+Group 的局部 pose/大小、Card 材质、Text 文本、Icon 资源、Button action ID、Slider 范围和值、SurfaceReference 的 surface key 均由对应 primitive 版本定义；M2 实现时必须发布逐字段 schema 才能报告 `scene.v1` 可用。本文不把示意例子当作已可接收的 wire 实现。
 
-Shell 回送 `HoverChanged`、`Press`、`Drag`、`Release`、`Cancel`、`FocusChanged`。事件携带 source、pointer/interaction ID、时间与局部坐标；失去会话焦点或客户端断连必须 Cancel 并释放捕获。滑块等连续输入可合并中间值，按下/释放/取消不可丢弃。
+## InputEvent、Cancel 与 capture
 
-窗口权威在 Shell 与窗口服务，不在 Dock。Dock 只缓存 `WindowSnapshot` 和随后事件。`ActivateWindow`、`CloseWindow`、`LaunchApp` 请求经 Shell/session 规则处理后返回结果；应用拒绝关闭、缺包或启动失败都保留可见状态。
+Shell 统一采集输入、命中场景并路由。`InputEvent` 携带 `event_id`、`pointer_id`、`interaction_id`、`source`、`phase`、目标 node/surface key、局部坐标、事件时间和当前 `focus_epoch`。source 限定为 controller_ray、head_ray、mouse；hand_ray/direct_poke 需要后续独立能力，不在首版伪造可用。phase 为 hover、press、drag、release、scroll。时间是会话声明的单调时钟纳秒，与 `XrTime` 的换算在 Shell 内维护，不能混用不同来源的原始时间值。
 
-## 窗口与缓冲
+Shell 接受一次 press 时分配 `capture_id`，将后续 drag/release 送往同一目标，即使指针移出原热区。release 终止 capture。失去 XR 焦点、目标删除、source 切换或连接失效时，Shell 立即取消 capture，并向仍连接的相关方发送带 `capture_id`、`interaction_id` 和 reason 的 `Cancel`；断连一方的取消在 Shell 本地完成。不能把 source 固定优先级用于抢走正在进行的交互。
 
-窗口标识包含服务 generation 和 surface ID；应用 app_id、标题、父子关系、像素尺寸、buffer scale、输入区域、alpha 和 configure serial 分别维护。三维尺寸和位置由 Shell 持有，不将像素尺寸与米混用。
+按下、释放、取消、焦点变化和状态快照不可丢弃或合并。相同 pointer/interaction 的 hover/drag 中间位置可以合并，但必须保持前后的离散事件顺序。客户端回调由客户端根据 action ID 触发，跨进程不传函数指针。
 
-缓冲事件至少包含：
+## focus_epoch 与 Wayland seat
+
+Shell 的空间 focus 与窗口服务的 Wayland seat 状态通过 `focus_epoch` 对齐，不互相冒充权威：
+
+1. Shell 决定激活窗口或清空焦点时递增 `focus_epoch`，发送 `FocusChanged`，带目标 surface key 或 null。
+2. 窗口服务验证 surface 仍存活，执行合法 seat focus/grab 更新后返回 `FocusApplied`；失败时带原因和当前有效目标。
+3. Shell 在对应 epoch 得到成功确认后才发送该窗口的键盘/文本 `SurfaceInput`。等待期间不把键盘送往旧窗口或重放给新窗口。
+4. `SurfaceInput` 携带目标 surface generation、`focus_epoch` 和 pointer/interaction 信息。窗口服务拒绝过期 epoch；实际 Wayland serial、popup grab 与 keymap 由窗口服务产生和维护。
+5. surface 删除、窗口服务重启或 XR 失焦时撤销 capture、清空对应焦点并建立新 epoch。hover/凝视本身不转移键盘焦点。
+
+## shm BufferCommit/Release
+
+首个窗口图像合同是 `ShmBufferCommit`，不是 DMA-BUF。窗口服务在应用 commit 后、应用仍遵守 wl_buffer 占用语义时，把内容复制到专用 memfd 快照，完成写入后加 `F_SEAL_WRITE | F_SEAL_GROW | F_SEAL_SHRINK | F_SEAL_SEAL`，再发送 FD；创建快照时启用允许 seals 的标志，发送/接收的自有 FD 均设置 close-on-exec。快照复制完成后，窗口服务可以 release 原应用 wl_buffer；接收端随后读取的是不可变快照，不再读取那个已释放的应用 buffer。
+
+surface 必须先经 WindowState 登记；未登记或旧 generation 的提交返回 unknown_surface/stale_generation 并关闭收到的 FD。每个 ShmBufferCommit 包含：
 
 ```text
-resource_id, surface_id, frame_id, commit_serial
-width, height, DRM fourcc, modifier, plane_count
-每 plane: fd_index, offset_bytes, stride_bytes
-alpha_mode, colour_space, damage_rects
-sync_mode, acquire_sync_reference
+window_server_generation, surface_id, buffer_id, frame_id, commit_serial
+width_px, height_px, stride_bytes, offset_bytes, length_bytes, fd_index=0
+format: argb8888 | xrgb8888
+alpha_mode: premultiplied | opaque
+colour_space: srgb
+damage_rects: 最多 256 个像素矩形
 ```
 
-`plane_count` 不等于 FD 数；多个 plane 可以引用同一个被传递的 FD。FD 传输后接收方拥有自己的引用，断连、导入失败和 retire 均需释放；发送方不得把跨进程的整数 fd 值当作句柄。
+初始 width/height 上限为 8192，快照 length 上限为 134217728 字节；双方可在 Welcome 中下调。必须校验 stride 至少为 `width_px * 4`、offset/stride/height 组合不溢出且完全落在 FD 文件长度内，damage 矩形在图像范围内。argb8888/xrgb8888 使用 Wayland 对应格式的本机小端字节解释；首版 argb8888 对应 premultiplied，xrgb8888 对应 opaque，其他组合拒绝。格式转换和 alpha 解释不能只从文件名推断。
 
-同步与释放顺序：
+`buffer_id` 每次快照唯一，`frame_id` 在单 surface 中单调递增；首版不复用可写快照。Shell 验证 FD、边界、seals 后复制/上传，完成最后一次对快照的使用后发送恰好一次 `BufferRelease`，带 buffer/frame key 和 consumed、superseded、rejected 或 surface_destroyed 状态。较新帧可以替换尚未使用的旧帧，但旧帧仍需 release。关闭 FD 与释放原 Wayland buffer 是两种生命周期，不能混为同一个 ack。
 
-1. 应用 commit，窗口服务保存 buffer 引用。
-2. 窗口服务向 Shell 发送 resource/commit 和约定的 acquire 同步。
-3. Shell 在 acquire 完成后采样；无法导入时回报错误并使用已协商的拷贝路径。
-4. Shell 的 GPU 最后一次读取完成后返回 Release；导入的持久资源可保留到独立 Retire。
-5. 窗口服务据该缓冲协议发送 release/同步信号，应用才可以安全复用对应内容。
+断连时双方释放自己的 FD 引用并取消对应 surface/资源；不能等待断开的 peer 再回 ack。DMA-BUF 的多 plane、modifier、acquire/release fence 或 syncobj timeline 不属于 `shm.v1`，须在独立合同和真实图像导入验收后增加能力。OpenXR swapchain 由 runtime 创建，Shell 将应用内容采样/拷贝到自己的 swapchain；输入侧 DMA-BUF 导入不自动建立全链路零拷贝。
 
-基线 `wl_shm` 用明确定义的复制完成语义。DMA-BUF 先实现并验收一种显式同步方式，再协商其他方式；`sync_file` FD 与 DRM syncobj timeline 是不同表示，不互相伪装。以真实格式/modifier 和 GPU 同步能力为准，不能只按“有 DMA-BUF FD”判断可用。
+## M0/M1 状态与晋升条件
 
-Shell 将应用图像采样/拷贝到它自己的 OpenXR swapchain。直接复用应用纹理为 OpenXR layer 并不天然可行，需遵守 runtime swapchain 的创建和使用约束。当前开发 VM 的 OPAQUE_FD runtime/client 图像共享是另一种协议与资源所有权关系。
+M0 可检查本文、机器目录、包/接口唯一所有者和任务依赖是否一致；这只说明合同有定义。M1 可接受的原始证据是 Rust Shell 在现有 QEMU 中加载固定摘要的晴空、真实双眼提交、视角变化与退出清理；M1 不因本文存在而提供 `scene.v1` 或 `shm.v1`。
 
-## Kit、样式与布局单位
-
-`xr-spatial-kit` 提供纯 Rust 控件模型、布局、交互状态和渲染抽象；`xr-spatial-style-ukui` 提供可替换的 token 数据。Dock 与 system-ui 通过客户端库构建节点，Shell 渲染同版本支持的 primitive。
-
-Rust 边界草图：
-
-```rust
-pub struct ComponentId(pub u64);
-pub struct SurfaceId { pub generation: u64, pub id: u64 }
-pub struct LogicalSize { pub width: f32, pub height: f32 }
-pub struct WorldSize { pub width_m: f32, pub height_m: f32 }
-
-pub trait SpatialComponent {
-    fn on_snapshot(&mut self, state: &DesktopSnapshot);
-    fn on_event(&mut self, event: &InteractionEvent) -> Vec<Intent>;
-    fn scene(&self) -> SceneTransaction;
-}
-```
-
-此草图表达所有权与调用方向，不是可链接的现有 crate。协议序列化显式定义整数字段、版本和单位，不依赖 Rust struct 的内存布局。
-
-初始视觉 token 提案：
-
-| 项 | 初始值/行为 | 验收注意 |
-|---|---|---|
-| 品牌 | `#3790FA` 麒麟蓝，青蓝/淡紫辅助色 | 与目标系统的实际主题资产匹配，保持可替换 |
-| 卡片 | 轻透灰蓝、连续圆角、薄外框 | 根据真实背景亮度检查文字对比；不强迫存量应用整体透明 |
-| 正文 | 参考角高约 0.8° | 按头显清晰度与字体实际测量，不作为普适生理标准 |
-| 点击热区 | 参考角宽高约 2.5° | 1 m 处约 44 mm；热区可以大于可见按钮 |
-| Dock | 前下方约 18°，初始距约 0.9 m | 参数可调；延迟跟随有 dead zone、限速和关闭选项 |
-| Hover / Press | 颜色、微位移与可选触觉 | reduced-motion 下禁用多余位移，依然保持状态可辨 |
-| 场景 | 世界朝向稳定，背景忽略平移 | 不以无限背景提供近场位置/地面线索 |
-
-环境贴图是完整远景，UI 卡片不把背景高光作为文字亮度。窗口外框与内容层独立：使用底部握把、控制胶囊和角部缩放锚点；平面内容与弯曲内容按应用能力选择。未来的碰撞、空间锚点和多用户能力不能从当前全景资产推导出来。
-
-## 兼容与观测
-
-日志分别报告 XR runtime、Vulkan device、窗口输入格式、buffer transport、WSI transport、composition layer 和环境资产版本。帧号、提交时间、GPU 完成和观察端呈现分别计量；CPU copy、DMA-BUF import 与最终零拷贝是不同状态。
-
-第一轮实现只需要证明一个完整链路：Rust Shell 背景 → Dock 真正点击 → 启动一个 Wayland 应用 → 输入/resize → 关闭并释放。协议测试围绕实际出现的错序、缓冲复用和焦点故障编写，不用纯模型测试代替真实窗口与会话证据。
+M2 以后，每项能力分别经过真实进程握手、消息顺序、断线回收和对应可见功能验收，才把机器状态从 draft/not_implemented 晋升为 implemented/accepted。UI、Wayland、DMA-BUF、原生 XR 应用切换与物理头显分别记录，不能用构建通过或一个画面代替整个合同验收。

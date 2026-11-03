@@ -5,7 +5,7 @@ title: UKUI XR 桌面软件栈设计
 
 # UKUI XR 桌面软件栈 · r1
 
-状态：架构设计。Shell、Dock、窗口服务和组件协议尚未实现；背景数据包已准备，构建记录与实际 XR 验收分开保存。首个目标是 openKylin 3.0 x86_64 开发虚拟机，后续再增加设备 profile。
+状态：目标架构与 M0 合同。Shell 工作以未验收 WIP 为起点，M1 原始运行证据待集成负责人登记；Dock、窗口服务和组件 IPC 仍待实现。背景数据包已准备，构建记录与实际 XR 验收分开保存。首个目标是 openKylin 3.0 x86_64 开发虚拟机，后续设备 profile 另行验收。当前执行范围见[项目实施计划]({{ '/wiki/xr-desktop-implementation/' | relative_url }})。
 
 ## 产品与技术决策
 
@@ -58,7 +58,7 @@ Shell 是应用级空间桌面；Monado 继续负责 runtime 级调度、光学�
 
 ## Rust 代码组织
 
-Shell 仓库内采用一个 Cargo workspace，内部 crate 不逐个生成常驻服务：
+下面是 Shell 仓内的目标模块划分。M1 可使用普通 Rust 模块，接口稳定后再抽取 Cargo workspace 成员，不先创建占位 crate；内部模块不逐个生成常驻服务：
 
 ```text
 xr-shell/
@@ -124,17 +124,19 @@ Shell 是一个前台 OpenXR 应用。启动另一个原生 XR 应用时，由 s
 
 ## 开发阶段与可见验收
 
+当前阶段编号统一为 M0–M6，替代最初 S0–S6 的粗粒度顺序。阶段状态由 [desktop-stack.json]({{ '/desktop-stack.json' | relative_url }}) 与实际原始证据分别表达；文档存在、源码提交和包构建都不直接晋升运行状态。
+
 | 阶段 | 交付内容 | 完成证据 |
 |---|---|---|
-| S0 设计与资产 | 本架构、包/接口目录、晴空环境包 | 数据摘要、独立 Deb 内容/解包验证；不能称 Shell 已运行 |
-| S1 Rust 场景 | Rust Shell 的 OpenXR/Vulkan 帧循环、全景、镜像、退出 | QEMU 中真实双眼环视，场景朝向正确；验证层、资源清理与实际截图 |
-| S2 Dock/Kit | 最小场景协议、Button/Card/Icon/Text、独立 Dock | 真实射线点击、拖动、Dock 断开重连；独立包构建/安装/移除 |
-| S3 Linux 应用 | 一个 shm Wayland 窗口、焦点、外框、resize | 原生应用逐窗口显示，configure/commit、键鼠、popup 和关闭行为 |
-| S4 系统组件 | 启动器、控制中心、通知、键盘、工作区 | 逐项 OS 操作、中文预编辑/候选、权限、组件启停；数据不依赖网页 |
-| S5 图形优化 | DMA-BUF、同步、帧预算与 Quad 提升 | 实际格式/modifier、缓冲复用和释放证据；应用/合成/浏览器呈现分别计量 |
-| S6 系统集成 | openKylin 元包与 amd64/arm64 构建配方 | 干净发行版依赖闭包、升级卸载、会话切换；每种设备另行验收 |
+| M0 合同与基线 | 唯一 owner、最小 v1 draft、构建/运行依赖、工作区与记录规则 | 文档/JSON 一致性与跨仓审阅；不代表 IPC 已实现 |
+| M1 Rust 场景 | OpenXR/Vulkan 帧循环、晴空、双眼视图、视角与退出 | QEMU 原始运行日志、配对眼图、验证层与资源清理；不实现 IPC |
+| M2 最小组件/窗口管线 | Shell 协议、Kit/Dock 与 Wayland shm 并行 | 逐字段 SDK/schema、真实进程握手、快照、断线和图像生命周期 |
+| M3 真实应用闭环 | Dock 启动应用、焦点、外框、输入/resize/popup | 一个真实 Wayland 应用可用并正常关闭；mock 不算应用启动 |
+| M4 系统能力 | 启动器、控制中心、通知、键盘、IME/Xwayland | 真实 OS 接口、中文组合输入和桌面能力逐项验收 |
+| M5 图形优化 | DMA-BUF、同步、帧预算与 Quad 提升 | 格式/modifier、缓冲复用/释放、遮挡与分段计时证据 |
+| M6 集成与 SDK | 元包、会话、C/C++ 客户端与目标系统组合 | 干净发行版依赖闭包、升级卸载；架构/物理设备分别验收 |
 
-优先顺序是 S1 → S2 → S3，先让背景、交互和一个 Linux 应用构成可操作的闭环，再扩展系统组件。现有 QEMU 的 UKUI/Venus/Monado 与浏览器观察链路是开发底座；尚无本设计的 Rust Shell 图像、Dock 或 Wayland 窗口验收结果。
+M0/M1 的任务、文件边界与晋升条件见[实施计划]({{ '/wiki/xr-desktop-implementation/' | relative_url }})；M2 起的合同见[最小 v1 draft]({{ '/wiki/xr-desktop-protocol/' | relative_url }})。先让 Rust 全景和退出形成可见闭环，再让 Kit/Dock 与 shm 窗口服务并行，最终在 M3 集成真实 Linux 应用。既有 QEMU 底座不代表新 Shell 或组件已验收。
 
 ## 本轮保留的决策
 

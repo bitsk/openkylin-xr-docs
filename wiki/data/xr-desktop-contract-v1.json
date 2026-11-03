@@ -1,0 +1,249 @@
+{
+  "schema": 1,
+  "contract_id": "xr-desktop/1.0-draft",
+  "status": "draft_not_implemented",
+  "released_ABI": false,
+  "owner_repository": "xr-shell",
+  "definition_owner": "planned Shell protocol SDK",
+  "normative_draft": "../xr-desktop-protocol.md",
+  "scope": {
+    "M0": "definition and consistency review only",
+    "M1": "does not implement or advertise component IPC",
+    "first_implementation_phase": "M2"
+  },
+  "transport": {
+    "kind": "Unix SOCK_SEQPACKET",
+    "socket_directory": "$XDG_RUNTIME_DIR/xr-desktop/",
+    "directory_mode": "0700",
+    "metadata_encoding": "bounded JSON",
+    "fd_transport": "SCM_RIGHTS",
+    "allowed_roles": [
+      "dock",
+      "system_ui",
+      "window_server"
+    ]
+  },
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "required_common_capability": "core.v1",
+    "unknown_major": "reject",
+    "missing_required_capability": "reject"
+  },
+  "envelope": {
+    "fields": [
+      "type",
+      "request_id",
+      "session_generation",
+      "component_id",
+      "component_generation",
+      "payload"
+    ],
+    "u64_wire_encoding": "decimal string",
+    "float_values": "finite only",
+    "fd_index": "index into ancillary FDs in the same datagram"
+  },
+  "capabilities": [
+    {
+      "id": "core.v1",
+      "status": "not_implemented",
+      "messages": [
+        "Hello",
+        "Welcome",
+        "Error"
+      ]
+    },
+    {
+      "id": "scene.v1",
+      "status": "not_implemented",
+      "messages": [
+        "SceneTransaction",
+        "SceneApplied",
+        "SceneRejected"
+      ]
+    },
+    {
+      "id": "snapshot.v1",
+      "status": "not_implemented",
+      "messages": [
+        "GetSnapshot",
+        "Snapshot",
+        "StateChanged",
+        "WindowState",
+        "WindowRemoved"
+      ]
+    },
+    {
+      "id": "input.v1",
+      "status": "not_implemented",
+      "messages": [
+        "InputEvent",
+        "Cancel"
+      ]
+    },
+    {
+      "id": "shm.v1",
+      "status": "not_implemented",
+      "messages": [
+        "ShmBufferCommit",
+        "BufferRelease"
+      ]
+    },
+    {
+      "id": "focus.v1",
+      "status": "not_implemented",
+      "messages": [
+        "FocusChanged",
+        "FocusApplied",
+        "SurfaceInput"
+      ]
+    }
+  ],
+  "limits": {
+    "metadata_bytes": 65536,
+    "transaction_operations": 128,
+    "nodes_per_component": 512,
+    "node_id_ascii_bytes": 64,
+    "text_utf8_bytes": 2048,
+    "shm_fds_per_commit": 1,
+    "non_shm_message_fds": 0,
+    "shm_max_dimension_px": 8192,
+    "shm_max_bytes": 134217728,
+    "damage_rectangles": 256
+  },
+  "scene": {
+    "node_kinds": [
+      "Group",
+      "Card",
+      "Text",
+      "Icon",
+      "Button",
+      "Slider",
+      "SurfaceReference"
+    ],
+    "operations": [
+      "upsert_node",
+      "remove_node",
+      "set_root_policy"
+    ],
+    "root_policies": [
+      "world_locked",
+      "dock_lazy_follow"
+    ],
+    "revision_rule": "base_revision equals accepted revision; revision = base_revision + 1",
+    "application": "atomic at frame boundary",
+    "primitive_field_schema": "must be published by the SDK before reporting scene.v1 implemented",
+    "node_id_pattern": "[A-Za-z0-9_-]{1,64}",
+    "initial_root": "Shell-owned root, cannot be removed, revision 0, returned in Welcome"
+  },
+  "snapshot": {
+    "publisher": "xr-shell",
+    "window_protocol_authority": "xr-wayland",
+    "window_service_updates": [
+      "WindowState",
+      "WindowRemoved"
+    ],
+    "window_service_update_roles": [
+      "window_server"
+    ],
+    "delta_revision": "continuous state_revision; gaps require a fresh Snapshot"
+  },
+  "input": {
+    "sources": [
+      "controller_ray",
+      "head_ray",
+      "mouse"
+    ],
+    "phases": [
+      "hover",
+      "press",
+      "drag",
+      "release",
+      "scroll"
+    ],
+    "capture_owner": "xr-shell",
+    "capture_starts": "accepted press allocates capture_id",
+    "capture_ends": [
+      "release",
+      "Cancel"
+    ],
+    "cancel_reasons": [
+      "XR focus lost",
+      "target removed",
+      "source switched",
+      "peer disconnected"
+    ],
+    "non_coalescible": [
+      "press",
+      "release",
+      "Cancel",
+      "focus changes",
+      "snapshots"
+    ]
+  },
+  "focus": {
+    "spatial_owner": "xr-shell",
+    "seat_grab_serial_owner": "xr-wayland",
+    "epoch_owner": "xr-shell",
+    "sequence": [
+      "FocusChanged",
+      "FocusApplied",
+      "SurfaceInput with acknowledged focus_epoch"
+    ],
+    "stale_epoch": "reject; never retarget buffered keyboard input"
+  },
+  "shm": {
+    "immutable_snapshot": true,
+    "required_seals": [
+      "F_SEAL_WRITE",
+      "F_SEAL_GROW",
+      "F_SEAL_SHRINK",
+      "F_SEAL_SEAL"
+    ],
+    "formats": [
+      "argb8888",
+      "xrgb8888"
+    ],
+    "alpha_modes": [
+      "premultiplied",
+      "opaque"
+    ],
+    "colour_space": "srgb",
+    "application_buffer_release": "after window service has finished copying the original wl_buffer",
+    "snapshot_release": "exactly once after receiver has finished using that snapshot",
+    "release_statuses": [
+      "consumed",
+      "superseded",
+      "rejected",
+      "surface_destroyed"
+    ],
+    "disconnect": "both peers close owned FDs without waiting for disconnected peer",
+    "fd_close_on_exec": true,
+    "format_alpha_pairs": {
+      "argb8888": "premultiplied",
+      "xrgb8888": "opaque"
+    },
+    "requires_registered_surface": true
+  },
+  "excluded_capabilities": [
+    "DMA-BUF",
+    "arbitrary shader injection",
+    "direct OS control",
+    "remote TCP",
+    "hand tracking",
+    "eye gaze"
+  ],
+  "acceptance": "raw process and visible-feature evidence required per capability; no accepted capabilities in M0 or M1",
+  "error_codes": [
+    "unsupported_version",
+    "missing_capability",
+    "stale_generation",
+    "stale_revision",
+    "invalid_message",
+    "wrong_role",
+    "limit_exceeded",
+    "unknown_surface",
+    "stale_focus_epoch",
+    "invalid_buffer"
+  ]
+}

@@ -1,8 +1,8 @@
 {
-  "schema": 1,
-  "revision": "r1",
+  "schema": 2,
+  "revision": "m0-v1-draft",
   "kind": "architecture_design_catalog",
-  "runtime_implementation_status": "not implemented",
+  "runtime_implementation_status": "wip_unaccepted",
   "primary_language": "Rust",
   "targets": {
     "first": "openKylin 3.0 amd64 QEMU",
@@ -12,16 +12,15 @@
     "openxr crate",
     "ash Vulkan"
   ],
-  "protocol_owner": "xr-shell/crates/protocols",
-  "protocol_status": "proposal, no released ABI",
+  "protocol_owner": "xr-shell",
+  "protocol_status": "xr-desktop/1.0-draft, not implemented",
   "external_dependency_ids": [
-    "openxr-runtime-profile",
-    "xr-shell-protocols-sdk"
+    "openxr-runtime-profile"
   ],
   "components": [
     {
       "id": "xr-shell",
-      "status": "design_only",
+      "status": "wip_unaccepted",
       "language": "Rust",
       "source_package": "xr-shell",
       "binary_packages": {
@@ -35,11 +34,22 @@
         "input focus",
         "component protocol"
       ],
-      "depends_on": [
-        "xr-spatial-kit",
+      "process_model": "one XR session owner",
+      "build_requires": [],
+      "runtime_requires": [
         "openxr-runtime-profile"
       ],
-      "process_model": "one XR session owner"
+      "runtime_recommends": [
+        "xr-environment-qingkong",
+        "xr-spatial-style-ukui",
+        "xr-dock",
+        "xr-window-server",
+        "xr-system-ui"
+      ],
+      "optional_build_requires": [
+        "xr-spatial-kit-sdk"
+      ],
+      "m1_environment_package": "xr-environment-qingkong"
     },
     {
       "id": "xr-dock",
@@ -54,11 +64,17 @@
         "task model",
         "dock scene intent"
       ],
-      "depends_on": [
-        "xr-shell",
-        "xr-spatial-kit"
+      "process_model": "one event-driven scene client; no OpenXR session",
+      "build_requires": [
+        "xr-shell-protocols-sdk",
+        "xr-spatial-kit-sdk"
       ],
-      "process_model": "one event-driven scene client; no OpenXR session"
+      "runtime_requires": [
+        "xr-shell",
+        "xr-spatial-style-ukui",
+        "xr-spatial-assets"
+      ],
+      "runtime_recommends": []
     },
     {
       "id": "xr-spatial-kit",
@@ -76,8 +92,10 @@
         "style tokens",
         "glyph/render interfaces"
       ],
-      "depends_on": [],
-      "process_model": "build-time crates plus runtime data; no daemon"
+      "process_model": "build-time crates plus runtime data; no daemon",
+      "build_requires": [],
+      "runtime_requires": [],
+      "runtime_recommends": []
     },
     {
       "id": "xr-wayland",
@@ -93,10 +111,16 @@
         "application buffers",
         "Wayland seat and text input"
       ],
-      "depends_on": [
+      "process_model": "one Smithay-based application window service",
+      "build_requires": [
         "xr-shell-protocols-sdk"
       ],
-      "process_model": "one Smithay-based application window service"
+      "runtime_requires": [
+        "xr-shell"
+      ],
+      "runtime_recommends": [
+        "xwayland"
+      ]
     },
     {
       "id": "xr-system-ui",
@@ -114,11 +138,17 @@
         "system adapter host",
         "optional built-in UI definitions"
       ],
-      "depends_on": [
-        "xr-shell",
-        "xr-spatial-kit"
+      "process_model": "one host for selected component definitions",
+      "build_requires": [
+        "xr-shell-protocols-sdk",
+        "xr-spatial-kit-sdk"
       ],
-      "process_model": "one host for selected component definitions"
+      "runtime_requires": [
+        "xr-shell",
+        "xr-spatial-style-ukui",
+        "xr-spatial-assets"
+      ],
+      "runtime_recommends": []
     },
     {
       "id": "xr-environments",
@@ -132,8 +162,10 @@
         "panorama data",
         "asset checksums"
       ],
-      "depends_on": [],
-      "process_model": "data only; no process"
+      "process_model": "data only; no process",
+      "build_requires": [],
+      "runtime_requires": [],
+      "runtime_recommends": []
     },
     {
       "id": "xr-session-manager",
@@ -143,7 +175,18 @@
         "resource ownership",
         "native XR application handoff"
       ],
-      "depends_on": []
+      "build_requires": [],
+      "runtime_requires": [],
+      "runtime_recommends": [
+        "xr-shell",
+        "xr-window-server",
+        "xr-dock",
+        "xr-system-ui"
+      ],
+      "source_package": "xr-session-manager",
+      "binary_packages": {
+        "xr-session-manager": "all"
+      }
     },
     {
       "id": "openkylin-xr-integration",
@@ -152,14 +195,16 @@
         "openkylin-xr-desktop": "all",
         "openkylin-xr-desktop-dev": "all"
       },
-      "depends_on": [
+      "build_requires": [],
+      "runtime_requires": [
         "xr-shell",
         "xr-dock",
-        "xr-wayland",
+        "xr-window-server",
         "xr-system-ui",
-        "xr-environments",
+        "xr-environment-qingkong",
         "xr-session-manager"
-      ]
+      ],
+      "runtime_recommends": []
     }
   ],
   "environment": {
@@ -192,38 +237,102 @@
   },
   "milestones": [
     {
-      "id": "S0",
-      "status": "design_and_local_asset_package"
+      "id": "M0",
+      "goal": "contracts, unique owners, scoped worktrees and dependency definitions",
+      "status": "defined_pending_integration_review",
+      "runtime_acceptance": false
     },
     {
-      "id": "S1",
-      "goal": "Rust Shell panorama and OpenXR frame lifecycle",
-      "status": "planned"
+      "id": "M1",
+      "goal": "Rust Shell panorama, stereo, view adjustment, cleanup and independent package",
+      "status": "pending_raw_evidence",
+      "implements_component_IPC": false,
+      "runtime_acceptance": false
     },
     {
-      "id": "S2",
-      "goal": "Kit primitives and independent Dock client",
-      "status": "planned"
+      "id": "M2",
+      "goal": "minimal component IPC, Kit/Dock and shm Wayland pipeline in parallel",
+      "status": "planned",
+      "depends_on": [
+        "M0",
+        "M1"
+      ]
     },
     {
-      "id": "S3",
-      "goal": "one native Wayland app with input and resize",
-      "status": "planned"
+      "id": "M3",
+      "goal": "Dock launches a real Wayland app with input, resize and close",
+      "status": "planned",
+      "depends_on": [
+        "M2"
+      ]
     },
     {
-      "id": "S4",
-      "goal": "system components and IME",
-      "status": "planned"
+      "id": "M4",
+      "goal": "system adapters, IME, Xwayland and desktop components",
+      "status": "planned",
+      "depends_on": [
+        "M3"
+      ]
     },
     {
-      "id": "S5",
-      "goal": "DMA-BUF and composition optimisation",
-      "status": "planned"
+      "id": "M5",
+      "goal": "DMA-BUF, explicit sync and composition optimisation",
+      "status": "planned",
+      "depends_on": [
+        "M3"
+      ]
     },
     {
-      "id": "S6",
-      "goal": "distribution metapackages and target-specific acceptance",
-      "status": "planned"
+      "id": "M6",
+      "goal": "distribution closure, SDK and target-specific acceptance",
+      "status": "planned",
+      "depends_on": [
+        "M4",
+        "M5"
+      ]
     }
+  ],
+  "acceptance_policy": "M1 requires raw QEMU evidence; a document, source checkpoint or package build is not runtime acceptance",
+  "current_scope": [
+    "M0 contracts and worktree boundaries",
+    "M1 Rust panorama, stereo, view adjustment and cleanup"
+  ],
+  "excluded_from_M1": [
+    "component IPC",
+    "Dock and Kit business UI",
+    "Wayland window service",
+    "DMA-BUF",
+    "Quad promotion",
+    "FFI",
+    "Qt theme changes",
+    "physical device work"
+  ],
+  "protocol_module_status": "planned SDK module; no released implementation or ABI",
+  "protocol_contract": "wiki/xr-desktop-protocol.md",
+  "protocol_catalog": "wiki/data/xr-desktop-contract-v1.json",
+  "implementation_plan": "wiki/xr-desktop-implementation.md",
+  "build_interfaces": [
+    {
+      "id": "xr-shell-protocols-sdk",
+      "owner": "xr-shell",
+      "status": "draft_not_implemented",
+      "proposed_package": "librust-xr-shell-protocols-dev"
+    },
+    {
+      "id": "xr-spatial-kit-sdk",
+      "owner": "xr-spatial-kit",
+      "status": "design_only",
+      "proposed_package": "librust-xr-spatial-kit-dev"
+    }
+  ],
+  "dependency_semantics": {
+    "build_requires": "source SDK interface IDs; consumed at build time, not runtime daemons",
+    "optional_build_requires": "later-phase SDK interface IDs, not required for the M1 build",
+    "runtime_requires": "proposed binary package IDs or explicit runtime profile IDs; installation closure not yet validated",
+    "runtime_recommends": "optional packages selected by a desktop profile",
+    "default_activation": "package installation starts no XR session"
+  },
+  "external_runtime_package_ids": [
+    "xwayland"
   ]
 }
