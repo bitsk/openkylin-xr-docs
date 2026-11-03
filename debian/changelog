@@ -1,3 +1,10 @@
+openkylin-xr-docs (0.1.1) unstable; urgency=medium
+
+  * Add the Rust UKUI XR desktop architecture and component protocol design.
+  * Include the machine-readable desktop design catalog.
+
+ -- openKylin XR SIG <xr@lists.openkylin.top>  Tue, 03 Nov 2026 21:58:40 +0800
+
 openkylin-xr-docs (0.1.0) unstable; urgency=medium
 
   * Import independently maintained XR component and packaging.

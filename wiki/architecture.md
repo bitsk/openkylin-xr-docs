@@ -5,6 +5,8 @@ title: 仓库架构与职责
 
 # 仓库架构与职责
 
+新增空间桌面上层的设计见 [UKUI XR 桌面软件栈](xr-desktop-stack.md) 与 [组件接口草案](xr-desktop-protocol.md)。其中新 Shell、Dock、Kit 和窗口服务处于设计阶段，不能从下文既有仓库的发布状态推导其已经实现。
+
 
 后续内核开发以 `bigbits/xr-kernel` 为主，改动按子系统独立提交，保留可 rebase 的下游补丁栈。用户态按独立功能划分，连同内核、调试与系统生成，共八个代码仓库；工程 Wiki/Blog 独立放在第九个仓库 [openkylin-xr-docs](https://gitee.com/bigbits/openkylin-xr-docs)：
 

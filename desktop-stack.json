@@ -1,0 +1,229 @@
+{
+  "schema": 1,
+  "revision": "r1",
+  "kind": "architecture_design_catalog",
+  "runtime_implementation_status": "not implemented",
+  "primary_language": "Rust",
+  "targets": {
+    "first": "openKylin 3.0 amd64 QEMU",
+    "later": "arm64 build and device acceptance separately"
+  },
+  "renderer_choice": [
+    "openxr crate",
+    "ash Vulkan"
+  ],
+  "protocol_owner": "xr-shell/crates/protocols",
+  "protocol_status": "proposal, no released ABI",
+  "external_dependency_ids": [
+    "openxr-runtime-profile",
+    "xr-shell-protocols-sdk"
+  ],
+  "components": [
+    {
+      "id": "xr-shell",
+      "status": "design_only",
+      "language": "Rust",
+      "source_package": "xr-shell",
+      "binary_packages": {
+        "xr-shell": "any",
+        "librust-xr-shell-protocols-dev": "all"
+      },
+      "owns": [
+        "OpenXR session",
+        "Vulkan renderer",
+        "spatial scene",
+        "input focus",
+        "component protocol"
+      ],
+      "depends_on": [
+        "xr-spatial-kit",
+        "openxr-runtime-profile"
+      ],
+      "process_model": "one XR session owner"
+    },
+    {
+      "id": "xr-dock",
+      "status": "design_only",
+      "language": "Rust",
+      "source_package": "xr-dock",
+      "binary_packages": {
+        "xr-dock": "any"
+      },
+      "owns": [
+        "pinned apps",
+        "task model",
+        "dock scene intent"
+      ],
+      "depends_on": [
+        "xr-shell",
+        "xr-spatial-kit"
+      ],
+      "process_model": "one event-driven scene client; no OpenXR session"
+    },
+    {
+      "id": "xr-spatial-kit",
+      "status": "design_only",
+      "language": "Rust",
+      "source_package": "xr-spatial-kit",
+      "binary_packages": {
+        "librust-xr-spatial-kit-dev": "all",
+        "xr-spatial-style-ukui": "all",
+        "xr-spatial-assets": "all"
+      },
+      "owns": [
+        "UI primitives",
+        "interaction states",
+        "style tokens",
+        "glyph/render interfaces"
+      ],
+      "depends_on": [],
+      "process_model": "build-time crates plus runtime data; no daemon"
+    },
+    {
+      "id": "xr-wayland",
+      "status": "design_only",
+      "language": "Rust",
+      "source_package": "xr-wayland",
+      "binary_packages": {
+        "xr-window-server": "any"
+      },
+      "owns": [
+        "private Wayland display",
+        "surface lifecycle",
+        "application buffers",
+        "Wayland seat and text input"
+      ],
+      "depends_on": [
+        "xr-shell-protocols-sdk"
+      ],
+      "process_model": "one Smithay-based application window service"
+    },
+    {
+      "id": "xr-system-ui",
+      "status": "design_only",
+      "language": "Rust",
+      "source_package": "xr-system-ui",
+      "binary_packages": {
+        "xr-system-ui": "any",
+        "xr-launcher": "all",
+        "xr-control-center": "all",
+        "xr-notifications": "all",
+        "xr-keyboard": "all"
+      },
+      "owns": [
+        "system adapter host",
+        "optional built-in UI definitions"
+      ],
+      "depends_on": [
+        "xr-shell",
+        "xr-spatial-kit"
+      ],
+      "process_model": "one host for selected component definitions"
+    },
+    {
+      "id": "xr-environments",
+      "status": "local_data_package",
+      "source_package": "xr-environments",
+      "binary_packages": {
+        "xr-environment-qingkong": "all"
+      },
+      "owns": [
+        "environment schema",
+        "panorama data",
+        "asset checksums"
+      ],
+      "depends_on": [],
+      "process_model": "data only; no process"
+    },
+    {
+      "id": "xr-session-manager",
+      "status": "existing_component_new_desktop_profile_planned",
+      "owns": [
+        "lifecycle",
+        "resource ownership",
+        "native XR application handoff"
+      ],
+      "depends_on": []
+    },
+    {
+      "id": "openkylin-xr-integration",
+      "status": "existing_component_new_metapackages_planned",
+      "planned_binary_packages": {
+        "openkylin-xr-desktop": "all",
+        "openkylin-xr-desktop-dev": "all"
+      },
+      "depends_on": [
+        "xr-shell",
+        "xr-dock",
+        "xr-wayland",
+        "xr-system-ui",
+        "xr-environments",
+        "xr-session-manager"
+      ]
+    }
+  ],
+  "environment": {
+    "id": "qingkong",
+    "package": "xr-environment-qingkong",
+    "schema_version": 1,
+    "texture_sha256": "b3a398fe703e6c74cd61cfea7587060094738695eb8c9b6e5e52e9e239254f63",
+    "projection": "equirectangular",
+    "texture_size": [
+      4096,
+      2048
+    ],
+    "artwork_revision": "six-direction-multiview",
+    "ignore_view_translation": true,
+    "lock_to_view_rotation": false
+  },
+  "capability_policy": {
+    "required_xr_extension": "XR_KHR_vulkan_enable2",
+    "baseline_composition": "projection",
+    "optional": [
+      "quad promotion within maxLayerCount",
+      "cylinder",
+      "equirect2",
+      "hand tracking",
+      "eye gaze",
+      "overlay coexistence"
+    ],
+    "initial_window_transport": "shm copy",
+    "optional_window_transport": "DMA-BUF after format/modifier and explicit sync acceptance"
+  },
+  "milestones": [
+    {
+      "id": "S0",
+      "status": "design_and_local_asset_package"
+    },
+    {
+      "id": "S1",
+      "goal": "Rust Shell panorama and OpenXR frame lifecycle",
+      "status": "planned"
+    },
+    {
+      "id": "S2",
+      "goal": "Kit primitives and independent Dock client",
+      "status": "planned"
+    },
+    {
+      "id": "S3",
+      "goal": "one native Wayland app with input and resize",
+      "status": "planned"
+    },
+    {
+      "id": "S4",
+      "goal": "system components and IME",
+      "status": "planned"
+    },
+    {
+      "id": "S5",
+      "goal": "DMA-BUF and composition optimisation",
+      "status": "planned"
+    },
+    {
+      "id": "S6",
+      "goal": "distribution metapackages and target-specific acceptance",
+      "status": "planned"
+    }
+  ]
+}

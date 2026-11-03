@@ -22,6 +22,8 @@
 
 ## 当前验证范围
 
+空间桌面新增组件与既有底座分别管理。`xr-shell`、`xr-dock`、`xr-spatial-kit`、`xr-wayland` 和 `xr-system-ui` 当前为设计中的维护入口，尚未发布实现；`xr-environments` 已准备独立的本地背景数据包。包边界和机器可读状态见 [桌面栈设计](xr-desktop-stack.md) 与 [desktop-stack.json](../desktop-stack.json)，不将这些提案加入上表作为已发布仓库。
+
 - 内核：14 个独立提交补丁重放通过，Image、125 个模块及型号 DTB 编译通过。启动镜像、目标发行版和实机验收分别进行。
 - 设备、FastRPC、头部跟踪：ARM64 交叉编译及开发接口消费通过。
 - 手柄：3 个 ARM32 worker 与 2 个兼容 shim 构建通过；执行能力和真实跟踪结果不由编译替代。
