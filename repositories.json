@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "repositories": [
+    {
+      "repository": "xr-kernel",
+      "url": "https://gitee.com/bigbits/xr-kernel",
+      "maintenance": "patch-stack",
+      "source_packages": [
+        "linux-xr"
+      ],
+      "binary_packages": [
+        "linux-image-<kernelrelease>",
+        "linux-headers-<kernelrelease>",
+        "xr-kernel-uapi-dev",
+        "linux-image-xr-arm64"
+      ]
+    },
+    {
+      "repository": "xr-mesa",
+      "url": "https://gitee.com/bigbits/xr-mesa",
+      "maintenance": "patch-stack",
+      "source_packages": [
+        "mesa-xr"
+      ],
+      "binary_packages": [
+        "xr-mesa-vulkan-drivers"
+      ]
+    },
+    {
+      "repository": "xr-monado",
+      "url": "https://gitee.com/bigbits/xr-monado",
+      "maintenance": "upstream-derived",
+      "source_packages": [
+        "monado-xr"
+      ],
+      "binary_packages": [
+        "xr-monado-steamvr-driver"
+      ]
+    },
+    {
+      "repository": "xr-hexagonrpc",
+      "url": "https://gitee.com/bigbits/xr-hexagonrpc",
+      "maintenance": "upstream-derived",
+      "source_packages": [
+        "xr-hexagonrpc"
+      ],
+      "binary_packages": [
+        "libxr-hexagonrpc-dev",
+        "xr-hexagonrpc-source"
+      ]
+    },
+    {
+      "repository": "xr-device-io",
+      "url": "https://gitee.com/bigbits/xr-device-io",
+      "maintenance": "component",
+      "source_packages": [
+        "xr-device-io"
+      ],
+      "binary_packages": [
+        "xr-device-tools",
+        "libxr-device-dev"
+      ]
+    },
+    {
+      "repository": "xr-head-tracking",
+      "url": "https://gitee.com/bigbits/xr-head-tracking",
+      "maintenance": "component",
+      "source_packages": [
+        "xr-head-tracking"
+      ],
+      "binary_packages": [
+        "xr-head-tracking",
+        "xr-head-tracking-tools",
+        "libxr-head-dev"
+      ]
+    },
+    {
+      "repository": "xr-controller-tracking",
+      "url": "https://gitee.com/bigbits/xr-controller-tracking",
+      "maintenance": "component",
+      "source_packages": [
+        "xr-controller-tracking"
+      ],
+      "binary_packages": [
+        "xr-controller-worker-bionic",
+        "libxr-controller-dev",
+        "xr-controller-tools"
+      ]
+    },
+    {
+      "repository": "xr-session-manager",
+      "url": "https://gitee.com/bigbits/xr-session-manager",
+      "maintenance": "component",
+      "source_packages": [
+        "xr-session-manager"
+      ],
+      "binary_packages": [
+        "xr-session-manager"
+      ]
+    },
+    {
+      "repository": "xr-debug-console",
+      "url": "https://gitee.com/bigbits/xr-debug-console",
+      "maintenance": "component",
+      "source_packages": [
+        "xr-debug-console"
+      ],
+      "binary_packages": [
+        "xr-debug-server",
+        "xr-debug-web",
+        "xr-debug-video",
+        "xr-debug-tools"
+      ]
+    },
+    {
+      "repository": "xr-vendor-assets",
+      "url": "https://gitee.com/bigbits/xr-vendor-assets",
+      "maintenance": "asset-catalog",
+      "source_packages": [
+        "xr-firmware-a081",
+        "xr-vendor-a081"
+      ],
+      "binary_packages": [
+        "firmware-xr-a081",
+        "firmware-xr-a081-tracking",
+        "xr-vendor-a081-controller",
+        "xr-vendor-a081-dsp-host"
+      ]
+    },
+    {
+      "repository": "openkylin-xr-integration",
+      "url": "https://gitee.com/bigbits/openkylin-xr-integration",
+      "maintenance": "component",
+      "source_packages": [
+        "openkylin-xr-integration"
+      ],
+      "binary_packages": [
+        "openkylin-xr-defaults",
+        "xr-device-a081",
+        "xr-device-a081-vr",
+        "openkylin-xr-base",
+        "openkylin-xr-streaming",
+        "openkylin-xr-debug",
+        "openkylin-xr-steamvr"
+      ]
+    },
+    {
+      "repository": "xr-image-tools",
+      "url": "https://gitee.com/bigbits/xr-image-tools",
+      "maintenance": "component",
+      "source_packages": [
+        "xr-image-tools"
+      ],
+      "binary_packages": [
+        "xr-image-builder"
+      ]
+    },
+    {
+      "repository": "openkylin-xr-docs",
+      "url": "https://gitee.com/bigbits/openkylin-xr-docs",
+      "maintenance": "component",
+      "source_packages": [
+        "openkylin-xr-docs"
+      ],
+      "binary_packages": [
+        "openkylin-xr-doc"
+      ]
+    }
+  ]
+}

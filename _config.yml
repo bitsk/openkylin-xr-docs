@@ -1,7 +1,7 @@
-title: Qiyu Engineering
+title: XR Engineering
 description: 奇遇 Linux 工程文档与开发记录
-url: https://bitsk.github.io
-baseurl: /qiyu-docs
+url: "https://gitee.com"
+baseurl: "/bigbits/openkylin-xr-docs"
 markdown: kramdown
 permalink: pretty
 collections:

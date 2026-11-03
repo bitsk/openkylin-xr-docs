@@ -37,4 +37,4 @@ Frame 的原始 Turnip 路径只枚举 GPU primary，无法直接取得 A081 分
 
 在固定姿态的 SteamVR Dashboard/语言页场景、关闭采集的对照中，OpenVR 帧序号速率从约 48.60 提升到 50.23～51.28 Hz，compositor CPU 时间下降约 43%～51%。这些数字对应记录中的固定场景，游戏性能与物理显示速率需要各自测量。会话层另把 -11 ms 的运行时偏移持久化，并在 compositor 重启后重新应用。资料：[P01]({{ '/wiki/evidence-sources/#p01' | relative_url }})、[P02]({{ '/wiki/evidence-sources/#p02' | relative_url }})。
 
-源码见 [Turnip 补丁与构建配方](https://github.com/bitsk/qiyu-vr-runtime/tree/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/graphics)；系统如何选择这些库见[SteamOS 集成]({{ '/wiki/steamos/' | relative_url }})。
+源码见 [Turnip 补丁与构建配方](https://gitee.com/bigbits/xr-monado/tree/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/graphics)；系统如何选择这些库见[SteamOS 集成]({{ '/wiki/steamos/' | relative_url }})。

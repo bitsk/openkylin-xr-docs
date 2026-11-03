@@ -36,4 +36,4 @@ IMU 由 SSC 管理。qcom-see 通过 QRTR/QMI SEE 发现加速度计和陀螺仪
 
 统一采集层保留图像身份、时间和缓冲生命周期，算法通过共享缓冲或 IPC 消费。相机预览走 producer tap，因此无需为了打开调试网页再次争用追踪相机。手柄校时还用到 camera2 SOF 驱动的 GPIO92/93 相位信号，这成为后续手柄定位接通的关键。资料：[R04]({{ '/wiki/evidence-sources/#r04' | relative_url }})、[R05]({{ '/wiki/evidence-sources/#r05' | relative_url }})、[D01]({{ '/wiki/evidence-sources/#d01' | relative_url }})。
 
-源码入口：[共享采集与设备接口](https://github.com/bitsk/qiyu-device-service/tree/fa2fc4267d82acfd13a26efece6296c791434529/include/qiyu/device)、[相机输入合同](https://github.com/bitsk/qiyu-head-tracking/blob/3ba08d9d24a2cc1d265624003923d8565c977fcf/api/camera-input-contract.json)、[IMU 输入合同](https://github.com/bitsk/qiyu-head-tracking/blob/3ba08d9d24a2cc1d265624003923d8565c977fcf/api/imu-input-contract.json)。
+源码入口：[共享采集与设备接口](https://gitee.com/bigbits/xr-device-io/tree/fa2fc4267d82acfd13a26efece6296c791434529/include/xr/device)、[相机输入合同](https://gitee.com/bigbits/xr-head-tracking/blob/3ba08d9d24a2cc1d265624003923d8565c977fcf/api/camera-input-contract.json)、[IMU 输入合同](https://gitee.com/bigbits/xr-head-tracking/blob/3ba08d9d24a2cc1d265624003923d8565c977fcf/api/imu-input-contract.json)。

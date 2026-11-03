@@ -5,7 +5,7 @@ title: 原厂二进制归档
 
 # 原厂二进制归档
 
-[bitsk/qiyu-vendor](https://github.com/bitsk/qiyu-vendor) 是公开资产仓库，Git 保存来源清单和打包工具，二进制放在 [固定 Release](https://github.com/bitsk/qiyu-vendor/releases/tag/a081-vendor-r1)。公开代码仓库只记录版本、资产 ID 和摘要；正常构建不再反复提取整份原厂镜像。
+[bigbits/xr-vendor-assets](https://gitee.com/bigbits/xr-vendor-assets) 是公开资产仓库，Git 保存来源清单和打包工具，二进制放在 [固定 Release](https://gitee.com/bigbits/xr-vendor-assets/releases/tag/a081-vendor-r1)。公开代码仓库只记录版本、资产 ID 和摘要；正常构建不再反复提取整份原厂镜像。
 
 ## A081 首批快照
 
@@ -24,7 +24,7 @@ title: 原厂二进制归档
 
 ## 下载、验证、装配
 
-在 qiyu-rootfs 仓库：
+在 xr-image-tools 仓库：
 
 ```sh
 # 当前下载工具使用已登录的 gh；不在命令或源码中传令牌。
@@ -43,10 +43,10 @@ python3 tools/rootfs.py assemble --system steamos \
 
 完整归档共 247 个文件，约 69 MB。Release 的 vendor.lock.json 为四包完整描述。公开源码侧的锁文件位于 devices/a081/vendor.lock.json，包含固定 Release/资产 ID、压缩包 SHA-256、大小、逐文件 SHA-256 和安装目标。下载后先核对整包，再按清单解包并逐文件核验；verify / assemble 不需要镜像或网络。manifest 明确记录 vendor_included；未输入资产缓存的配置包不代表完整 VR rootfs。
 
-qiyu-controller-tracking 可用 `tools/build.py --ndk /path/to/ndk --vendor-cache /new/vendor-cache --output /new/controller-build` 直接使用已归档的 ARM32 libc++。head-tracking 读取 qvr/runtime/qcom/ 与 qvr/config/config6.xml；rootfs 安装目标在锁文件记录，设备校准仍单独提供。
+xr-controller-tracking 可用 `tools/build.py --ndk /path/to/ndk --vendor-cache /new/vendor-cache --output /new/controller-build` 直接使用已归档的 ARM32 libc++。head-tracking 读取 qvr/runtime/qcom/ 与 qvr/config/config6.xml；rootfs 安装目标在锁文件记录，设备校准仍单独提供。
 
 ## 验证边界
 
 本次已完成冷下载、逐文件校验、使用下载所得 libc++ 的 ARM32 编译和合成基底 rootfs 装配；未执行原厂二进制、刷写分区、更新设备或晋升基线。完整设备验收独立记录。来源/摘要一致不等于制造商签名认证，仓库公开不构成额外的二进制许可授予。
 
-r1，按用户要求将 qiyu-vendor 与现有 Release 公开。历史 Release 资产和摘要保持不变，当前仓库与 rootfs 锁文件均标记为 public。
+r1，按用户要求将 xr-vendor-assets 与现有 Release 公开。历史 Release 资产和摘要保持不变，当前仓库与 rootfs 锁文件均标记为 public。

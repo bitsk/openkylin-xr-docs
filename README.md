@@ -1,17 +1,13 @@
-# Qiyu 工程文档
+# openKylin XR 开发与打包
 
-奇遇 Linux 工程的跨仓库架构、维护指南、Wiki 与开发 Blog。
+XR SIG 的跨仓库工程文档、接口边界、软件包索引和设备参考。
 
-- 文档站：https://bitsk.github.io/qiyu-docs/
-- Wiki：[wiki/](wiki/)
-- 开发历程：[wiki/development-history.md](wiki/development-history.md)
-- 硬件、SteamOS、运行时与视频：见 Wiki 的主题导航
-- 资料索引：[wiki/evidence-sources.md](wiki/evidence-sources.md)
-- 架构：[wiki/architecture.md](wiki/architecture.md)
-- 开发记录：[_posts/](_posts/)
-- 内核代码：[bitsk/qiyu-kernel](https://github.com/bitsk/qiyu-kernel)
+- [独立仓库与软件包索引](wiki/repositories.md)
+- [机器可读仓库目录](repositories.json)
+- [openKylin 打包与安装边界](wiki/openkylin-packaging.md)
+- [源码和资产交付入口](wiki/source-publication.md)
+- [系统架构参考](wiki/architecture.md)
 
-本仓库承载工程文档与页面源码。功能代码、接口定义与本组件构建入口由各代码仓库维护。Jekyll 原生 Markdown 页面由 GitHub Pages 构建，`_layouts/` 与 `assets/` 为站点呈现；不需要额外文档托管服务。
+内核、Mesa 使用源码补丁与打包仓；Monado、FastRPC 及功能组件各自维护。通用功能、设备后端、原厂资产、发行版组合和镜像工具分别管理。
 
-
-历史文章按开发阶段组织，首批整理覆盖 r1 至 r1。正文以主要成果和实现过程为主，来源摘要集中保存在 evidence/。
+当前构建状态以索引为准。既有硬件和运行时文章保留为历史参考，不代表迁移后 openKylin 组合已经实机验收。原有版本和设备基线独立保留。

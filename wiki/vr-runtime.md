@@ -41,14 +41,14 @@ XR 桌面最初使用 Openbox/tint2、TigerVNC、SDL2/LibVNCClient 和 OpenXR qu
        SteamVR / OpenXR 应用
 ```
 
-会话管理贯穿启动、生产者/消费者连接、超时处理、正常 shutdown 和桌面恢复。正式入口包含 tracking supervisor、controller relay、运行计划和记录工具，由 qiyu-vr-session 维护；分仓不会强制每个模块新增一个常驻进程。资料：[R06]({{ '/wiki/evidence-sources/#r06' | relative_url }})。
+会话管理贯穿启动、生产者/消费者连接、超时处理、正常 shutdown 和桌面恢复。正式入口包含 tracking supervisor、controller relay、运行计划和记录工具，由 xr-session-manager 维护；分仓不会强制每个模块新增一个常驻进程。资料：[R06]({{ '/wiki/evidence-sources/#r06' | relative_url }})。
 
 | 仓库 | 代码入口 |
 | --- | --- |
-| qiyu-device-service | [采集、时钟与输入接口](https://github.com/bitsk/qiyu-device-service/tree/fa2fc4267d82acfd13a26efece6296c791434529/include/qiyu/device) |
-| qiyu-head-tracking | [QVR 桥接与头部服务](https://github.com/bitsk/qiyu-head-tracking/tree/3ba08d9d24a2cc1d265624003923d8565c977fcf/src) |
-| qiyu-controller-tracking | [SDK helper 与 ABI 适配](https://github.com/bitsk/qiyu-controller-tracking/tree/f92ee08d919fca3c191da84b022456145e3a254e/src) |
-| qiyu-vr-runtime | [Monado 来源](https://github.com/bitsk/qiyu-vr-runtime/blob/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/upstream.json)、[下游补丁](https://github.com/bitsk/qiyu-vr-runtime/tree/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/patches) |
-| qiyu-vr-session | [会话与资源生命周期](https://github.com/bitsk/qiyu-vr-session/tree/0ba812ff2b5a68851999e3e604d5ea4c463da38c/src) |
+| xr-device-io | [采集、时钟与输入接口](https://gitee.com/bigbits/xr-device-io/tree/fa2fc4267d82acfd13a26efece6296c791434529/include/xr/device) |
+| xr-head-tracking | [QVR 桥接与头部服务](https://gitee.com/bigbits/xr-head-tracking/tree/3ba08d9d24a2cc1d265624003923d8565c977fcf/src) |
+| xr-controller-tracking | [SDK helper 与 ABI 适配](https://gitee.com/bigbits/xr-controller-tracking/tree/f92ee08d919fca3c191da84b022456145e3a254e/src) |
+| xr-monado | [Monado 来源](https://gitee.com/bigbits/xr-monado/blob/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/upstream.json)、[下游补丁](https://gitee.com/bigbits/xr-monado/tree/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/patches) |
+| xr-session-manager | [会话与资源生命周期](https://gitee.com/bigbits/xr-session-manager/tree/0ba812ff2b5a68851999e3e604d5ea4c463da38c/src) |
 
 各阶段的软件接通、物理标定与使用体验范围，简要保留在对应开发记录和[来源附录]({{ '/wiki/evidence-sources/' | relative_url }})中。
