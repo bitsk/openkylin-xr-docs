@@ -227,14 +227,28 @@
       "commit": "ce9835d8c5c6dcf2850db27be29b72eabce5dc77",
       "change": "receiver capability filtering using shared message-capability table",
       "local_offline_release_build": "passed",
-      "native_build_and_retest": "unconfirmed while transport is unavailable",
-      "running_stage_overwritten": false
+      "running_stage_overwritten": false,
+      "native_build": "passed offline locked native ARM64 package build in separate candidate directory",
+      "native_runtime_retest": "pending",
+      "native_package_sha256": "ec758e68aa75f3a4766b5310f6a34ece0bdd07c0f11bc84ff356d4dc60f07e4d",
+      "packaged_binary_sha256": "e7aeb2ea74b3406aff8a5ba9772a574cf2ea64f54cb03cbf223b2b71d53efb97"
     },
     {
       "repository": "xr-wayland",
       "version": "0.1.4",
       "commit": "36258dea8ac0c9232e096641a33c45ea8eebbf5c",
       "native_retest": "pending"
+    },
+    {
+      "repository": "xr-shell",
+      "version": "0.2.1",
+      "commit": "8bcde1857bf6471d3730549351217d1080bb5b80",
+      "change": "optical glass, rounded client edges, curved shadows and spatial resize handles",
+      "local_release_build": "passed; zero compiler warnings",
+      "native_transfer": false,
+      "native_build": false,
+      "native_GPU_acceptance": false,
+      "previous_0_2_0_runtime_evidence_applies": false
     }
   ]
 }

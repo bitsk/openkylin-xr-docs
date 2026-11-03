@@ -54,12 +54,16 @@
       "accepted_scope": "historical M1 Rust panorama in openKylin amd64 QEMU only; not native ARM64 acceptance",
       "candidate_scope": "M2 broker, scene/input/shm; M3 spatial application windows; M4 system and clipboard bridge",
       "candidate_runtime_acceptance": false,
-      "candidate_version": "0.2.0",
+      "candidate_version": "0.2.1",
       "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
       "native_ARM64_runtime_acceptance": false,
       "native_ARM64_build_commit": "50cebfe13d8c7bd7aed38ff54b89a25205af29eb",
-      "pending_source_commit": "ce9835d8c5c6dcf2850db27be29b72eabce5dc77",
-      "pending_native_validation": "receiver-capability routing fix"
+      "pending_source_commit": "8bcde1857bf6471d3730549351217d1080bb5b80",
+      "pending_native_validation": "receiver-capability routing retest and new optical-glass/resize candidate validation",
+      "candidate_source_commit": "8bcde1857bf6471d3730549351217d1080bb5b80",
+      "native_ARM64_build_version": "0.2.0",
+      "candidate_native_ARM64_build": "not_transferred_or_built",
+      "candidate_native_GPU_acceptance": false
     },
     {
       "id": "xr-dock",
@@ -86,9 +90,13 @@
         "xr-spatial-style-ukui"
       ],
       "runtime_acceptance": false,
-      "candidate_version": "0.2.0",
+      "candidate_version": "0.2.1",
       "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
-      "native_ARM64_runtime_acceptance": false
+      "native_ARM64_runtime_acceptance": false,
+      "candidate_source_commit": "6e49c751f097e4b460a5c05b463dfcee173c68ce",
+      "native_ARM64_build_version": "0.2.0",
+      "candidate_native_ARM64_build": "not_transferred_or_built",
+      "candidate_native_GPU_acceptance": false
     },
     {
       "id": "xr-spatial-kit",
@@ -113,9 +121,13 @@
       "planned_binary_packages": {
         "xr-spatial-assets": "all"
       },
-      "candidate_version": "0.2.0",
+      "candidate_version": "0.2.1",
       "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
-      "native_ARM64_runtime_acceptance": false
+      "native_ARM64_runtime_acceptance": false,
+      "candidate_source_commit": "5f734b88f35a827d366eeea3519c96dd97087165",
+      "native_ARM64_build_version": "0.2.0",
+      "candidate_native_ARM64_build": "not_transferred_or_built",
+      "candidate_native_GPU_acceptance": false
     },
     {
       "id": "xr-wayland",
@@ -185,9 +197,13 @@
         "xr-notifications": "all",
         "xr-keyboard": "all"
       },
-      "candidate_version": "0.2.0",
+      "candidate_version": "0.2.1",
       "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
-      "native_ARM64_runtime_acceptance": false
+      "native_ARM64_runtime_acceptance": false,
+      "candidate_source_commit": "a01ec721711912e2b5cedee4f7bfead52d8de842",
+      "native_ARM64_build_version": "0.2.0",
+      "candidate_native_ARM64_build": "not_transferred_or_built",
+      "candidate_native_GPU_acceptance": false
     },
     {
       "id": "xr-environments",
@@ -400,7 +416,7 @@
     "fcitx5-chinese-addons"
   ],
   "native_target_status": {
-    "access": "unreachable_again_after_successful_native_runs; waiting for address or wake confirmation",
+    "access": "restored_after_network_interruption",
     "cause": "prior error cause not established",
     "project_source_and_registry_transfer": "completed_fixed_Git_bundles_and_checksum_verified_cache",
     "project_component_build": "all_five_native_builds_passed_offline_locked_jobs3",
@@ -417,13 +433,13 @@
       "wayland": "1.26.0",
       "glsl_compiler": "absent at first audit; installed by integration owner before the successful native build"
     },
-    "next_gate": "restore access; verify capability-routing fix and X11 fix on native; then full private audio and Chinese IME integration plus original-desktop postcheck",
+    "next_gate": "transfer authorized fixed visual candidates, native build, receiver-capability and X11 retests, full private audio/Chinese IME integration and original-desktop postcheck",
     "build_mode_boundary": "explicit sibling source SDK mode may use -d; it is not a clean distribution dependency closure",
     "previous_observed_error": "/bin/bash: Input/output error",
     "build_evidence": "wiki/data/xr-native-arm64-build.json"
   },
   "spatial_visual_contract": {
-    "status": "candidate_source_available_native_acceptance_pending",
+    "status": "local_candidate_only_new_native_visual_acceptance_pending",
     "coordinate_system": "absolute STAGE metres, +Y up, -Z forward; child rects in panel-local logical pixels",
     "rotation_degrees_order": [
       "Pitch",
@@ -465,16 +481,16 @@
         280
       ],
       "size_m": [
-        1.35,
-        0.378
+        1.053,
+        0.29484
       ],
       "position_m": [
         0,
-        0.6,
-        -1.35
+        0.54,
+        -1.27
       ],
       "rotation_degrees": [
-        25,
+        16.5,
         0,
         0
       ],
@@ -500,21 +516,85 @@
     "spatial_glass_independent_of_OS_theme": true,
     "palette": {
       "glass_rgba_255": [
-        22,
-        26,
-        35,
-        0.78
+        18,
+        24,
+        38,
+        0.72
       ],
       "primary": "#F2F6FC",
       "secondary": "#94A3B8",
       "accent": "#3790FA",
-      "button_white_alpha": 0.12,
+      "button_white_alpha": 0.14,
       "hover_white_alpha": 0.24,
       "keyboard_white_alpha": 0.15,
       "keyboard_labels": "white"
     },
     "render_and_input": "independent GPU quads and hit testing share the same 3D transforms; native verification pending",
-    "functionality_policy": "all M2-M4 gates retained; visual changes do not waive real system, input or lifecycle acceptance"
+    "functionality_policy": "all M2-M4 gates retained; visual changes do not waive real system, input or lifecycle acceptance",
+    "version": "0.2.1",
+    "source_lock": {
+      "xr-shell": "8bcde1857bf6471d3730549351217d1080bb5b80",
+      "xr-spatial-kit": "5f734b88f35a827d366eeea3519c96dd97087165",
+      "xr-dock": "6e49c751f097e4b460a5c05b463dfcee173c68ce",
+      "xr-system-ui": "a01ec721711912e2b5cedee4f7bfead52d8de842"
+    },
+    "dock": {
+      "logical_size": [
+        1200,
+        54.4
+      ],
+      "size_m": [
+        1.2,
+        0.0544
+      ],
+      "position_m": [
+        0,
+        0.86,
+        -1.72
+      ],
+      "rotation_degrees": [
+        12,
+        0,
+        0
+      ]
+    },
+    "optical_glass": {
+      "environment_only_transmission": "cool blue; not general overlapping-scene blur",
+      "specular_display_value_alpha": [
+        0.14,
+        0.02
+      ],
+      "rim_top_left_bottom_right_alpha": [
+        0.45,
+        0.12
+      ],
+      "extrusion_depth_m": {
+        "panel": 0.006,
+        "client": 0.003,
+        "control": 0.002
+      },
+      "shadow_spread_logical_px": 24,
+      "shadow_rear_offset_m": 0.01,
+      "shadow_preserves_curve": true,
+      "back_facing_sidewalls": "discarded",
+      "client_corner_radius_logical_px": 16,
+      "client_rim_logical_px": 2,
+      "volume_rail_height_logical_px": 22,
+      "volume_hit_height_logical_px": 44,
+      "key_rim_logical_px": 1,
+      "key_rim_white_alpha": 0.25,
+      "space_key_width_logical_px": 442,
+      "button_label_scale_from_previous": 1.15,
+      "resize_capture": "frozen handle Frame; configure on release; exact curved-window corner anchoring pending"
+    },
+    "validation": {
+      "shell_local_release_build": "passed; zero compiler warnings",
+      "read_only_source_review": "408 vertices, back-facing sidewalls, curved shadows and shared front Frame reviewed; not runtime proof",
+      "native_transfer": false,
+      "native_build": false,
+      "native_GPU_acceptance": false,
+      "previous_0_2_0_runtime_evidence_applies": false
+    }
   },
   "native_runtime_verified_subsets": {
     "status": "verified_native_subsets_not_full_M2_M3_M4_acceptance",
@@ -605,7 +685,8 @@
       "result": "failed",
       "fix_source": "ce9835d8c5c6dcf2850db27be29b72eabce5dc77",
       "local_offline_release_build": "passed",
-      "native_build_and_retest": "unconfirmed_pending_transport; active stage not overwritten"
+      "native_build": "passed offline locked ARM64 package build in separate candidate directory; original stage unchanged",
+      "native_runtime_retest": "pending"
     },
     "x11": {
       "old_result": "client SIGSEGV with old launch environment",
