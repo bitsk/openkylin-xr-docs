@@ -55,7 +55,7 @@
       "candidate_scope": "M2 broker, scene/input/shm; M3 spatial application windows; M4 system and clipboard bridge",
       "candidate_runtime_acceptance": false,
       "candidate_version": "0.2.0",
-      "native_ARM64_build": "not_started",
+      "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
       "native_ARM64_runtime_acceptance": false
     },
     {
@@ -84,7 +84,7 @@
       ],
       "runtime_acceptance": false,
       "candidate_version": "0.2.0",
-      "native_ARM64_build": "not_started",
+      "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
       "native_ARM64_runtime_acceptance": false
     },
     {
@@ -111,7 +111,7 @@
         "xr-spatial-assets": "all"
       },
       "candidate_version": "0.2.0",
-      "native_ARM64_build": "not_started",
+      "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
       "native_ARM64_runtime_acceptance": false
     },
     {
@@ -140,7 +140,7 @@
       ],
       "runtime_acceptance": false,
       "candidate_version": "0.1.3",
-      "native_ARM64_build": "not_started",
+      "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
       "native_ARM64_runtime_acceptance": false
     },
     {
@@ -180,7 +180,7 @@
         "xr-keyboard": "all"
       },
       "candidate_version": "0.2.0",
-      "native_ARM64_build": "not_started",
+      "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
       "native_ARM64_runtime_acceptance": false
     },
     {
@@ -340,7 +340,7 @@
   "current_scope": [
     "preserve M0 contracts and historical M1 amd64 QEMU scope",
     "preserve local M2-M4 component and spatial-visual candidates",
-    "prepare fixed-source native ARM64 migration after SSH recovery; recheck new boot before build; runtime validation remains separate"
+    "native ARM64 build/package completed; isolated full-profile per-capability runtime acceptance pending"
   ],
   "excluded_from_M1": [
     "component IPC",
@@ -393,10 +393,10 @@
   "native_target_status": {
     "access": "SSH_restored_after_network_change_and_new_boot",
     "cause": "prior error cause not established",
-    "project_source_and_registry_transfer": "preparing_after_access_recovery",
-    "project_component_build": "not_started",
-    "project_component_package_build": "not_started",
-    "project_runtime_validation": "not_started",
+    "project_source_and_registry_transfer": "completed_fixed_Git_bundles_and_checksum_verified_cache",
+    "project_component_build": "all_five_native_builds_passed_offline_locked_jobs3",
+    "project_component_package_build": "passed_explicit_sibling_source_SDK_mode_not_clean_distribution_closure",
+    "project_runtime_validation": "separate_owner_run_evidence; final M2-M4 acceptance pending",
     "initial_read_only_audit": {
       "architecture": "aarch64 / arm64",
       "rustc": "1.93.1",
@@ -406,11 +406,12 @@
       "rsvg": "2.61.3",
       "xkbcommon": "1.13.1",
       "wayland": "1.26.0",
-      "glsl_compiler": "not found at initial audit; integration owner preparing minimal dependencies after reboot"
+      "glsl_compiler": "absent at first audit; installed by integration owner before the successful native build"
     },
-    "next_gate": "recheck fresh-boot target and fixed source inputs; then checksum-locked offline native build with jobs=3, coordinated with other builds",
+    "next_gate": "complete per-capability native socket, visual, real-application, audio, IME, X11 and lifecycle acceptance; do not promote from compilation alone",
     "build_mode_boundary": "explicit sibling source SDK mode may use -d; it is not a clean distribution dependency closure",
-    "previous_observed_error": "/bin/bash: Input/output error"
+    "previous_observed_error": "/bin/bash: Input/output error",
+    "build_evidence": "wiki/data/xr-native-arm64-build.json"
   },
   "spatial_visual_contract": {
     "status": "candidate_source_available_native_acceptance_pending",

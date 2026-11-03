@@ -13,7 +13,7 @@
     "M2_M4": "candidate implementation and isolated integration; final per-capability acceptance pending",
     "current_acceptance_target": "openKylin 3.0 native ARM64 development machine; all M2-M4 runtime gates pending",
     "historical_QEMU": "accepted M1 scope only; early M2-M4 candidate evidence does not transfer to the new target",
-    "native_project_transfer_and_build": "no transfer or build before prior interruption; access restored after reboot; fixed-input migration preparing and native component build not started"
+    "native_project_transfer_and_build": "completed verified full Git/cache migration and all five native builds; build evidence is separate from final runtime acceptance"
   },
   "transport": {
     "kind": "Unix SOCK_SEQPACKET",
@@ -298,7 +298,7 @@
     "hand tracking",
     "eye gaze"
   ],
-  "acceptance": "M0/M1 accept no component capabilities; M1 QEMU remains historical; all M2-M4 native ARM64 runtime gates pending, with no native component build yet",
+  "acceptance": "M0/M1 accept no component capabilities; M1 QEMU remains historical; all M2-M4 native runtime acceptance gates remain pending despite native build success",
   "error_codes": [
     "unsupported_version",
     "missing_capability",

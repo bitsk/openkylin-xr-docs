@@ -17,7 +17,19 @@ M0 开始时，Shell 只有未验收 WIP 代码，尚无 Rust Shell 双眼运行
 
 原生 ARM64 目标先完成了只读工具链核对：Rust/cargo 1.93.1、Cairo/Pango/Rsvg、xkbcommon 和 Wayland 开发接口可查询。当时未发现 GLSL 编译器。前次 SSH 最小命令随后返回 `/bin/bash: Input/output error`，文件传输通道也曾不可用；之后目标地址/网络发生变化并重新启动，当前 SSH 已恢复。先前错误的具体原因尚未判定，旧 boot 的工具版本查询不代表新 boot 或图形环境已验收，最小系统依赖由集成负责人统一准备。
 
-前次访问中断前，工程源码、完整 Git 与离线 registry 尚未传入新目标，也未在那里编译或运行组件。访问恢复后开始准备固定输入的迁移；本记录中的原生 Rust 组件编译、原生 Debian 打包和运行验证仍未开始，本地候选包不能称为 ARM64 产物。须先重新核对新 boot 的主机状态，再从固定提交和校验后的缓存执行 offline、locked、受控 jobs=3 构建（与并行构建统筹），并分别记录目标架构、源码、binary 和包摘要。原生构建通过与真实图形/输入/系统验收分别晋升，不改动全局驱动或既有桌面服务。
+前次访问中断前，工程源码、完整 Git 与离线 registry 尚未传入新目标，也未在那里编译或运行组件。访问恢复并复核工具链后，五仓完整 Git 和离线缓存已校验迁移，随后以固定提交、offline、locked、jobs=3 完成原生 ARM64 构建和打包。四个程序均已核验为 ELF64/AArch64，SDK 与样式包为架构无关数据。此次只向隔离产物目录解包候选，未把候选安装到系统或执行 maintainer script，不改动全局驱动或既有桌面服务。原生构建通过与真实图形/输入/系统验收分别晋升。
+
+原生构建记录和完整摘要见[ARM64 构建目录]({{ '/wiki/data/xr-native-arm64-build.json' | relative_url }})。release binary 与包内 stripped binary 分别记录，不混用摘要；五仓 tracked 源码未变，构建生成文件清理后工作树干净。
+
+| 原生构建组件 | 版本 | 固定源码提交 | 产物范围 |
+|---|---|---|---|
+| Shell / 协议 SDK | 0.2.0 | `50cebfe13d8c7bd7aed38ff54b89a25205af29eb` | ARM64 Shell、all 架构源码 SDK |
+| Spatial Kit | 0.2.0 | `06f0a7b64e896100c1ef0306fb39145af2223a98` | all 架构源码 SDK 与 UKUI 样式 |
+| Dock | 0.2.0 | `ab7d347274468fabc9d06fb58a21450f777d25bd` | ARM64 Dock |
+| System UI | 0.2.0 | `839689d286dac5206b7c0562f99f2bf7d1f24c69` | ARM64 控制中心与独立空间面板 |
+| Wayland 窗口服务 | 0.1.3 | `1639ac5ac157bb5b7015cee54ef11f49318bcbea` | ARM64 window server |
+
+打包采用相邻 owner 仓库的显式 source SDK 模式及 `dpkg-buildpackage -d`，不是干净发行版依赖闭包。Shell 包实际要求 `libc6 >= 2.43`，这些 ARM64 包只记录本次目标环境，不能据此声明所有 openKylin 3.0 安装或其他 ARM64 设备均兼容。原生运行已有候选流程推进，最终 socket、视觉、真实应用、音频、IME、X11 与退出验收仍按下表逐项保留 pending。
 
 ## 参考方案的工程适配
 

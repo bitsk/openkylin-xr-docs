@@ -1,0 +1,224 @@
+{
+  "schema": 1,
+  "kind": "native_ARM64_build_evidence",
+  "target": "openKylin 3.0 native ARM64 development machine",
+  "architecture": "arm64",
+  "elf_machine": "AArch64",
+  "source_integrity": "five self-contained full Git bundles verified; fixed HEADs; tracked sources unchanged and worktrees clean after packaging-output cleanup",
+  "cargo": {
+    "rustc": "1.93.1",
+    "cargo": "1.93.1",
+    "jobs": 3,
+    "offline": true,
+    "locked": true
+  },
+  "native_libraries": {
+    "cairo": "1.18.4",
+    "pangocairo": "1.57.0",
+    "librsvg-2.0": "2.61.3",
+    "xkbcommon": "1.13.1",
+    "wayland-server": "1.26.0"
+  },
+  "glslang": "Glslang Version: 11:16.2.0",
+  "build_mode": "dpkg-buildpackage -b -us -uc -d using explicit sibling source SDKs; not clean distribution dependency closure",
+  "distribution_build_dependency_closure_accepted": false,
+  "all_five_builds_passed": true,
+  "runtime_acceptance": false,
+  "runtime_scope": "build record only; native runtime, visual, input and system acceptance are tracked separately",
+  "stage": {
+    "method": "dpkg-deb -x data-only extraction",
+    "system_package_installation": false,
+    "maintainer_scripts_executed": false
+  },
+  "sources": [
+    {
+      "repository": "xr-spatial-kit",
+      "commit": "06f0a7b64e896100c1ef0306fb39145af2223a98",
+      "full_git_bundle_sha256": "13f569b5d1d044c40f28e6ef5a63920c8c3c64a434f62bf4733458860385a73c",
+      "git_commit_count_all_refs": 2,
+      "exit_code": 0,
+      "tracked_source_unchanged": true,
+      "clean_after_packaging_output_cleanup": true,
+      "release_binary_sha256": null
+    },
+    {
+      "repository": "xr-shell",
+      "commit": "50cebfe13d8c7bd7aed38ff54b89a25205af29eb",
+      "full_git_bundle_sha256": "668767df33c52b08c413e69ee8174eccf8dd3e1d02e4643b80c2ce689d0557bb",
+      "git_commit_count_all_refs": 12,
+      "exit_code": 0,
+      "tracked_source_unchanged": true,
+      "clean_after_packaging_output_cleanup": true,
+      "release_binary_sha256": "c8d3fc47cc2a9cf48ab093ac53884a462f488ba2a0c3d1181f17347cf8188ab3"
+    },
+    {
+      "repository": "xr-dock",
+      "commit": "ab7d347274468fabc9d06fb58a21450f777d25bd",
+      "full_git_bundle_sha256": "ec89091de57d7ee3f22f756749cfe76b10b5350607a7f43ce40fd6f3b03f369f",
+      "git_commit_count_all_refs": 3,
+      "exit_code": 0,
+      "tracked_source_unchanged": true,
+      "clean_after_packaging_output_cleanup": true,
+      "release_binary_sha256": "dacdc6465ae6bbccf38027cbacd0be6e04848b82df2340e13f072394d9473837"
+    },
+    {
+      "repository": "xr-system-ui",
+      "commit": "839689d286dac5206b7c0562f99f2bf7d1f24c69",
+      "full_git_bundle_sha256": "7fbf0ff355b50f0ed457572b77050880171494bcb7e406b25ff2106b4f2466cc",
+      "git_commit_count_all_refs": 6,
+      "exit_code": 0,
+      "tracked_source_unchanged": true,
+      "clean_after_packaging_output_cleanup": true,
+      "release_binary_sha256": "b5d9d6d9da500e90eadc6c68f0ea9c1a416c80ebc993d0d6995c1514f60366d5"
+    },
+    {
+      "repository": "xr-wayland",
+      "commit": "1639ac5ac157bb5b7015cee54ef11f49318bcbea",
+      "full_git_bundle_sha256": "1ef082394317e1bb947fb5bf31fbb1af52a05e7d232bbc39beb84df7b803a8b3",
+      "git_commit_count_all_refs": 8,
+      "exit_code": 0,
+      "tracked_source_unchanged": true,
+      "clean_after_packaging_output_cleanup": true,
+      "release_binary_sha256": "426df8900317dc074165a0c709e0116d0585f0ac51939931f13b189c5d02556e"
+    }
+  ],
+  "packages": [
+    {
+      "Package": "librust-xr-shell-protocols-dev",
+      "Version": "0.2.0",
+      "Architecture": "all",
+      "Depends": "",
+      "file": "librust-xr-shell-protocols-dev_0.2.0_all.deb",
+      "sha256": "cc782051498895dca14b0059762030e63a7a2760cf00d589271668069e35e275",
+      "bytes": 7868
+    },
+    {
+      "Package": "librust-xr-spatial-kit-dev",
+      "Version": "0.2.0",
+      "Architecture": "all",
+      "Depends": "",
+      "file": "librust-xr-spatial-kit-dev_0.2.0_all.deb",
+      "sha256": "8736f9a851c7c3bba4fc0ea8b0f4e87df9f5109549aa9b9cc72f52ec8bbd9f0c",
+      "bytes": 6190
+    },
+    {
+      "Package": "xr-dock-dbgsym",
+      "Version": "0.2.0",
+      "Architecture": "arm64",
+      "Depends": "xr-dock (= 0.2.0)",
+      "file": "xr-dock-dbgsym_0.2.0_arm64.ddeb",
+      "sha256": "18fdc0043ab44b01929be5baefc3a3652d48d0ae94bd4a68864bfbaefd97511b",
+      "bytes": 65268
+    },
+    {
+      "Package": "xr-dock",
+      "Version": "0.2.0",
+      "Architecture": "arm64",
+      "Depends": "libc6 (>= 2.34), libgcc-s1 (>= 4.2), xr-shell (>= 0.2.0)",
+      "file": "xr-dock_0.2.0_arm64.deb",
+      "sha256": "6535d270518ba6d2f5553d9dc92edb7078e62a35decd61e9867b79f6c940f936",
+      "bytes": 323136
+    },
+    {
+      "Package": "xr-shell-dbgsym",
+      "Version": "0.2.0",
+      "Architecture": "arm64",
+      "Depends": "xr-shell (= 0.2.0)",
+      "file": "xr-shell-dbgsym_0.2.0_arm64.ddeb",
+      "sha256": "2d3cc0d1c2121a096ec2c758faf2f67b08575a04f061afdb9acac3afebb52b4a",
+      "bytes": 140046
+    },
+    {
+      "Package": "xr-shell",
+      "Version": "0.2.0",
+      "Architecture": "arm64",
+      "Depends": "libc6 (>= 2.43), libcairo2 (>= 1.2.4), libgcc-s1 (>= 4.2), libglib2.0-0t64 (>= 2.12.0), libpango-1.0-0 (>= 1.20.0), libpangocairo-1.0-0 (>= 1.14.0), librsvg2-2 (>= 2.47.3), libvulkan1",
+      "file": "xr-shell_0.2.0_arm64.deb",
+      "sha256": "a1e83a4d38aa579072097556b1b9f18adf6cf6cc1795c20593a32077c12d6213",
+      "bytes": 693182
+    },
+    {
+      "Package": "xr-spatial-style-ukui",
+      "Version": "0.2.0",
+      "Architecture": "all",
+      "Depends": "",
+      "file": "xr-spatial-style-ukui_0.2.0_all.deb",
+      "sha256": "5dce9fab723ab5ac5f3d61ed0c097f78fe638b1b8f0daa52229d566a89780b6e",
+      "bytes": 2002
+    },
+    {
+      "Package": "xr-system-ui-dbgsym",
+      "Version": "0.2.0",
+      "Architecture": "arm64",
+      "Depends": "xr-system-ui (= 0.2.0)",
+      "file": "xr-system-ui-dbgsym_0.2.0_arm64.ddeb",
+      "sha256": "5f4a6f0ace2fb56e2351c3e2f920d487e30ab4a6ce78250a8bf5124c5cbd2bd8",
+      "bytes": 236184
+    },
+    {
+      "Package": "xr-system-ui",
+      "Version": "0.2.0",
+      "Architecture": "arm64",
+      "Depends": "libc6 (>= 2.39), libgcc-s1 (>= 4.2), coreutils, xr-shell (>= 0.2.0)",
+      "file": "xr-system-ui_0.2.0_arm64.deb",
+      "sha256": "c06bce03b317f569d4e12cf3c4c428fb5ac74bcbb58288c1e3c7d13d17306b14",
+      "bytes": 1124446
+    },
+    {
+      "Package": "xr-window-server-dbgsym",
+      "Version": "0.1.3",
+      "Architecture": "arm64",
+      "Depends": "xr-window-server (= 0.1.3)",
+      "file": "xr-window-server-dbgsym_0.1.3_arm64.ddeb",
+      "sha256": "0ac20bd68d708c6a1672ddd31a297ed37cd296fc22df7c6dba6bac15af1637da",
+      "bytes": 234872
+    },
+    {
+      "Package": "xr-window-server",
+      "Version": "0.1.3",
+      "Architecture": "arm64",
+      "Depends": "libc6 (>= 2.39), libgcc-s1 (>= 4.2), libxkbcommon0 (>= 0.5.0), xr-shell (>= 0.2.0)",
+      "file": "xr-window-server_0.1.3_arm64.deb",
+      "sha256": "5aecc04e2f24fffa6c3f8f956b382f75f34b8dc7c0bf5e2c7df372c00981c0f2",
+      "bytes": 1174788
+    }
+  ],
+  "packaged_binaries": [
+    {
+      "package": "xr-shell_0.2.0_arm64.deb",
+      "package_sha256": "a1e83a4d38aa579072097556b1b9f18adf6cf6cc1795c20593a32077c12d6213",
+      "binary": "xr-shell",
+      "binary_sha256": "6e710aaec5de2f6f60f31dc9b23a8ae22b5fea653f0f3107dc926d06ae3a2e1a",
+      "elf_class": "ELF64",
+      "elf_machine": "AArch64",
+      "architecture": "arm64"
+    },
+    {
+      "package": "xr-window-server_0.1.3_arm64.deb",
+      "package_sha256": "5aecc04e2f24fffa6c3f8f956b382f75f34b8dc7c0bf5e2c7df372c00981c0f2",
+      "binary": "xr-window-server",
+      "binary_sha256": "f9238efb5b9336ada5d52ebd593d5a1d89ff96f9b5dbc983f5267286eb753ca6",
+      "elf_class": "ELF64",
+      "elf_machine": "AArch64",
+      "architecture": "arm64"
+    },
+    {
+      "package": "xr-dock_0.2.0_arm64.deb",
+      "package_sha256": "6535d270518ba6d2f5553d9dc92edb7078e62a35decd61e9867b79f6c940f936",
+      "binary": "xr-dock",
+      "binary_sha256": "450b80d36c501ead0273e10eda17a06ba6ecf2079e300f60869773e9b170b483",
+      "elf_class": "ELF64",
+      "elf_machine": "AArch64",
+      "architecture": "arm64"
+    },
+    {
+      "package": "xr-system-ui_0.2.0_arm64.deb",
+      "package_sha256": "c06bce03b317f569d4e12cf3c4c428fb5ac74bcbb58288c1e3c7d13d17306b14",
+      "binary": "xr-system-ui",
+      "binary_sha256": "2c963eaacf72eddd30be1e5b70e3632feff88112ce81af15c617a881b4f03e48",
+      "elf_class": "ELF64",
+      "elf_machine": "AArch64",
+      "architecture": "arm64"
+    }
+  ]
+}
