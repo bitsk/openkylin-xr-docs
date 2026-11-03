@@ -56,7 +56,10 @@
       "candidate_runtime_acceptance": false,
       "candidate_version": "0.2.0",
       "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
-      "native_ARM64_runtime_acceptance": false
+      "native_ARM64_runtime_acceptance": false,
+      "native_ARM64_build_commit": "50cebfe13d8c7bd7aed38ff54b89a25205af29eb",
+      "pending_source_commit": "ce9835d8c5c6dcf2850db27be29b72eabce5dc77",
+      "pending_native_validation": "receiver-capability routing fix"
     },
     {
       "id": "xr-dock",
@@ -141,7 +144,10 @@
       "runtime_acceptance": false,
       "candidate_version": "0.1.3",
       "native_ARM64_build": "passed_explicit_sibling_source_SDK_mode",
-      "native_ARM64_runtime_acceptance": false
+      "native_ARM64_runtime_acceptance": false,
+      "native_ARM64_build_commit": "1639ac5ac157bb5b7015cee54ef11f49318bcbea",
+      "pending_candidate_version": "0.1.4",
+      "pending_source_commit": "36258dea8ac0c9232e096641a33c45ea8eebbf5c"
     },
     {
       "id": "xr-system-ui",
@@ -245,15 +251,18 @@
     "id": "qingkong",
     "package": "xr-environment-qingkong",
     "schema_version": 1,
-    "texture_sha256": "b3a398fe703e6c74cd61cfea7587060094738695eb8c9b6e5e52e9e239254f63",
+    "texture_sha256": "73ad1ce4490fb17505c5ed7c62986a6321de00cf0d736f2864903e418d7f96e8",
     "projection": "equirectangular",
     "texture_size": [
       4096,
       2048
     ],
-    "artwork_revision": "six-direction-multiview",
+    "artwork_revision": "six-direction-spherical-angular-blend-low-frequency-normalization",
     "ignore_view_translation": true,
-    "lock_to_view_rotation": false
+    "lock_to_view_rotation": false,
+    "historical_M1_texture_sha256": "b3a398fe703e6c74cd61cfea7587060094738695eb8c9b6e5e52e9e239254f63",
+    "package_version": "0.1.1",
+    "native_verified_scope": "panorama identity, seven direct poses and actual stereo GPU capture metadata; not physical headset acceptance"
   },
   "capability_policy": {
     "required_xr_extension": "XR_KHR_vulkan_enable2",
@@ -287,7 +296,7 @@
     {
       "id": "M2",
       "goal": "minimal component IPC, Kit/Dock and shm Wayland pipeline in parallel",
-      "status": "candidate_implementation_acceptance_pending",
+      "status": "verified_subsets_remaining_native_gates_pending",
       "depends_on": [
         "M0",
         "M1"
@@ -299,7 +308,7 @@
     {
       "id": "M3",
       "goal": "Dock launches a real Wayland app with input, resize and close",
-      "status": "candidate_implementation_acceptance_pending",
+      "status": "verified_subsets_remaining_native_gates_pending",
       "depends_on": [
         "M2"
       ],
@@ -310,7 +319,7 @@
     {
       "id": "M4",
       "goal": "system adapters, IME, Xwayland and desktop components",
-      "status": "candidate_implementation_acceptance_pending",
+      "status": "verified_subsets_remaining_native_gates_pending",
       "depends_on": [
         "M3"
       ],
@@ -336,11 +345,11 @@
       ]
     }
   ],
-  "acceptance_policy": "M1 amd64 QEMU panorama remains historical accepted scope only; all M2-M4 native ARM64 gates are pending; no native Rust component build or runtime acceptance yet",
+  "acceptance_policy": "Historical M1 QEMU scope retained; native rendering and application subsets recorded with fixed inputs; all overall M2/M3/M4 acceptance remains pending until remaining receiver-capability, X11, audio, Chinese and cleanup gates are satisfied",
   "current_scope": [
     "preserve M0 contracts and historical M1 amd64 QEMU scope",
     "preserve local M2-M4 component and spatial-visual candidates",
-    "native ARM64 build/package completed; isolated full-profile per-capability runtime acceptance pending"
+    "preserve completed native builds and verified rendering/application subsets; native capability-routing, X11, audio and Chinese acceptance still pending"
   ],
   "excluded_from_M1": [
     "component IPC",
@@ -391,12 +400,12 @@
     "fcitx5-chinese-addons"
   ],
   "native_target_status": {
-    "access": "SSH_restored_after_network_change_and_new_boot",
+    "access": "unreachable_again_after_successful_native_runs; waiting for address or wake confirmation",
     "cause": "prior error cause not established",
     "project_source_and_registry_transfer": "completed_fixed_Git_bundles_and_checksum_verified_cache",
     "project_component_build": "all_five_native_builds_passed_offline_locked_jobs3",
     "project_component_package_build": "passed_explicit_sibling_source_SDK_mode_not_clean_distribution_closure",
-    "project_runtime_validation": "separate_owner_run_evidence; final M2-M4 acceptance pending",
+    "project_runtime_validation": "native panorama and application subsets verified; overall M2-M4 not fully accepted",
     "initial_read_only_audit": {
       "architecture": "aarch64 / arm64",
       "rustc": "1.93.1",
@@ -408,7 +417,7 @@
       "wayland": "1.26.0",
       "glsl_compiler": "absent at first audit; installed by integration owner before the successful native build"
     },
-    "next_gate": "complete per-capability native socket, visual, real-application, audio, IME, X11 and lifecycle acceptance; do not promote from compilation alone",
+    "next_gate": "restore access; verify capability-routing fix and X11 fix on native; then full private audio and Chinese IME integration plus original-desktop postcheck",
     "build_mode_boundary": "explicit sibling source SDK mode may use -d; it is not a clean distribution dependency closure",
     "previous_observed_error": "/bin/bash: Input/output error",
     "build_evidence": "wiki/data/xr-native-arm64-build.json"
@@ -506,5 +515,110 @@
     },
     "render_and_input": "independent GPU quads and hit testing share the same 3D transforms; native verification pending",
     "functionality_policy": "all M2-M4 gates retained; visual changes do not waive real system, input or lifecycle acceptance"
+  },
+  "native_runtime_verified_subsets": {
+    "status": "verified_native_subsets_not_full_M2_M3_M4_acceptance",
+    "target": "openKylin 3.0 native ARM64 development machine",
+    "source_lock": {
+      "xr-shell": "50cebfe13d8c7bd7aed38ff54b89a25205af29eb",
+      "xr-wayland": "1639ac5ac157bb5b7015cee54ef11f49318bcbea",
+      "xr-image-tools-profile": "940facc361cd76f7e338906b762088c4393e3c03",
+      "xr-environments": "aa128fc7ef2183642fc89209af73be654481f735"
+    },
+    "environment": {
+      "package_version": "0.1.1",
+      "texture_sha256": "73ad1ce4490fb17505c5ed7c62986a6321de00cf0d736f2864903e418d7f96e8",
+      "texture_size": [
+        4096,
+        2048
+      ],
+      "method": "six-direction spherical angular blending with continuous low-frequency sky field"
+    },
+    "rendering": {
+      "elapsed_seconds": 599.91913527,
+      "eye_submissions": [
+        34582,
+        34582
+      ],
+      "eye_dimensions_px": [
+        1920,
+        2160
+      ],
+      "vulkan_validation_enabled": true,
+      "vulkan_errors": 0,
+      "vulkan_warnings": 0,
+      "direct_Monado_views": 7,
+      "actual_GPU_capture_metadata": true,
+      "client_and_profile_normal_exit": true
+    },
+    "application_and_input": {
+      "real_dock_pluma_launch": true,
+      "real_wayland_copy_text": "native xr",
+      "resize_configure_ack_commit": [
+        900,
+        640
+      ],
+      "actual_grab_delta_m": [
+        -0.08,
+        0.025,
+        0.0
+      ],
+      "actual_popup_parent_surface": "1",
+      "virtual_key_copy_text": "m",
+      "curved_surface_radius_m": 3.0366764068603516,
+      "left_controller_workspace_transition": [
+        0,
+        1
+      ],
+      "right_controller_workspace_transition": [
+        1,
+        0
+      ],
+      "minimize_restore_close": true
+    },
+    "protocol_cases": {
+      "source_commit": "50cebfe13d8c7bd7aed38ff54b89a25205af29eb",
+      "passed_cases": [
+        "normal_handshake_and_capability_intersection",
+        "unsupported_major",
+        "stale_session_identity",
+        "atomic_rejection_and_valid_independent_group"
+      ],
+      "failed_case": "core_only_broadcast_capability_boundary",
+      "failure": "core-only client received StateChanged without negotiated snapshot.v1",
+      "raw_file": "contract-cases.json",
+      "raw_sha256": "c6a67456b26c2bd5278dc46349b02239d85679c5d96a11cf22afd78348074f62",
+      "raw_bytes": 152198,
+      "full_raw_cached_locally": true,
+      "own_hidden_scene_cleanup_verified": true,
+      "no_window_workspace_focus_input_or_clipboard_operations": true
+    },
+    "limits": [
+      "simulated Monado poses exercise actual OpenXR actions; no physical controller tracking acceptance",
+      "exact visual spacing and all system integration remain separately gated",
+      "the completed XR profile did not establish private audio or Chinese IME acceptance"
+    ]
+  },
+  "remaining_native_gates": {
+    "core_capability_routing": {
+      "tested_source": "50cebfe13d8c7bd7aed38ff54b89a25205af29eb",
+      "result": "failed",
+      "fix_source": "ce9835d8c5c6dcf2850db27be29b72eabce5dc77",
+      "local_offline_release_build": "passed",
+      "native_build_and_retest": "unconfirmed_pending_transport; active stage not overwritten"
+    },
+    "x11": {
+      "old_result": "client SIGSEGV with old launch environment",
+      "fix_version": "0.1.4",
+      "fix_source": "36258dea8ac0c9232e096641a33c45ea8eebbf5c",
+      "native_retest": "pending"
+    },
+    "audio": {
+      "isolated_no_XR_reproduction": "passed; private volume/mute/readback and owned child cleanup",
+      "full_XR_profile": "pending"
+    },
+    "chinese_IME": "real client preedit/candidates/Chinese commit pending",
+    "original_desktop_after_full_XR": "pending reconnection postcheck",
+    "visual_spacing": "actual GPU captures and layout available; exact 32 logical px / .064 m acceptance remains separate"
   }
 }

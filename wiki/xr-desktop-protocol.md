@@ -123,6 +123,8 @@ damage_rects: 最多 256 个像素矩形
 
 Shell 在自己拥有的正常关闭路径发送 `SessionEnding` 后关闭组件连接。收到该通知的客户端正常退出并回收自己的进程/资源；没有通知的 EOF/传输断线继续报告失败，supervisor 不把子进程异常统一改写为成功。
 
+原生 socket 实测已覆盖握手/能力交集、错误版本、旧身份以及自有隐藏场景的原子拒绝/合法 Group。core-only 客户端收到未协商 StateChanged 的问题已记录；`ce9835d` 用统一 kind→cap 映射过滤广播与定向事件，本地 release 编译通过，但原生构建/复测仍待恢复连接。Error、SessionEnding 与撤销 capture 所需的 Cancel 保持基础控制语义，不因可选事件能力过滤而被屏蔽。
+
 系统 UI 的按键使用 Linux evdev，按下与释放分开；显式字符串提交与真实 IME preedit 分开验收。系统 UI 点击自身控件不抢走应用键盘 focus。Shell 只能将输入送往已确认 epoch 的目标，窗口服务拒绝没有实际 text-input 对象的文本提交并回报错误。路由确认或服务接收不替代应用内容读回。
 
 ## M0/M1 状态与晋升条件

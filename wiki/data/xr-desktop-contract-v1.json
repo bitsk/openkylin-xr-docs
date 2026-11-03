@@ -298,7 +298,7 @@
     "hand tracking",
     "eye gaze"
   ],
-  "acceptance": "M0/M1 accept no component capabilities; M1 QEMU remains historical; all M2-M4 native runtime acceptance gates remain pending despite native build success",
+  "acceptance": "Native handshake, identity and atomic/Group subsets verified; core-only broadcast failed on tested source and its fix still awaits native build/retest; no overall M2-M4 acceptance",
   "error_codes": [
     "unsupported_version",
     "missing_capability",
@@ -311,5 +311,24 @@
     "stale_focus_epoch",
     "invalid_buffer"
   ],
-  "sdk_candidate_version": "0.2.0"
+  "sdk_candidate_version": "0.2.0",
+  "native_socket_checks": {
+    "source_commit": "50cebfe13d8c7bd7aed38ff54b89a25205af29eb",
+    "passed_cases": [
+      "normal_handshake_and_capability_intersection",
+      "unsupported_major",
+      "stale_session_identity",
+      "atomic_rejection_and_valid_independent_group"
+    ],
+    "failed_case": "core_only_broadcast_capability_boundary",
+    "failure": "core-only client received StateChanged without negotiated snapshot.v1",
+    "raw_file": "contract-cases.json",
+    "raw_sha256": "c6a67456b26c2bd5278dc46349b02239d85679c5d96a11cf22afd78348074f62",
+    "raw_bytes": 152198,
+    "full_raw_cached_locally": true,
+    "own_hidden_scene_cleanup_verified": true,
+    "no_window_workspace_focus_input_or_clipboard_operations": true,
+    "routing_fix_source": "ce9835d8c5c6dcf2850db27be29b72eabce5dc77",
+    "routing_fix_native_acceptance": "pending"
+  }
 }

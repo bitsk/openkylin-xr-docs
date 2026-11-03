@@ -220,5 +220,21 @@
       "elf_machine": "AArch64",
       "architecture": "arm64"
     }
+  ],
+  "subsequent_source_candidates": [
+    {
+      "repository": "xr-shell",
+      "commit": "ce9835d8c5c6dcf2850db27be29b72eabce5dc77",
+      "change": "receiver capability filtering using shared message-capability table",
+      "local_offline_release_build": "passed",
+      "native_build_and_retest": "unconfirmed while transport is unavailable",
+      "running_stage_overwritten": false
+    },
+    {
+      "repository": "xr-wayland",
+      "version": "0.1.4",
+      "commit": "36258dea8ac0c9232e096641a33c45ea8eebbf5c",
+      "native_retest": "pending"
+    }
   ]
 }

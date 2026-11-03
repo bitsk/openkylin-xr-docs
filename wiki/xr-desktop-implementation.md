@@ -5,11 +5,11 @@ title: UKUI XR 项目实施计划
 
 # UKUI XR 项目实施计划 · M0–M4
 
-本计划把已确定的 UKUI 空间桌面目标落实到现有独立仓库、openKylin 开发环境和分阶段验收。M0 已就绪，M1 Rust 全景 Shell 的 amd64 QEMU 历史范围已接受；M2–M4 已有独立组件候选实现，后续验证目标改为 openKylin 3.0 原生 ARM64 开发机，最终逐项验收仍为 pending。本文、[协议合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})和[组件目录]({{ '/desktop-stack.json' | relative_url }})均不替代原始运行证据。
+本计划把已确定的 UKUI 空间桌面目标落实到现有独立仓库、openKylin 开发环境和分阶段验收。M0 已就绪，M1 Rust 全景 Shell 的 amd64 QEMU 历史范围已接受；原生 ARM64 已完成构建及真实双眼、应用交互等子集验证，**整体 M2、M3、M4 仍未全部验收**。本文、[协议合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})和[组件目录]({{ '/desktop-stack.json' | relative_url }})均不替代原始运行证据。
 
 ## 基线与交付边界
 
-可复用底座是 openKylin 3.0 amd64 QEMU、UKUI、Venus/VirGL、Monado 模拟头显/手柄、视角调试输入以及独立晴空数据包。晴空采用最终六方向拼接的 4096×2048 全景，纹理摘要由环境包维护。开发观察端的 WSI CPU 拷贝和视频软件编码单独报告，不作为最终产品窗口传输路径。
+历史底座是 openKylin 3.0 amd64 QEMU、UKUI、Venus/VirGL、Monado 模拟头显/手柄、视角调试输入以及独立晴空数据包。当前原生验证采用晴空 0.1.1 的六方向球面夹角融合与连续低频天空场，贴图仍为 4096×2048，纹理摘要由环境包维护；历史 M1 环境摘要独立保留。开发观察端的 WSI CPU 拷贝和视频软件编码单独报告，不作为最终产品窗口传输路径。
 
 M0 开始时，Shell 只有未验收 WIP 代码，尚无 Rust Shell 双眼运行证据；Dock、Kit、窗口服务与 system-ui 是设计入口。环境包构建通过不能晋升 Shell，Monado 示例运行通过也不能晋升本项目。后续实际状态由集成负责人在原始证据成立后更新。
 
@@ -30,6 +30,25 @@ M0 开始时，Shell 只有未验收 WIP 代码，尚无 Rust Shell 双眼运行
 | Wayland 窗口服务 | 0.1.3 | `1639ac5ac157bb5b7015cee54ef11f49318bcbea` | ARM64 window server |
 
 打包采用相邻 owner 仓库的显式 source SDK 模式及 `dpkg-buildpackage -d`，不是干净发行版依赖闭包。Shell 包实际要求 `libc6 >= 2.43`，这些 ARM64 包只记录本次目标环境，不能据此声明所有 openKylin 3.0 安装或其他 ARM64 设备均兼容。原生运行已有候选流程推进，最终 socket、视觉、真实应用、音频、IME、X11 与退出验收仍按下表逐项保留 pending。
+
+## 已验证的 Native 子集与尚未完成的边界
+
+本轮固定输入为 Shell `50cebfe`、Wayland `1639ac5`、profile `940facc` 与环境 `aa128fc`。晴空 0.1.1 PNG 摘要为 `73ad1ce4490fb17505c5ed7c62986a6321de00cf0d736f2864903e418d7f96e8`；以下是该目标和版本组合的实测子集，不构成整个 M2/M3/M4 或物理头显验收。
+
+| 原生实测子集 | 已有结果 |
+|---|---|
+| 新背景与双眼 | 599.919 秒、34582 帧，每眼分别提交 34582 次；每眼 1920×2160，实际启用 Vulkan validation，错误/警告 0/0；客户端与候选 profile 正常退出 |
+| 视角与截图 | 七组直接 Monado 姿态；真实 GPU swapchain capture 与逐眼姿态/提交 metadata 已记录；1920×2160 是每眼输出，非全景贴图尺寸 |
+| Dock → 真实应用 | 从实际 Dock 节点启动 Pluma，创建真实 Wayland 窗口；应用文本复制精确读回 `native xr` |
+| 窗口管理 | resize 900×640 经 configure/ack/commit；真实 xdg popup parent 为主 surface；Grab 位移约 `(-.08,+.025,0)` m；最小化、恢复和关闭通过 |
+| 空间控件 | 独立虚拟键盘实际控件输入后，应用复制读回 `m`；曲面窗口实际半径约 3.0367 m |
+| OpenXR action | 左手 0→1、右手 1→0 工作区切换经过 Monado remote → OpenXR action → Shell ray → Dock；这是模拟输入的软件链路验证，不是物理手柄定位验收 |
+| Socket 子集 | 正常握手/能力交集、错误版本拒绝、旧身份拒绝、两操作原子拒绝与合法独立 Group 通过；自有隐藏身后场景清理完成，未操作主窗口/工作区/输入 |
+| 私有音频独立复现 | 不启动 XR/Monado 的私有音量/静音读回及子进程退出通过；原会话 owner 检查一致；不能替代完整 XR profile 的音频验收 |
+
+Socket 的 core-only 广播边界在该实测版本失败：只协商 core 的客户端仍收到 StateChanged。修复提交 `ce9835d` 的本地 offline release 编译通过，原生增量构建/复测尚未确认，旧 stage 未覆盖。完整 M2 原始收发记录已本地回收，摘要见[协议目录]({{ '/wiki/data/xr-desktop-contract-v1.json' | relative_url }})，不把隐藏场景合同检查当成视觉验收。
+
+旧 X11 启动路径出现客户端 SIGSEGV，Wayland 0.1.4 修复候选仍待原生验证。私有音频启动修复已独立验证，但完整 M4 profile、中文 preedit/候选/应用内中文提交和完整 XR 后的原桌面 live postcheck 仍待完成。目标再次网络不可达，现等待地址/唤醒确认；远端新候选状态保持 pending，不改回 QEMU 或用已有子集替代余项。
 
 ## 参考方案的工程适配
 
@@ -165,7 +184,7 @@ M2–M4 的代码和 Debian 配方分别保存在所属完整 Git 仓库。下�
 
 ## M2–M4 最终验收表 · pending
 
-早期 amd64 QEMU 候选已用于接通 Dock、真实应用、seat 输入、configure/ack/commit 和 xdg popup；这些是该历史目标上的局部证据，只用于收敛实现，不替代最终版本在原生 ARM64 完整隔离 profile 中的重新验收。最终验收须先固定各仓提交、目标架构、包/安装 binary 摘要、profile 和环境输入，并保存每个子进程的真实退出码。当前下列条目全部绑定新目标且保持 pending，未验证项不得靠 wrapper 忽略异常后晋升。
+早期 amd64 QEMU 候选只保留历史目标范围；上文原生实测子集独立记录。下表是整个条目的最终门槛，已验证子集不因整项 pending 而失效，也不能据此跳过余项。最终验收须固定各仓提交、目标架构、包/安装 binary 摘要、profile 和环境输入，并保存每个子进程的真实退出码；未验证项不得靠 wrapper 忽略异常后晋升。
 
 | 条目 | 最终验收所需原始证据 | 当前状态 |
 |---|---|---|
