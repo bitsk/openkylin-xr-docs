@@ -76,7 +76,9 @@ Shell 每次启动产生新的 `session_generation`。每次接受组件连接�
 }
 ```
 
-Group 的局部 pose/大小、Card 材质、Text 文本、Icon 资源、Button action ID、Slider 范围和值、SurfaceReference 的 surface key 均由对应 primitive 版本定义；M2 实现时必须发布逐字段 schema 才能报告 `scene.v1` 可用。本文不把示意例子当作已可接收的 wire 实现。
+Group、Card 材质、Text 文本、Icon 资源、Button action ID、Slider 范围和值、SurfaceReference 的 surface key 均由对应 primitive 版本定义；M2 实现时必须发布逐字段 schema 才能报告 `scene.v1` 可用。本文不把示意例子当作已可接收的 wire 实现。
+
+0.2.0 候选 SDK 中，`Group` 可用 `spatial_panel:true` 定义独立空间面板，带 `logical_size`、`size_m`、`position_m` 和 `rotation_degrees`。它使用绝对 STAGE world pose，不继承组件根的世界平移/旋转；子节点仍使用该面板局部逻辑像素。`rotation_degrees` 顺序为 `[Pitch,Yaw,Roll]`，正 Pitch 表示面板朝上。普通 Group 的 rect 则作为树内局部偏移。`visible` 默认 true，隐藏节点的整个子树均不得绘制或命中。Group 的尺寸、有限数和父子关系也属于整笔事务校验，不能让无效变换部分生效。
 
 ## InputEvent、Cancel 与 capture
 
@@ -127,4 +129,4 @@ Shell 在自己拥有的正常关闭路径发送 `SessionEnding` 后关闭组件
 
 M0 可检查本文、机器目录、包/接口唯一所有者和任务依赖是否一致；这只说明合同有定义。M1 可接受的原始证据是 Rust Shell 在现有 QEMU 中加载固定摘要的晴空、真实双眼提交、视角变化与退出清理；M1 不因本文存在而提供 `scene.v1` 或 `shm.v1`。
 
-M2 以后，每项能力分别经过真实进程握手、消息顺序、断线回收和对应可见功能验收，才把机器状态从 draft/not_implemented 晋升为 implemented/accepted。UI、Wayland、DMA-BUF、原生 XR 应用切换与物理头显分别记录，不能用构建通过或一个画面代替整个合同验收。
+M2 以后，每项能力分别经过真实进程握手、消息顺序、断线回收和对应可见功能验收，才把机器状态从候选/pending 晋升为 implemented/accepted。后续目标为 openKylin 3.0 原生 ARM64 开发机；历史 amd64 QEMU 结果只保留原目标的适用范围，不跨目标晋升。前次访问中断前未向新目标传输或构建工程；当前 SSH 已在网络变化与重启后恢复，固定输入迁移正在准备，原生组件构建及运行验收仍未开始。UI、Wayland、DMA-BUF、原生 XR 应用切换与物理头显分别记录，不能用本地构建通过或一个画面代替整个合同验收。

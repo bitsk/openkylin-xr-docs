@@ -1,12 +1,14 @@
 {
   "schema": 2,
-  "revision": "m234-candidate-implementation",
+  "revision": "m234-native-arm64-pending",
   "kind": "architecture_design_catalog",
-  "runtime_implementation_status": "M1_QEMU_panorama_accepted_M2_M4_acceptance_pending",
+  "runtime_implementation_status": "M1_amd64_QEMU_historical_scope_accepted_M2_M4_native_ARM64_pending",
   "primary_language": "Rust",
   "targets": {
-    "first": "openKylin 3.0 amd64 QEMU",
-    "later": "arm64 build and device acceptance separately"
+    "historical_accepted": "openKylin 3.0 amd64 QEMU, M1 panorama scope only",
+    "current": "openKylin 3.0 native ARM64 development machine",
+    "qemu_policy": "historical evidence only; no further QEMU acceptance work",
+    "headset_policy": "no MIX headset changes; headset acceptance remains separate"
   },
   "renderer_choice": [
     "openxr crate",
@@ -49,9 +51,12 @@
         "xr-system-ui"
       ],
       "m1_environment_package": "xr-environment-qingkong",
-      "accepted_scope": "M1 Rust panorama in openKylin amd64 QEMU only",
+      "accepted_scope": "historical M1 Rust panorama in openKylin amd64 QEMU only; not native ARM64 acceptance",
       "candidate_scope": "M2 broker, scene/input/shm; M3 spatial application windows; M4 system and clipboard bridge",
-      "candidate_runtime_acceptance": false
+      "candidate_runtime_acceptance": false,
+      "candidate_version": "0.2.0",
+      "native_ARM64_build": "not_started",
+      "native_ARM64_runtime_acceptance": false
     },
     {
       "id": "xr-dock",
@@ -77,7 +82,10 @@
       "runtime_recommends": [
         "xr-spatial-style-ukui"
       ],
-      "runtime_acceptance": false
+      "runtime_acceptance": false,
+      "candidate_version": "0.2.0",
+      "native_ARM64_build": "not_started",
+      "native_ARM64_runtime_acceptance": false
     },
     {
       "id": "xr-spatial-kit",
@@ -101,7 +109,10 @@
       "runtime_acceptance": false,
       "planned_binary_packages": {
         "xr-spatial-assets": "all"
-      }
+      },
+      "candidate_version": "0.2.0",
+      "native_ARM64_build": "not_started",
+      "native_ARM64_runtime_acceptance": false
     },
     {
       "id": "xr-wayland",
@@ -127,7 +138,10 @@
       "runtime_recommends": [
         "xwayland"
       ],
-      "runtime_acceptance": false
+      "runtime_acceptance": false,
+      "candidate_version": "0.1.3",
+      "native_ARM64_build": "not_started",
+      "native_ARM64_runtime_acceptance": false
     },
     {
       "id": "xr-system-ui",
@@ -164,7 +178,10 @@
         "xr-control-center": "all",
         "xr-notifications": "all",
         "xr-keyboard": "all"
-      }
+      },
+      "candidate_version": "0.2.0",
+      "native_ARM64_build": "not_started",
+      "native_ARM64_runtime_acceptance": false
     },
     {
       "id": "xr-environments",
@@ -264,7 +281,8 @@
       "goal": "Rust Shell panorama, stereo, view adjustment, cleanup and independent package",
       "status": "qemu_panorama_accepted",
       "implements_component_IPC": false,
-      "runtime_acceptance": true
+      "runtime_acceptance": true,
+      "accepted_target": "openKylin 3.0 amd64 QEMU historical M1 scope only"
     },
     {
       "id": "M2",
@@ -275,7 +293,8 @@
         "M1"
       ],
       "runtime_acceptance": false,
-      "acceptance_table": "wiki/xr-desktop-implementation.md"
+      "acceptance_table": "wiki/xr-desktop-implementation.md",
+      "acceptance_target": "openKylin 3.0 native ARM64 development machine"
     },
     {
       "id": "M3",
@@ -285,7 +304,8 @@
         "M2"
       ],
       "runtime_acceptance": false,
-      "acceptance_table": "wiki/xr-desktop-implementation.md"
+      "acceptance_table": "wiki/xr-desktop-implementation.md",
+      "acceptance_target": "openKylin 3.0 native ARM64 development machine"
     },
     {
       "id": "M4",
@@ -295,7 +315,8 @@
         "M3"
       ],
       "runtime_acceptance": false,
-      "acceptance_table": "wiki/xr-desktop-implementation.md"
+      "acceptance_table": "wiki/xr-desktop-implementation.md",
+      "acceptance_target": "openKylin 3.0 native ARM64 development machine"
     },
     {
       "id": "M5",
@@ -315,11 +336,11 @@
       ]
     }
   ],
-  "acceptance_policy": "Only M1 QEMU panorama is accepted; M2-M4 require final fixed-source isolated-profile evidence per acceptance-table row; builds and early candidates do not promote milestones",
+  "acceptance_policy": "M1 amd64 QEMU panorama remains historical accepted scope only; all M2-M4 native ARM64 gates are pending; no native Rust component build or runtime acceptance yet",
   "current_scope": [
-    "M0 contracts and worktree boundaries",
-    "M1 Rust panorama, stereo, view adjustment and cleanup",
-    "M2-M4 independent component candidates and final isolated-profile acceptance preparation"
+    "preserve M0 contracts and historical M1 amd64 QEMU scope",
+    "preserve local M2-M4 component and spatial-visual candidates",
+    "prepare fixed-source native ARM64 migration after SSH recovery; recheck new boot before build; runtime validation remains separate"
   ],
   "excluded_from_M1": [
     "component IPC",
@@ -349,7 +370,7 @@
       "owner": "xr-spatial-kit",
       "status": "candidate_source_available_acceptance_pending",
       "source_package": "xr-spatial-kit",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "binary_package": "librust-xr-spatial-kit-dev"
     }
   ],
@@ -368,5 +389,121 @@
     "network-manager",
     "fcitx5",
     "fcitx5-chinese-addons"
-  ]
+  ],
+  "native_target_status": {
+    "access": "SSH_restored_after_network_change_and_new_boot",
+    "cause": "prior error cause not established",
+    "project_source_and_registry_transfer": "preparing_after_access_recovery",
+    "project_component_build": "not_started",
+    "project_component_package_build": "not_started",
+    "project_runtime_validation": "not_started",
+    "initial_read_only_audit": {
+      "architecture": "aarch64 / arm64",
+      "rustc": "1.93.1",
+      "cargo": "1.93.1",
+      "cairo": "1.18.4",
+      "pango": "1.57.0",
+      "rsvg": "2.61.3",
+      "xkbcommon": "1.13.1",
+      "wayland": "1.26.0",
+      "glsl_compiler": "not found at initial audit; integration owner preparing minimal dependencies after reboot"
+    },
+    "next_gate": "recheck fresh-boot target and fixed source inputs; then checksum-locked offline native build with jobs=3, coordinated with other builds",
+    "build_mode_boundary": "explicit sibling source SDK mode may use -d; it is not a clean distribution dependency closure",
+    "previous_observed_error": "/bin/bash: Input/output error"
+  },
+  "spatial_visual_contract": {
+    "status": "candidate_source_available_native_acceptance_pending",
+    "coordinate_system": "absolute STAGE metres, +Y up, -Z forward; child rects in panel-local logical pixels",
+    "rotation_degrees_order": [
+      "Pitch",
+      "Yaw",
+      "Roll"
+    ],
+    "positive_UI_pitch": "panel faces upward",
+    "main_window_baseline_m": [
+      0,
+      1.6,
+      -1.8
+    ],
+    "control": {
+      "logical_size": [
+        600,
+        700
+      ],
+      "size_m": [
+        0.6,
+        0.7
+      ],
+      "position_m": [
+        1.18,
+        1.6,
+        -1.74
+      ],
+      "rotation_degrees": [
+        0,
+        -18,
+        0
+      ],
+      "default_visible": true
+    },
+    "keyboard": {
+      "node_kind": "Group",
+      "spatial_panel": true,
+      "logical_size": [
+        1000,
+        280
+      ],
+      "size_m": [
+        1.35,
+        0.378
+      ],
+      "position_m": [
+        0,
+        0.6,
+        -1.35
+      ],
+      "rotation_degrees": [
+        25,
+        0,
+        0
+      ],
+      "default_visible": false
+    },
+    "notifications_and_clipboard": "independent on-demand panels, not rows inside the control centre",
+    "control_default_content": [
+      "application theme",
+      "actual volume",
+      "actual network status",
+      "basic tool toggles"
+    ],
+    "details_only": [
+      "workspace controls",
+      "IME diagnostics",
+      "operation results"
+    ],
+    "minimum_main_control_gap": {
+      "logical_px": 32,
+      "physical_m": 0.064,
+      "verification": "actual projected bounds and physical geometry; centre positions alone do not establish acceptance"
+    },
+    "spatial_glass_independent_of_OS_theme": true,
+    "palette": {
+      "glass_rgba_255": [
+        22,
+        26,
+        35,
+        0.78
+      ],
+      "primary": "#F2F6FC",
+      "secondary": "#94A3B8",
+      "accent": "#3790FA",
+      "button_white_alpha": 0.12,
+      "hover_white_alpha": 0.24,
+      "keyboard_white_alpha": 0.15,
+      "keyboard_labels": "white"
+    },
+    "render_and_input": "independent GPU quads and hit testing share the same 3D transforms; native verification pending",
+    "functionality_policy": "all M2-M4 gates retained; visual changes do not waive real system, input or lifecycle acceptance"
+  }
 }

@@ -5,7 +5,7 @@ title: UKUI XR 项目实施计划
 
 # UKUI XR 项目实施计划 · M0–M4
 
-本计划把已确定的 UKUI 空间桌面目标落实到现有独立仓库、openKylin 开发环境和分阶段验收。M0 已就绪，M1 Rust 全景 Shell 的 QEMU 范围已接受；M2–M4 已进入独立组件候选实现与隔离集成，最终逐项验收仍为 pending。本文、[协议合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})和[组件目录]({{ '/desktop-stack.json' | relative_url }})均不替代原始运行证据。
+本计划把已确定的 UKUI 空间桌面目标落实到现有独立仓库、openKylin 开发环境和分阶段验收。M0 已就绪，M1 Rust 全景 Shell 的 amd64 QEMU 历史范围已接受；M2–M4 已有独立组件候选实现，后续验证目标改为 openKylin 3.0 原生 ARM64 开发机，最终逐项验收仍为 pending。本文、[协议合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})和[组件目录]({{ '/desktop-stack.json' | relative_url }})均不替代原始运行证据。
 
 ## 基线与交付边界
 
@@ -13,7 +13,11 @@ title: UKUI XR 项目实施计划
 
 M0 开始时，Shell 只有未验收 WIP 代码，尚无 Rust Shell 双眼运行证据；Dock、Kit、窗口服务与 system-ui 是设计入口。环境包构建通过不能晋升 Shell，Monado 示例运行通过也不能晋升本项目。后续实际状态由集成负责人在原始证据成立后更新。
 
-本阶段仅操作开发工作区和现有 QEMU 内的隔离候选会话，不操作物理设备。保留既有 UKUI/Monado 调试入口，并通过独立 profile 明确选择 runtime、ICD、显示与环境；安装软件包不自动启用会话。
+历史 QEMU 候选与既有 UKUI/Monado 调试入口保留，不再用 QEMU 继续完成后续验收，也不把历史运行结果迁移为原生 ARM64 通过。新目标使用独立 profile 明确选择 runtime、ICD、显示与环境；安装软件包不自动启用会话。本项目范围仍不操作 MIX 头显。
+
+原生 ARM64 目标先完成了只读工具链核对：Rust/cargo 1.93.1、Cairo/Pango/Rsvg、xkbcommon 和 Wayland 开发接口可查询。当时未发现 GLSL 编译器。前次 SSH 最小命令随后返回 `/bin/bash: Input/output error`，文件传输通道也曾不可用；之后目标地址/网络发生变化并重新启动，当前 SSH 已恢复。先前错误的具体原因尚未判定，旧 boot 的工具版本查询不代表新 boot 或图形环境已验收，最小系统依赖由集成负责人统一准备。
+
+前次访问中断前，工程源码、完整 Git 与离线 registry 尚未传入新目标，也未在那里编译或运行组件。访问恢复后开始准备固定输入的迁移；本记录中的原生 Rust 组件编译、原生 Debian 打包和运行验证仍未开始，本地候选包不能称为 ARM64 产物。须先重新核对新 boot 的主机状态，再从固定提交和校验后的缓存执行 offline、locked、受控 jobs=3 构建（与并行构建统筹），并分别记录目标架构、源码、binary 和包摘要。原生构建通过与真实图形/输入/系统验收分别晋升，不改动全局驱动或既有桌面服务。
 
 ## 参考方案的工程适配
 
@@ -23,7 +27,7 @@ M0 开始时，Shell 只有未验收 WIP 代码，尚无 Rust Shell 双眼运行
 | Rust + Bevy ECS | M1 使用 openxr + ash；ECS 是场景调度的后续候选 | 先验证现有 Vulkan/OpenXR 路径，ECS 不决定 wire 协议 |
 | WGSL 程序化材质 | M1 保留 GLSL→SPIR-V；后续评估 WGSL 离线 SPIR-V 适配 | 记录路线选择，不同时引入第二套设备/渲染栈或两套手工材质 |
 | core/render/input/widgets/bridge/ffi | 保留职责，分别映射到 Kit、Shell、窗口服务和 system-ui | Kit 不拥有 runtime 提交、Smithay 全部状态或 OS 守护进程 |
-| dmm 与三模态交互 | token 可用角尺寸参考；wire 使用明确的米/弧度/逻辑像素；初版先验证可用输入 | dmm 是内部设计单位，手部/眼动须查询能力；capture 优先于 source 切换 |
+| dmm 与三模态交互 | token 可用角尺寸参考；wire 明确米、逻辑像素与各字段角度单位，`rotation_degrees` 使用度；初版先验证可用输入 | dmm 是内部设计单位，手部/眼动须查询能力；capture 优先于 source 切换 |
 | 轻薄玻璃、外置 Chrome、Dock | 保留视觉方向；分批实现基础控件、握把/窗口意图与 Dock | 透明、字形、遮挡和动画分别测量，不承诺单 draw call 或固定高帧率 |
 | Phase 1 DMA-BUF 与办公浏览器 | 先 Rust 全景，再 IPC/Kit/Dock 与 shm 窗口，最后 DMA-BUF | 先形成正确、可见、可退出的闭环，再优化图像输入 |
 | Quad/Cylinder 与 punch-hole | 先 projection 内正确合成，后按 runtime 能力评估混层 | 独立 layer 不自动共享任意深度遮挡；输入导入不等于直接替代 XR swapchain |
@@ -123,20 +127,44 @@ M2–M4 的代码和 Debian 配方分别保存在所属完整 Git 仓库。下�
 
 控件通过 Kit 匹配 press/interaction/release：Button 要求在原控件内释放，Cancel 清空交互；Slider 在同一次 capture 的最终 release 提交一次系统操作并读回。按键使用 Linux evdev，文本提交单独报告。Shell 的路由成功、窗口服务接收成功和应用读回文本是三层不同证据，不能用前两层替代最后一层。
 
+## 空间视觉约束 · 新目标待验收
+
+控制中心、键盘和应用窗口必须是分别放置的空间面板。控制中心不是常驻调试表单，键盘不再嵌在其下半部；通知与剪贴板按需独立弹出。默认控制中心只保留清晰分组的应用主题、音量、实际网络状态和基础开关。工作区、IME 诊断和最近操作移到按需详情页，不能为画面整洁而伪造 Wi-Fi、电池、音频端点或成功读数。
+
+| 对象 | 逻辑尺寸 px | 物理尺寸 m | STAGE 中心 m | 旋转 `[Pitch,Yaw,Roll]` 度 |
+|---|---|---|---|---|
+| 主应用窗口基准 | 由应用发布真实逻辑尺寸 | 由 Shell 的窗口布局维护 | `[0,1.60,-1.80]` | 窗口布局单独记录 |
+| 控制中心 | `[600,700]` | `[.60,.70]` | `[1.18,1.60,-1.74]` | `[0,-18,0]` |
+| 独立键盘 | `[1000,280]` | `[1.35,.378]` | `[0,.60,-1.35]` | `[25,0,0]` |
+
+正 Pitch 的 UI 语义是面板朝上，STAGE 仍为 +Y 向上、-Z 向前。键盘使用 `Group` 且 `spatial_panel:true`，其 world pose 独立于控制中心；子节点 rect 使用该面板局部逻辑像素。控制中心默认显示、键盘默认收起；实际按钮和 ComponentCommand 必须能展开/收起 control、keyboard、notifications，应用库按钮与 Dock 联动。Dock 保持独立紧凑胶囊，应用库使用按需空间面板，不能通过扩高 Dock 重新拼成长表单。
+
+主窗与控制中心必须保留至少 32 逻辑像素 / .064 m 的视觉间隙，最终按实际投影 bounds 和物理几何分别记录。单独比较中心坐标或世界坐标轴间距不构成通过；主窗宽度、面板 Yaw 和观察位置改变后仍需满足门槛。按钮使用真实局部深度与 hover 抬升，Shell 的独立 GPU quad 和 3D 命中使用同一变换，不能只给平面截图增加阴影。
+
+| 材质/文字 | 固定视觉值 |
+|---|---|
+| 空间玻璃 | RGBA `(22,26,35,.78)`，始终 dark |
+| 主文字 / 次文字 | `#F2F6FC` / `#94A3B8` |
+| 强调色 | `#3790FA` |
+| 普通按钮 / hover | 白色 12% / 白色 24% |
+| 键帽 | 白色 15% 底、清晰白字 |
+
+应用主题按钮只改变真实 OS/应用主题，不把空间玻璃切成浅色。Kit 0.2.0 提供对应 token 与 spatial-group 模型，Shell 负责真实材质、字形、透明合成和 3D 命中，system-ui 负责面板业务与真实适配。本地源码和包已保留这些候选调整；原生 ARM64 上的视觉、深度、间隙和交互全部尚未验收，也不降低既有 M2–M4 功能门槛。
+
 ## M2–M4 最终验收表 · pending
 
-早期候选已用于接通 Dock、真实应用、seat 输入、configure/ack/commit 和 xdg popup；这些用于收敛实现，不替代最终版本在完整隔离 profile 中的重新验收。最终验收须先固定各仓提交、包/安装 binary 摘要、profile 和环境输入，并保存每个子进程的真实退出码。当前下列条目全部 pending，未验证项不得靠 wrapper 忽略异常后晋升。
+早期 amd64 QEMU 候选已用于接通 Dock、真实应用、seat 输入、configure/ack/commit 和 xdg popup；这些是该历史目标上的局部证据，只用于收敛实现，不替代最终版本在原生 ARM64 完整隔离 profile 中的重新验收。最终验收须先固定各仓提交、目标架构、包/安装 binary 摘要、profile 和环境输入，并保存每个子进程的真实退出码。当前下列条目全部绑定新目标且保持 pending，未验证项不得靠 wrapper 忽略异常后晋升。
 
 | 条目 | 最终验收所需原始证据 | 当前状态 |
 |---|---|---|
 | M2.1 协议与身份 | 真实进程 Hello/Welcome、能力交集、generation；旧身份/错误版本明确拒绝 | pending |
-| M2.2 场景和状态 | 场景原子提交/拒绝、连续 revision、重新取快照；Dock 与 system-ui 同时在线且状态完整 | pending |
+| M2.2 场景和状态 | 场景原子提交/拒绝、Group 几何字段校验、连续 revision、重新取快照；Dock 与 system-ui 同时在线且状态完整 | pending |
 | M2.3 shm 生命周期 | 实际应用 commit、sealed memfd、图像可见；accepted/rejected BufferRelease、FD 关闭和断连清理 | pending |
 | M2.4 capture 与焦点 | 控件按下/拖出/释放、Cancel、失焦与目标删除；FocusApplied 前不向旧窗口发送输入 | pending |
 | M2.5 XR 与退出 | 最终安装 binary 的真实双眼提交、validation 计数；Shell 与组件按 SessionEnding/正常停止全部退出 0，候选资源清空 | pending |
 | M3.1 真实启动与任务 | 从 Dock 的实际 scene 节点启动真实应用；surface 创建后任务出现，关闭并确认消失 | pending |
 | M3.2 应用输入 | 已确认 focus_epoch、真实 seat 按键；应用 Ctrl+A/C 的 selection 精确读回预定文本，不只统计 InputAccepted | pending |
-| M3.3 空间窗口 | 实际拖动、resize 意图和应用 configure/ack/commit 尺寸；逻辑坐标与 buffer 像素各自记录 | pending |
+| M3.3 空间窗口 | 实际拖动、resize 意图和应用 configure/ack/commit 尺寸；逻辑坐标与 buffer 像素各自记录；独立 GPU 面板、32 px/.064 m 间隙与对应 3D 命中 | pending |
 | M3.4 子窗口 | 真实 xdg popup/subsurface 的 parent、相对位置、seat/serial；图像与命中一致 | pending |
 | M3.5 Dock 与输入策略 | 懒跟随头姿、左右手选择、capture 中不换来源；缺少该输入能力时显式声明不可用 | pending |
 | M4.1 UKUI 与网络 | 私有配置下主题操作及读回；NetworkManager 实际链路/连接状态，无 Wi-Fi 设备时不显示虚假无线控制 | pending |
@@ -146,7 +174,7 @@ M2–M4 的代码和 Debian 配方分别保存在所属完整 Git 仓库。下�
 | M4.5 中文与 IME 隔离 | `--no-ime` 下探测不激活 Fcitx；启用时真实客户端 preedit/候选/中文 commit；显式 Unicode 提交另列 | pending |
 | M4.6 Xwayland 与会话 | 真实 X11 应用创建/图像/输入/selection；完整私有 profile 清理且原 UKUI/Monado/Kasm 会话身份保持 | pending |
 
-无声卡或 Wi-Fi 设备的 QEMU 可以接受“该能力缺失被正确探测”和私有虚拟音频控制，不能据此声明物理声音或无线连接通过。Fcitx 当前输入法切换及 D-Bus 名称存在不等于中文 preedit；未启动时状态探测不得触发服务自动激活。干净发行版构建闭包、DMA-BUF/显式同步、视频硬件编码、复杂材质、C/C++ FFI、原生 XR 应用切换和物理设备验收继续按各自后续门槛推进。
+历史 QEMU 中缺少声卡或 Wi-Fi 设备的结论不得套用到原生 ARM64 目标。新目标须重新发现实际端点；私有虚拟音频控制与物理发声分别记录。Fcitx 当前输入法切换及 D-Bus 名称存在不等于中文 preedit；未启动时状态探测不得触发服务自动激活。干净发行版构建闭包、DMA-BUF/显式同步、视频硬件编码、复杂材质、C/C++ FFI、原生 XR 应用切换和头显验收继续按各自后续门槛推进。
 
 ## 并行任务与后续门槛
 

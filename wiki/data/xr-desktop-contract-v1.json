@@ -10,7 +10,10 @@
     "M0": "definition and consistency review only",
     "M1": "does not implement or advertise component IPC",
     "first_implementation_phase": "M2",
-    "M2_M4": "candidate implementation and isolated integration; final per-capability acceptance pending"
+    "M2_M4": "candidate implementation and isolated integration; final per-capability acceptance pending",
+    "current_acceptance_target": "openKylin 3.0 native ARM64 development machine; all M2-M4 runtime gates pending",
+    "historical_QEMU": "accepted M1 scope only; early M2-M4 candidate evidence does not transfer to the new target",
+    "native_project_transfer_and_build": "no transfer or build before prior interruption; access restored after reboot; fixed-input migration preparing and native component build not started"
   },
   "transport": {
     "kind": "Unix SOCK_SEQPACKET",
@@ -173,7 +176,27 @@
     "application": "atomic at frame boundary",
     "primitive_field_schema": "must be published by the SDK before reporting scene.v1 implemented",
     "node_id_pattern": "[A-Za-z0-9_-]{1,64}",
-    "initial_root": "Shell-owned root, cannot be removed, revision 0, returned in Welcome"
+    "initial_root": "Shell-owned root, cannot be removed, revision 0, returned in Welcome",
+    "spatial_panel": {
+      "node_kind": "Group",
+      "flag": "spatial_panel:true",
+      "fields": [
+        "logical_size",
+        "size_m",
+        "position_m",
+        "rotation_degrees"
+      ],
+      "world_pose": "absolute STAGE, independent of component root world transform",
+      "child_rect": "panel-local logical pixels",
+      "rotation_degrees_order": [
+        "Pitch",
+        "Yaw",
+        "Roll"
+      ],
+      "positive_pitch": "panel faces upward",
+      "validation": "finite pose, positive bounded logical and physical size, valid parent tree required before atomic acceptance"
+    },
+    "visibility": "visible defaults true; false hides the full subtree from rendering and hit testing"
   },
   "snapshot": {
     "publisher": "xr-shell",
@@ -275,7 +298,7 @@
     "hand tracking",
     "eye gaze"
   ],
-  "acceptance": "M0/M1 accept no component capabilities; M2-M4 final runtime acceptance remains pending despite available source or early candidate evidence",
+  "acceptance": "M0/M1 accept no component capabilities; M1 QEMU remains historical; all M2-M4 native ARM64 runtime gates pending, with no native component build yet",
   "error_codes": [
     "unsupported_version",
     "missing_capability",
