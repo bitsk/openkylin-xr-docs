@@ -1,15 +1,16 @@
 {
   "schema": 1,
   "contract_id": "xr-desktop/1.0-draft",
-  "status": "draft_not_implemented",
+  "status": "draft_with_candidate_implementation_acceptance_pending",
   "released_ABI": false,
   "owner_repository": "xr-shell",
-  "definition_owner": "planned Shell protocol SDK",
+  "definition_owner": "xr-shell/protocols Rust SDK",
   "normative_draft": "../xr-desktop-protocol.md",
   "scope": {
     "M0": "definition and consistency review only",
     "M1": "does not implement or advertise component IPC",
-    "first_implementation_phase": "M2"
+    "first_implementation_phase": "M2",
+    "M2_M4": "candidate implementation and isolated integration; final per-capability acceptance pending"
   },
   "transport": {
     "kind": "Unix SOCK_SEQPACKET",
@@ -21,7 +22,8 @@
       "dock",
       "system_ui",
       "window_server"
-    ]
+    ],
+    "socket_default": "$XDG_RUNTIME_DIR/xr-desktop/shell.sock"
   },
   "version": {
     "major": 1,
@@ -46,16 +48,17 @@
   "capabilities": [
     {
       "id": "core.v1",
-      "status": "not_implemented",
+      "status": "candidate_implementation_acceptance_pending",
       "messages": [
         "Hello",
         "Welcome",
-        "Error"
+        "Error",
+        "SessionEnding"
       ]
     },
     {
       "id": "scene.v1",
-      "status": "not_implemented",
+      "status": "candidate_implementation_acceptance_pending",
       "messages": [
         "SceneTransaction",
         "SceneApplied",
@@ -64,7 +67,7 @@
     },
     {
       "id": "snapshot.v1",
-      "status": "not_implemented",
+      "status": "candidate_implementation_acceptance_pending",
       "messages": [
         "GetSnapshot",
         "Snapshot",
@@ -75,7 +78,7 @@
     },
     {
       "id": "input.v1",
-      "status": "not_implemented",
+      "status": "candidate_implementation_acceptance_pending",
       "messages": [
         "InputEvent",
         "Cancel"
@@ -83,7 +86,7 @@
     },
     {
       "id": "shm.v1",
-      "status": "not_implemented",
+      "status": "candidate_implementation_acceptance_pending",
       "messages": [
         "ShmBufferCommit",
         "BufferRelease"
@@ -91,11 +94,47 @@
     },
     {
       "id": "focus.v1",
-      "status": "not_implemented",
+      "status": "candidate_implementation_acceptance_pending",
       "messages": [
         "FocusChanged",
         "FocusApplied",
         "SurfaceInput"
+      ]
+    },
+    {
+      "id": "window.v1",
+      "status": "candidate_implementation_acceptance_pending",
+      "messages": [
+        "WindowIntent",
+        "RequestResult",
+        "IntentAccepted"
+      ]
+    },
+    {
+      "id": "workspace.v1",
+      "status": "candidate_implementation_acceptance_pending",
+      "messages": [
+        "WorkspaceIntent",
+        "WorkspaceApplied"
+      ]
+    },
+    {
+      "id": "system.v1",
+      "status": "candidate_implementation_acceptance_pending",
+      "messages": [
+        "SystemState",
+        "TextCommit",
+        "KeyIntent",
+        "InputAccepted"
+      ]
+    },
+    {
+      "id": "clipboard.v1",
+      "status": "candidate_implementation_acceptance_pending",
+      "messages": [
+        "GetClipboard",
+        "ClipboardSet",
+        "ClipboardChanged"
       ]
     }
   ],
@@ -146,7 +185,10 @@
     "window_service_update_roles": [
       "window_server"
     ],
-    "delta_revision": "continuous state_revision; gaps require a fresh Snapshot"
+    "delta_revision": "continuous state_revision; gaps require a fresh Snapshot",
+    "component_scene": "identity/revision/node_count/root metadata; full nodes require a bounded debug query",
+    "clipboard": "bounded preview/bytes only; full selection is delivered by GetClipboard/ClipboardChanged",
+    "owner_lifecycle": "system and clipboard state must be revoked when their owning component/generation disconnects"
   },
   "input": {
     "sources": [
@@ -233,7 +275,7 @@
     "hand tracking",
     "eye gaze"
   ],
-  "acceptance": "raw process and visible-feature evidence required per capability; no accepted capabilities in M0 or M1",
+  "acceptance": "M0/M1 accept no component capabilities; M2-M4 final runtime acceptance remains pending despite available source or early candidate evidence",
   "error_codes": [
     "unsupported_version",
     "missing_capability",
@@ -245,5 +287,6 @@
     "unknown_surface",
     "stale_focus_epoch",
     "invalid_buffer"
-  ]
+  ],
+  "sdk_candidate_version": "0.2.0"
 }

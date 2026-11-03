@@ -3,9 +3,9 @@ layout: default
 title: UKUI XR 项目实施计划
 ---
 
-# UKUI XR 项目实施计划 · M0/M1
+# UKUI XR 项目实施计划 · M0–M4
 
-本计划把已确定的 UKUI 空间桌面目标落实到现有独立仓库、openKylin 开发环境和分阶段验收。M0 已就绪，M1 Rust 全景 Shell 的 QEMU 范围已接受；后续任务只有达到各自依赖门槛后才开始集成。本文、[协议合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})和[组件目录]({{ '/desktop-stack.json' | relative_url }})均不替代原始运行证据。
+本计划把已确定的 UKUI 空间桌面目标落实到现有独立仓库、openKylin 开发环境和分阶段验收。M0 已就绪，M1 Rust 全景 Shell 的 QEMU 范围已接受；M2–M4 已进入独立组件候选实现与隔离集成，最终逐项验收仍为 pending。本文、[协议合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})和[组件目录]({{ '/desktop-stack.json' | relative_url }})均不替代原始运行证据。
 
 ## 基线与交付边界
 
@@ -90,7 +90,7 @@ M0 的合同、独立工作区和依赖边界已完成集成审阅。M1 接受�
 
 已知日志事实：客户端自退与 hello_xr 回测的 Monado 退出阶段出现 `ERROR [do_accept] Failed to wait for id 6`，随后记录 `Server exiting: '0'`。该行保留在原始日志中，不计作 Vulkan validation 错误，也不据退出码 0 删除这条日志。
 
-Kasm 观察路径仍是 GPU 渲染、WSI CPU 拷贝和软件视频编码；这些与 OpenXR 帧计时分别报告。包构建、安装内容和 QEMU 运行已分别检查，干净 openKylin 构建环境中的完整依赖闭包仍待完成。组件 IPC/SDK、Kit/Dock、Wayland 服务、DMA-BUF、混层与 Qt/系统集成均维持后置状态。
+Kasm 观察路径仍是 GPU 渲染、WSI CPU 拷贝和软件视频编码；这些与 OpenXR 帧计时分别报告。包构建、安装内容和 QEMU 运行已分别检查，干净 openKylin 构建环境中的完整依赖闭包仍待完成。组件 IPC/SDK、Kit/Dock、Wayland 服务、DMA-BUF、混层与 Qt/系统集成不属于 M1 已接受范围；后续候选实现另行验收。
 
 无 GUI 参数验收入口示例，应在已经配置好并空闲的隔离开发会话内运行：
 
@@ -103,7 +103,52 @@ xr-shell-simulator --headless-input --shell-binary /usr/bin/xr-shell \
 
 `--headless-input` 选择 remote 模拟设备并关闭滑块 GUI；它不会自行发送八组姿态，姿态输入须由对应固定版本的 Monado remote 客户端完成。默认不加此参数仍是交互滑块入口。wrapper 的 `--seconds` 控制候选时限；验证 Shell 自身的 12 秒退出时，改用 `--shell-arg --seconds --shell-arg 12`，不再同时设置 wrapper 时限。
 
-## 后续并行任务与门槛
+## M2–M4 候选实现与接口边界
+
+M2–M4 的代码和 Debian 配方分别保存在所属完整 Git 仓库。下表描述候选实现的职责，不授予稳定 ABI、目标发行版支持或运行验收。Shell 的协议 SDK 是 wire 定义的唯一代码入口；Kit、Dock、窗口服务和 system-ui 消费固定版本，不能各自复制一份协议维护。
+
+| 仓库/进程 | 本轮候选实现范围 | 与相邻组件的边界 |
+|---|---|---|
+| `xr-shell` / `xr-shell` | OpenXR/Vulkan 双眼、组件 broker、场景栅格化、窗口空间外框、命中/capture、空间焦点和工作区 | 唯一 XR session owner；OS 调用和 Wayland serial 不进入 Shell；图片仍经 projection 合成 |
+| `xr-shell/protocols` / 无独立进程 | 同用户 Unix seqpacket、版本/能力协商、身份外壳、FD 快照传输和 Rust 客户端 | 构建期 SDK；其包不是运行期守护进程，不复制 SDK 到其他仓维护 |
+| `xr-spatial-kit` / 无常驻进程 | Widget/Scene、UKUI token、交互状态及捕获取消 | 纯 Rust 模型/数据；不打开显示、相机、runtime 或系统服务 |
+| `xr-dock` / `xr-dock` | 实际 desktop entry 目录、固定应用、启动器、任务/工作区模型和窗口意图 | 根据权威快照更新任务；发送 launch/focus/close 意图不能代替应用实际创建或退出 |
+| `xr-wayland` / `xr-window-server` | 私有 Smithay display、surface/commit/configure、seat、shm 快照、popup/subsurface、selection 和 IME 协议接入 | Wayland 对象/serial/grab/keymap 的唯一 owner；空间位置由 Shell 决定；Xwayland 是其受管子组件 |
+| `xr-system-ui` / `xr-system-ui` | 控制中心、通知和键盘场景；UKUI/GSettings、Pulse、NetworkManager、Fcitx5 适配 | 系统操作在独立 worker，必须返回真实读数/错误；通知名仅显式私有 D-Bus，输入通过已确认窗口焦点 |
+| `xr-session-manager` / 显式 desktop profile | 统一选择 runtime/ICD、私有用户目录、D-Bus、音频、Wayland、IME、应用与组件的启停 | 仅管理本轮拥有的进程组、socket 和状态；不复用原 UKUI 会话的 bus、剪贴板或 Pulse 端点 |
+
+候选包按当前实际 `debian/control` 记录；规划中的独立 launcher/control-center/notifications/keyboard 子包和美术资源包不因同仓功能存在就视为已产出。SDK 源码开发包、样式数据、可执行程序与会话 profile 分别检查。安装包不自动启动 XR，也不接管现有桌面。
+
+普通 Snapshot/StateChanged 只携带组件身份、scene revision、node count 和有界状态，避免完整节点树与剪贴板把元数据撑过 64 KiB。完整场景仅通过调试能力下的定向分页读取；剪贴板完整内容使用初连 GetClipboard 和后续 ClipboardChanged，preview 不可用作粘贴全文。组件、系统状态和 selection 必须按 owner/generation 在断连时撤销。
+
+控件通过 Kit 匹配 press/interaction/release：Button 要求在原控件内释放，Cancel 清空交互；Slider 在同一次 capture 的最终 release 提交一次系统操作并读回。按键使用 Linux evdev，文本提交单独报告。Shell 的路由成功、窗口服务接收成功和应用读回文本是三层不同证据，不能用前两层替代最后一层。
+
+## M2–M4 最终验收表 · pending
+
+早期候选已用于接通 Dock、真实应用、seat 输入、configure/ack/commit 和 xdg popup；这些用于收敛实现，不替代最终版本在完整隔离 profile 中的重新验收。最终验收须先固定各仓提交、包/安装 binary 摘要、profile 和环境输入，并保存每个子进程的真实退出码。当前下列条目全部 pending，未验证项不得靠 wrapper 忽略异常后晋升。
+
+| 条目 | 最终验收所需原始证据 | 当前状态 |
+|---|---|---|
+| M2.1 协议与身份 | 真实进程 Hello/Welcome、能力交集、generation；旧身份/错误版本明确拒绝 | pending |
+| M2.2 场景和状态 | 场景原子提交/拒绝、连续 revision、重新取快照；Dock 与 system-ui 同时在线且状态完整 | pending |
+| M2.3 shm 生命周期 | 实际应用 commit、sealed memfd、图像可见；accepted/rejected BufferRelease、FD 关闭和断连清理 | pending |
+| M2.4 capture 与焦点 | 控件按下/拖出/释放、Cancel、失焦与目标删除；FocusApplied 前不向旧窗口发送输入 | pending |
+| M2.5 XR 与退出 | 最终安装 binary 的真实双眼提交、validation 计数；Shell 与组件按 SessionEnding/正常停止全部退出 0，候选资源清空 | pending |
+| M3.1 真实启动与任务 | 从 Dock 的实际 scene 节点启动真实应用；surface 创建后任务出现，关闭并确认消失 | pending |
+| M3.2 应用输入 | 已确认 focus_epoch、真实 seat 按键；应用 Ctrl+A/C 的 selection 精确读回预定文本，不只统计 InputAccepted | pending |
+| M3.3 空间窗口 | 实际拖动、resize 意图和应用 configure/ack/commit 尺寸；逻辑坐标与 buffer 像素各自记录 | pending |
+| M3.4 子窗口 | 真实 xdg popup/subsurface 的 parent、相对位置、seat/serial；图像与命中一致 | pending |
+| M3.5 Dock 与输入策略 | 懒跟随头姿、左右手选择、capture 中不换来源；缺少该输入能力时显式声明不可用 | pending |
+| M4.1 UKUI 与网络 | 私有配置下主题操作及读回；NetworkManager 实际链路/连接状态，无 Wi-Fi 设备时不显示虚假无线控制 | pending |
+| M4.2 隔离音频 | 私有 PipeWire/Pulse 端点、音量/静音实际操作和读回；虚拟 sink 与物理发声分开 | pending |
+| M4.3 通知 | 私有 D-Bus 的真实 Notify、关闭/动作/过期信号；退出释放名称，原 UKUI 通知 owner 保持 | pending |
+| M4.4 剪贴板与工作区 | 真实 Wayland selection copy/paste、初连全文、owner 断线撤销；工作区权威快照与输入焦点同步 | pending |
+| M4.5 中文与 IME 隔离 | `--no-ime` 下探测不激活 Fcitx；启用时真实客户端 preedit/候选/中文 commit；显式 Unicode 提交另列 | pending |
+| M4.6 Xwayland 与会话 | 真实 X11 应用创建/图像/输入/selection；完整私有 profile 清理且原 UKUI/Monado/Kasm 会话身份保持 | pending |
+
+无声卡或 Wi-Fi 设备的 QEMU 可以接受“该能力缺失被正确探测”和私有虚拟音频控制，不能据此声明物理声音或无线连接通过。Fcitx 当前输入法切换及 D-Bus 名称存在不等于中文 preedit；未启动时状态探测不得触发服务自动激活。干净发行版构建闭包、DMA-BUF/显式同步、视频硬件编码、复杂材质、C/C++ FFI、原生 XR 应用切换和物理设备验收继续按各自后续门槛推进。
+
+## 并行任务与后续门槛
 
 | 阶段 | 并行范围 | 集成门槛 |
 |---|---|---|

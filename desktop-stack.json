@@ -1,8 +1,8 @@
 {
   "schema": 2,
-  "revision": "m1-qemu-panorama",
+  "revision": "m234-candidate-implementation",
   "kind": "architecture_design_catalog",
-  "runtime_implementation_status": "partial_M1_QEMU_panorama_accepted",
+  "runtime_implementation_status": "M1_QEMU_panorama_accepted_M2_M4_acceptance_pending",
   "primary_language": "Rust",
   "targets": {
     "first": "openKylin 3.0 amd64 QEMU",
@@ -13,7 +13,7 @@
     "ash Vulkan"
   ],
   "protocol_owner": "xr-shell",
-  "protocol_status": "xr-desktop/1.0-draft, not implemented",
+  "protocol_status": "xr-desktop/1.0 candidate SDK 0.2.0; runtime acceptance pending; no stable ABI",
   "external_dependency_ids": [
     "openxr-runtime-profile"
   ],
@@ -35,7 +35,9 @@
         "component protocol"
       ],
       "process_model": "one XR session owner",
-      "build_requires": [],
+      "build_requires": [
+        "xr-spatial-kit-sdk"
+      ],
       "runtime_requires": [
         "openxr-runtime-profile"
       ],
@@ -46,15 +48,14 @@
         "xr-window-server",
         "xr-system-ui"
       ],
-      "optional_build_requires": [
-        "xr-spatial-kit-sdk"
-      ],
       "m1_environment_package": "xr-environment-qingkong",
-      "accepted_scope": "M1 Rust panorama in openKylin amd64 QEMU only"
+      "accepted_scope": "M1 Rust panorama in openKylin amd64 QEMU only",
+      "candidate_scope": "M2 broker, scene/input/shm; M3 spatial application windows; M4 system and clipboard bridge",
+      "candidate_runtime_acceptance": false
     },
     {
       "id": "xr-dock",
-      "status": "design_only",
+      "status": "candidate_implementation_acceptance_pending",
       "language": "Rust",
       "source_package": "xr-dock",
       "binary_packages": {
@@ -71,21 +72,21 @@
         "xr-spatial-kit-sdk"
       ],
       "runtime_requires": [
-        "xr-shell",
-        "xr-spatial-style-ukui",
-        "xr-spatial-assets"
+        "xr-shell"
       ],
-      "runtime_recommends": []
+      "runtime_recommends": [
+        "xr-spatial-style-ukui"
+      ],
+      "runtime_acceptance": false
     },
     {
       "id": "xr-spatial-kit",
-      "status": "design_only",
+      "status": "candidate_implementation_acceptance_pending",
       "language": "Rust",
       "source_package": "xr-spatial-kit",
       "binary_packages": {
         "librust-xr-spatial-kit-dev": "all",
-        "xr-spatial-style-ukui": "all",
-        "xr-spatial-assets": "all"
+        "xr-spatial-style-ukui": "all"
       },
       "owns": [
         "UI primitives",
@@ -96,11 +97,15 @@
       "process_model": "build-time crates plus runtime data; no daemon",
       "build_requires": [],
       "runtime_requires": [],
-      "runtime_recommends": []
+      "runtime_recommends": [],
+      "runtime_acceptance": false,
+      "planned_binary_packages": {
+        "xr-spatial-assets": "all"
+      }
     },
     {
       "id": "xr-wayland",
-      "status": "design_only",
+      "status": "candidate_implementation_acceptance_pending",
       "language": "Rust",
       "source_package": "xr-wayland",
       "binary_packages": {
@@ -121,19 +126,16 @@
       ],
       "runtime_recommends": [
         "xwayland"
-      ]
+      ],
+      "runtime_acceptance": false
     },
     {
       "id": "xr-system-ui",
-      "status": "design_only",
+      "status": "candidate_implementation_acceptance_pending",
       "language": "Rust",
       "source_package": "xr-system-ui",
       "binary_packages": {
-        "xr-system-ui": "any",
-        "xr-launcher": "all",
-        "xr-control-center": "all",
-        "xr-notifications": "all",
-        "xr-keyboard": "all"
+        "xr-system-ui": "any"
       },
       "owns": [
         "system adapter host",
@@ -146,10 +148,23 @@
       ],
       "runtime_requires": [
         "xr-shell",
-        "xr-spatial-style-ukui",
-        "xr-spatial-assets"
+        "coreutils"
       ],
-      "runtime_recommends": []
+      "runtime_recommends": [
+        "xr-spatial-style-ukui",
+        "libglib2.0-bin",
+        "pulseaudio-utils",
+        "network-manager",
+        "fcitx5",
+        "fcitx5-chinese-addons"
+      ],
+      "runtime_acceptance": false,
+      "planned_binary_packages": {
+        "xr-launcher": "all",
+        "xr-control-center": "all",
+        "xr-notifications": "all",
+        "xr-keyboard": "all"
+      }
     },
     {
       "id": "xr-environments",
@@ -170,7 +185,7 @@
     },
     {
       "id": "xr-session-manager",
-      "status": "existing_component_new_desktop_profile_planned",
+      "status": "existing_component_new_desktop_profile_candidate",
       "owns": [
         "lifecycle",
         "resource ownership",
@@ -187,7 +202,8 @@
       "source_package": "xr-session-manager",
       "binary_packages": {
         "xr-session-manager": "all"
-      }
+      },
+      "desktop_profile_runtime_acceptance": false
     },
     {
       "id": "openkylin-xr-integration",
@@ -253,27 +269,33 @@
     {
       "id": "M2",
       "goal": "minimal component IPC, Kit/Dock and shm Wayland pipeline in parallel",
-      "status": "planned",
+      "status": "candidate_implementation_acceptance_pending",
       "depends_on": [
         "M0",
         "M1"
-      ]
+      ],
+      "runtime_acceptance": false,
+      "acceptance_table": "wiki/xr-desktop-implementation.md"
     },
     {
       "id": "M3",
       "goal": "Dock launches a real Wayland app with input, resize and close",
-      "status": "planned",
+      "status": "candidate_implementation_acceptance_pending",
       "depends_on": [
         "M2"
-      ]
+      ],
+      "runtime_acceptance": false,
+      "acceptance_table": "wiki/xr-desktop-implementation.md"
     },
     {
       "id": "M4",
       "goal": "system adapters, IME, Xwayland and desktop components",
-      "status": "planned",
+      "status": "candidate_implementation_acceptance_pending",
       "depends_on": [
         "M3"
-      ]
+      ],
+      "runtime_acceptance": false,
+      "acceptance_table": "wiki/xr-desktop-implementation.md"
     },
     {
       "id": "M5",
@@ -293,10 +315,11 @@
       ]
     }
   ],
-  "acceptance_policy": "M1 requires raw QEMU evidence; a document, source checkpoint or package build is not runtime acceptance",
+  "acceptance_policy": "Only M1 QEMU panorama is accepted; M2-M4 require final fixed-source isolated-profile evidence per acceptance-table row; builds and early candidates do not promote milestones",
   "current_scope": [
     "M0 contracts and worktree boundaries",
-    "M1 Rust panorama, stereo, view adjustment and cleanup"
+    "M1 Rust panorama, stereo, view adjustment and cleanup",
+    "M2-M4 independent component candidates and final isolated-profile acceptance preparation"
   ],
   "excluded_from_M1": [
     "component IPC",
@@ -308,7 +331,7 @@
     "Qt theme changes",
     "physical device work"
   ],
-  "protocol_module_status": "planned SDK module; no released implementation or ABI",
+  "protocol_module_status": "Rust SDK source and candidate implementation available; final isolated acceptance pending",
   "protocol_contract": "wiki/xr-desktop-protocol.md",
   "protocol_catalog": "wiki/data/xr-desktop-contract-v1.json",
   "implementation_plan": "wiki/xr-desktop-implementation.md",
@@ -316,24 +339,34 @@
     {
       "id": "xr-shell-protocols-sdk",
       "owner": "xr-shell",
-      "status": "draft_not_implemented",
-      "proposed_package": "librust-xr-shell-protocols-dev"
+      "status": "candidate_source_available_acceptance_pending",
+      "source_package": "xr-shell",
+      "version": "0.2.0",
+      "binary_package": "librust-xr-shell-protocols-dev"
     },
     {
       "id": "xr-spatial-kit-sdk",
       "owner": "xr-spatial-kit",
-      "status": "design_only",
-      "proposed_package": "librust-xr-spatial-kit-dev"
+      "status": "candidate_source_available_acceptance_pending",
+      "source_package": "xr-spatial-kit",
+      "version": "0.1.0",
+      "binary_package": "librust-xr-spatial-kit-dev"
     }
   ],
   "dependency_semantics": {
     "build_requires": "source SDK interface IDs; consumed at build time, not runtime daemons",
-    "optional_build_requires": "later-phase SDK interface IDs, not required for the M1 build",
-    "runtime_requires": "proposed binary package IDs or explicit runtime profile IDs; installation closure not yet validated",
+    "optional_build_requires": "reserved for optional source SDK interfaces; not runtime daemons",
+    "runtime_requires": "current component binary package IDs or explicit runtime profile IDs; clean-distribution installation closure still pending",
     "runtime_recommends": "optional packages selected by a desktop profile",
     "default_activation": "package installation starts no XR session"
   },
   "external_runtime_package_ids": [
-    "xwayland"
+    "xwayland",
+    "coreutils",
+    "libglib2.0-bin",
+    "pulseaudio-utils",
+    "network-manager",
+    "fcitx5",
+    "fcitx5-chinese-addons"
   ]
 }

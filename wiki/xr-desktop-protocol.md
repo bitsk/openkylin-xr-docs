@@ -5,7 +5,7 @@ title: XR Shell 最小组件合同
 
 # XR Shell 组件合同 · v1 draft
 
-合同标识：`xr-desktop/1.0-draft`。本页是 M0 设计合同，**没有已实现的 IPC、稳定 ABI 或互操作验收**。M1 只实现 Rust 全景 Shell，不实现本页的 socket、场景客户端、窗口服务或控件协议。M2 开始实现前，由双方负责人评审并把正式类型和客户端移入 `xr-shell` 拥有的协议 SDK；本文与[机器目录]({{ '/wiki/data/xr-desktop-contract-v1.json' | relative_url }})随后跟随该 SDK 版本，不成为第二份实现。
+合同标识：`xr-desktop/1.0-draft`。本页保留 M0 的最小合同约束。M1 已接受范围只实现 Rust 全景 Shell；M2–M4 已有 `xr-shell/protocols` 0.2.0 Rust SDK 与独立组件候选实现，**最终隔离 profile 互操作验收仍为 pending，尚无稳定 ABI**。逐字段 wire 定义以 Shell 拥有的 SDK 为唯一代码入口；本文与[机器目录]({{ '/wiki/data/xr-desktop-contract-v1.json' | relative_url }})跟随该 SDK，不成为第二份实现。候选范围和最终门槛见[实施计划]({{ '/wiki/xr-desktop-implementation/' | relative_url }})。
 
 ## 唯一所有者与通道
 
@@ -36,6 +36,10 @@ title: XR Shell 最小组件合同
 | `input.v1` | InputEvent、Cancel、capture 生命周期 | Dock、system-ui |
 | `shm.v1` | ShmBufferCommit、BufferRelease；只读快照 FD | 窗口服务 |
 | `focus.v1` | FocusChanged、FocusApplied、带 focus_epoch 的 SurfaceInput | 窗口服务 |
+| `window.v1` | 应用窗口意图与窗口服务结果；不能把请求当成已创建/关闭 | Dock、窗口服务 |
+| `workspace.v1` | WorkspaceIntent、WorkspaceApplied 与权威 active_workspace | Dock、system-ui |
+| `system.v1` | SystemState、TextCommit、KeyIntent；系统调用属于独立适配器 | system-ui |
+| `clipboard.v1` | GetClipboard、ClipboardSet、ClipboardChanged；只针对私有会话 selection | system-ui、窗口服务 |
 
 新 capability 必须有实现与对应验收后才能作为已支持能力对外交付；隔离的 M2 验收候选可以启用正在验证的能力，但其机器状态仍为待验收，不把候选握手当成通过证据。M0/M1 均不实现或报告这些组件能力。首版不含 DMA-BUF、任意 shader、直接 OS 操作或远程 TCP 访问。
 
@@ -48,6 +52,8 @@ title: XR Shell 最小组件合同
 Shell 每次启动产生新的 `session_generation`。每次接受组件连接产生新的 `component_generation`；任何旧 generation 请求均拒绝。Shell 为每个连接建立不可删除的 `root` 节点，初始场景 revision 为 `"0"`；Welcome 返回该根标识。组件局部 node ID 在 `(session_generation, component_id, component_generation)` 内唯一；surface ID 在窗口服务 generation 内唯一。窗口服务重启后旧 surface 不得被新服务同号对象继承。
 
 组件通过 `GetSnapshot` 请求 Shell 的当前模型，`Snapshot` 携带 `state_revision`、组件场景 revision、窗口列表、空间焦点与其 `focus_epoch`。其后的 `StateChanged` 逐条携带连续 `state_revision`；检测到缺号时停止应用增量并重新请求快照。Dock 不把本地“已发送启动/关闭请求”视为窗口已存在/已关闭。
+
+普通快照中的组件只带身份、revision、node count 和 root 元数据，不内嵌全部节点树；完整场景使用显式调试能力下的有界定向分页查询。剪贴板只保留 preview/bytes，全文由初连 `GetClipboard` 和后续 `ClipboardChanged` 提供；null 表示当前无 selection。preview 不可用作粘贴全文。系统和剪贴板状态均需跟随其 owner/generation 在断连时撤销。
 
 窗口服务是应用窗口协议状态权威，Shell 是合并空间状态的发布者。只有 window_server 角色可以发送带服务 generation、surface key 和完整窗口协议状态的 `WindowState` 或对应的 `WindowRemoved`；Shell 验证并更新其已发布模型。Snapshot 中每个窗口保留 `window_server_generation`、`surface_id`、`app_id`、标题、父子关系、逻辑尺寸与应用确认的尺寸状态；空间位置、物理尺寸和工作区另列。旧纹理可临时缩放，但 `resize` 意图不替代应用的 configure/ack/commit。
 
@@ -110,6 +116,12 @@ damage_rects: 最多 256 个像素矩形
 `buffer_id` 每次快照唯一，`frame_id` 在单 surface 中单调递增；首版不复用可写快照。Shell 验证 FD、边界、seals 后复制/上传，完成最后一次对快照的使用后发送恰好一次 `BufferRelease`，带 buffer/frame key 和 consumed、superseded、rejected 或 surface_destroyed 状态。较新帧可以替换尚未使用的旧帧，但旧帧仍需 release。关闭 FD 与释放原 Wayland buffer 是两种生命周期，不能混为同一个 ack。
 
 断连时双方释放自己的 FD 引用并取消对应 surface/资源；不能等待断开的 peer 再回 ack。DMA-BUF 的多 plane、modifier、acquire/release fence 或 syncobj timeline 不属于 `shm.v1`，须在独立合同和真实图像导入验收后增加能力。OpenXR swapchain 由 runtime 创建，Shell 将应用内容采样/拷贝到自己的 swapchain；输入侧 DMA-BUF 导入不自动建立全链路零拷贝。
+
+## 正常结束与系统输入结果
+
+Shell 在自己拥有的正常关闭路径发送 `SessionEnding` 后关闭组件连接。收到该通知的客户端正常退出并回收自己的进程/资源；没有通知的 EOF/传输断线继续报告失败，supervisor 不把子进程异常统一改写为成功。
+
+系统 UI 的按键使用 Linux evdev，按下与释放分开；显式字符串提交与真实 IME preedit 分开验收。系统 UI 点击自身控件不抢走应用键盘 focus。Shell 只能将输入送往已确认 epoch 的目标，窗口服务拒绝没有实际 text-input 对象的文本提交并回报错误。路由确认或服务接收不替代应用内容读回。
 
 ## M0/M1 状态与晋升条件
 

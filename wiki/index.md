@@ -20,7 +20,7 @@ title: 工程 Wiki
 - [调试系统与视频]({{ '/wiki/debug-and-video/' | relative_url }})：Rust/网页、相机预览、Venus H.264 与 WebRTC。
 - [UKUI XR 桌面软件栈]({{ '/wiki/xr-desktop-stack/' | relative_url }})：Rust Shell、独立 Dock/组件、窗口服务、包与实施顺序。
 - [XR Shell 最小 v1 draft 合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})：版本/能力、generation/revision、场景、capture、shm 与 focus_epoch。
-- [UKUI XR 实施计划]({{ '/wiki/xr-desktop-implementation/' | relative_url }})：M0/M1 范围、分工、依赖与原始证据晋升条件。
+- [UKUI XR 实施计划]({{ '/wiki/xr-desktop-implementation/' | relative_url }})：M0/M1 已接受范围、M2–M4 候选分工与待完成验收表。
 
 ## 开发与维护
 
