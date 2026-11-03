@@ -1,3 +1,10 @@
+openkylin-xr-docs (0.1.2) unstable; urgency=medium
+
+  * Record accepted M0 and the bounded M1 QEMU panorama results.
+  * Document direct remote input, cleanup evidence and remaining implementation scope.
+
+ -- openKylin XR SIG <xr@lists.openkylin.top>  Tue, 03 Nov 2026 23:25:17 +0800
+
 openkylin-xr-docs (0.1.1) unstable; urgency=medium
 
   * Add the Rust UKUI XR desktop architecture and component protocol design.

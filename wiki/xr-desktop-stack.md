@@ -5,7 +5,7 @@ title: UKUI XR 桌面软件栈设计
 
 # UKUI XR 桌面软件栈 · r1
 
-状态：目标架构与 M0 合同。Shell 工作以未验收 WIP 为起点，M1 原始运行证据待集成负责人登记；Dock、窗口服务和组件 IPC 仍待实现。背景数据包已准备，构建记录与实际 XR 验收分开保存。首个目标是 openKylin 3.0 x86_64 开发虚拟机，后续设备 profile 另行验收。当前执行范围见[项目实施计划]({{ '/wiki/xr-desktop-implementation/' | relative_url }})。
+状态：M0 已就绪，M1 Rust 晴空全景已在 openKylin 3.0 amd64 QEMU 验收。Shell 仅部分实现；Dock、窗口服务、组件 IPC 与 SDK 仍待实现，干净发行版构建闭包与后续设备 profile 分别验收。目标架构与已实现范围分开记录，详见[实施计划与 M1 结果]({{ '/wiki/xr-desktop-implementation/' | relative_url }})。
 
 ## 产品与技术决策
 

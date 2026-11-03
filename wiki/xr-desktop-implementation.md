@@ -5,7 +5,7 @@ title: UKUI XR 项目实施计划
 
 # UKUI XR 项目实施计划 · M0/M1
 
-本计划把已确定的 UKUI 空间桌面目标落实到现有独立仓库、openKylin 开发环境和分阶段验收。当前执行边界为 M0 合同与 M1 Rust 全景 Shell；后续任务只有达到依赖门槛后才开始集成。本文、[协议合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})和[组件目录]({{ '/desktop-stack.json' | relative_url }})均不替代原始运行证据。
+本计划把已确定的 UKUI 空间桌面目标落实到现有独立仓库、openKylin 开发环境和分阶段验收。M0 已就绪，M1 Rust 全景 Shell 的 QEMU 范围已接受；后续任务只有达到各自依赖门槛后才开始集成。本文、[协议合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})和[组件目录]({{ '/desktop-stack.json' | relative_url }})均不替代原始运行证据。
 
 ## 基线与交付边界
 
@@ -68,6 +68,40 @@ M1 只有下列原始证据齐全才晋升：
 - 包构建、解包内容与目标 QEMU 运行分别记录，观察端视频帧率与 XR 帧计时分别报告。
 
 若某项失败，保留日志并将对应任务标为未通过，不因能够编译或单张镜像可见而晋升整阶段。
+
+## 已接受的 M0/M1 结果
+
+M0 的合同、独立工作区和依赖边界已完成集成审阅。M1 接受范围为 Rust Shell 在现有 openKylin 3.0 amd64 QEMU 中加载晴空、真实双眼渲染、视角变化与正常清理；不将此范围扩展为完整空间桌面或物理设备验收。
+
+最终运行的是安装包中的 `/usr/bin/xr-shell`，二进制 SHA-256 为 `a11972d2ae1137fe24e16320293ad5cadefd308da706d7658296d0434d8860ee`。运行时选中 Monado 和 Venus GPU；晴空摘要与独立环境包一致。
+
+| 原始验收案例 | 结果 |
+|---|---|
+| direct 参数，未创建或操作 GUI | 经固定 Monado remote 协议输入 front、yaw90、yaw-minus90、rear、pitch20、roll15、translated-x、reset 八组姿态；实际 OpenXR 视图与输入一致 |
+| 真实双眼 | 每眼 960×1080、独立 swapchain；40 秒候选窗口内应用记录约 39.31 秒、1843 帧，每眼各提交 1843 次 |
+| 全景方向与复位 | 旋转产生对应方向画面；x 平移 1 m 与 reset 均和 front 逐像素一致，符合无限远全景语义 |
+| Khronos validation | 客户端 validation 实际启用，错误/警告计数为 0/0；这不是全部 runtime 日志零警告的声明 |
+| duration 停止 | wrapper 到期发送 SIGTERM，客户端 request_exit→STOPPING/end；客户端/runtime 均退出 0，候选进程和 IPC 清理 |
+| 客户端自退 | `--seconds 12` 记录约 12.02 秒、544 帧，每眼 544 次；客户端/runtime 退出 0，候选清理 |
+| 既有入口回测 | 默认 hello_xr 有界 8 秒运行及退出清理通过 |
+| 原会话保留 | 同一 boot 下原会话进程的 PID、启动身份、命令和可执行摘要保持；候选资源为空，Kasm 服务无重启 |
+
+最终视角验收以 direct 参数及实际视图/像素为准。早期 GUI 快速点击的姿态结果没有计入通过；GUI 关闭记录仅作为辅助生命周期证据。
+
+已知日志事实：客户端自退与 hello_xr 回测的 Monado 退出阶段出现 `ERROR [do_accept] Failed to wait for id 6`，随后记录 `Server exiting: '0'`。该行保留在原始日志中，不计作 Vulkan validation 错误，也不据退出码 0 删除这条日志。
+
+Kasm 观察路径仍是 GPU 渲染、WSI CPU 拷贝和软件视频编码；这些与 OpenXR 帧计时分别报告。包构建、安装内容和 QEMU 运行已分别检查，干净 openKylin 构建环境中的完整依赖闭包仍待完成。组件 IPC/SDK、Kit/Dock、Wayland 服务、DMA-BUF、混层与 Qt/系统集成均维持后置状态。
+
+无 GUI 参数验收入口示例，应在已经配置好并空闲的隔离开发会话内运行：
+
+```sh
+xr-shell-simulator --headless-input --shell-binary /usr/bin/xr-shell \
+  --environment /usr/share/xr/environments/qingkong/environment.json \
+  --capture-dir "${XDG_STATE_HOME:-$HOME/.local/state}/xr-shell/captures" \
+  --validation --seconds 40
+```
+
+`--headless-input` 选择 remote 模拟设备并关闭滑块 GUI；它不会自行发送八组姿态，姿态输入须由对应固定版本的 Monado remote 客户端完成。默认不加此参数仍是交互滑块入口。wrapper 的 `--seconds` 控制候选时限；验证 Shell 自身的 12 秒退出时，改用 `--shell-arg --seconds --shell-arg 12`，不再同时设置 wrapper 时限。
 
 ## 后续并行任务与门槛
 

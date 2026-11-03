@@ -1,8 +1,8 @@
 {
   "schema": 2,
-  "revision": "m0-v1-draft",
+  "revision": "m1-qemu-panorama",
   "kind": "architecture_design_catalog",
-  "runtime_implementation_status": "wip_unaccepted",
+  "runtime_implementation_status": "partial_M1_QEMU_panorama_accepted",
   "primary_language": "Rust",
   "targets": {
     "first": "openKylin 3.0 amd64 QEMU",
@@ -20,7 +20,7 @@
   "components": [
     {
       "id": "xr-shell",
-      "status": "wip_unaccepted",
+      "status": "partially_implemented",
       "language": "Rust",
       "source_package": "xr-shell",
       "binary_packages": {
@@ -49,7 +49,8 @@
       "optional_build_requires": [
         "xr-spatial-kit-sdk"
       ],
-      "m1_environment_package": "xr-environment-qingkong"
+      "m1_environment_package": "xr-environment-qingkong",
+      "accepted_scope": "M1 Rust panorama in openKylin amd64 QEMU only"
     },
     {
       "id": "xr-dock",
@@ -239,15 +240,15 @@
     {
       "id": "M0",
       "goal": "contracts, unique owners, scoped worktrees and dependency definitions",
-      "status": "defined_pending_integration_review",
+      "status": "ready",
       "runtime_acceptance": false
     },
     {
       "id": "M1",
       "goal": "Rust Shell panorama, stereo, view adjustment, cleanup and independent package",
-      "status": "pending_raw_evidence",
+      "status": "qemu_panorama_accepted",
       "implements_component_IPC": false,
-      "runtime_acceptance": false
+      "runtime_acceptance": true
     },
     {
       "id": "M2",
