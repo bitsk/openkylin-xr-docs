@@ -6,7 +6,7 @@ title: XR 空间开发约束、独立审计与画面防抖指南
 # XR 空间开发约束、独立审计与画面防抖指南
 
 本文档整合了 `openKylin XR` 空间桌面组件（`xr-shell`、`xr-spatial-kit`、`xr-dock`、`xr-system-ui`、`xr-wayland`）以及底层运行时（`xr-monado`、`xr-head-tracking`）的三个核心部分：
-1. **当前版本（Shell 0.2.18 / Kit 0.2.5 / Dock 0.2.6 / System UI 0.2.12）独立代码审计报告**；
+1. **Shell 0.2.18 / Kit 0.2.5 / Dock 0.2.6 / System UI 0.2.12 审计基点及后续修复记录**；
 2. **转头画面抖动（Head-Turn Judder / Swim）的源码风险、运行时边界与实测门槛**；
 3. **全仓库 XR 空间开发与架构强制约束规范（含历史 14 项平面化问题对标）**。
 
@@ -102,6 +102,49 @@ title: XR 空间开发约束、独立审计与画面防抖指南
 接口依据：[OpenVR Driver API](https://github.com/ValveSoftware/openvr/blob/master/docs/Driver_API_Documentation.md) 定义姿态时间偏移和运动数据坐标；[OpenXR 合成规范](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#compositing) 定义层合成顺序；[SpaceWarp 层接口](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrCompositionLayerSpaceWarpInfoFB.html) 同时要求运动矢量与深度输入。目标运行时是否支持相应接口仍须现场枚举。
 
 第一批具体交付应是**时间线与运动数据契约、单一预测链路、帧阻塞归因**。第二批交付**带可靠投影回退的焦点 Quad**。面板扫描和低余晖使用独立测量窗口；ASW 排在追踪与深度可信之后。
+
+
+### 2.5 首批落实：运动审计、单一预测责任与实验 Quad
+
+Shell 0.2.21 保留生产 SteamVR 路径，默认仍使用投影；`--focus-quad=auto` 或
+`XR_FOCUS_QUAD=auto` 显式启用实验 Quad，`--focus-quad=off` 强制回退。
+
+- **运动数据**：`qiyu-head-tracking/tools/audit-motion.py` 以会话用户订阅现有 relay，
+  保存接收端 monotonic 时标及原样 240 字节 v2 包，不新增传感器所有者。30 秒
+  14,812 包通过原始质量/时间门限，无序号缺口或时间倒退；观察端样本年龄
+  p50/p95/p99 为 2.78/6.93/9.12 ms。这是基本静止的只读 tap 证据，既不是驱动
+  实际 poseTimeOffset 采样，也不是转动、停转、过冲或物理 MTP 验收。
+- **单一预测责任**：已核对活动驱动摘要、构建记录及生产 v2 头文件。生产者发布
+  样本时刻状态，恢复滤波只推进到该样本时间，OpenVR 桥接原子读取姿态与时间，
+  传递负样本年龄和有效速度，由 SteamVR 向显示时刻预测。Shell 使用运行时给定
+  的显示时间 locate，不再次积分；本批没有叠加独立 Monado 预测器或放宽有效性。
+  tracker-to-eye 平移外参、物理轴向/尺度仍未校准；不能据此认定全部运动问题已修复。
+- **时间线**：Shell 保留最近 4096 个渲染帧的 CLOCK_MONOTONIC 阶段边界；捕获时
+  保存 `timeline.json`，正常帧不写遥测磁盘。运行时支持 timespec 转换时才记录
+  XrTime/monotonic 配对。应用 wait、locate、输入/图集、交换链等待、提交及完成等待、
+  release/end 分开统计；完成等待不是 GPU 执行时间。另用既有 OpenVR 观察工具记录
+  合成 GPU、应用间隔、累计提交/呈现/丢帧。SteamVR 内部逐帧晚期锁存和物理扫描
+  时标仍不可见，不把该时间线称为完整 ATW/MTP 验证。
+- **焦点 Quad**：独立交换链按窗口内容分辨率渲染，保留线性光预乘透明度、圆角、
+  尺寸与世界姿态；按背景投影、焦点 Quad、前景投影的顺序提交。曲面、相交/共面
+  几何、背向视图、资源不足及尚未分层的实体手柄几何均回退原投影。窗口命中几何
+  不变；捕获明确区分背景双眼、前景双眼和 Quad，不能把背景图当完整头显画面。
+- **性能门限未通过**：初始投影 / Quad / 回退投影的运行时帧序号节奏约
+  66.45 / 33.56 / 34.78 Hz；合成 GPU 中位约 4.03 / 6.31 / 4.12 ms。
+  回退未恢复初始节奏，说明热态/运行状态等因素尚未隔离，不能把帧率变化全归因于
+  Quad；额外合成开销也不能忽略。因此保留实验开关，日常启动使用投影，暂不宣称
+  Quad 改善延迟、吞吐或佩戴清晰度。
+
+最终版本 QEMU 7 项检查、每眼 4516 帧（原生层提交 69 帧）、Khronos 0 错误/0 警告及正常退出通过；
+实机最终版实验 Quad 的 10 项检查通过，退出前每眼 9774 帧，其中 1232 帧提交原生层；
+最终版正常退出/采集退出与资源清理通过。较早一次回退停止中相机 capture exit 1，Shell 退出与
+DMA/FD 清理仍通过；保留该原有生命周期故障观察，不将其标为整个运行栈通过。
+扫描缓冲读回不是原子拍摄，局部黑条也不能直接归因于真实面板；物理显示仍待验。
+
+原始证据保留在 `reports/device/openkylin-xr-prediction-quad/` 与
+`reports/emulator/openkylin-xr-prediction-quad/`；构建/原生图层功能、软件呈现统计与
+佩戴验收分别记录。待佩戴项目包括真实转动/停转、文字抖动与清晰度、远近遮挡、
+实体手柄点选/拖动及触觉。扫描补偿、低余晖、ASW 未因本批审计而标记完成。
 
 ---
 
