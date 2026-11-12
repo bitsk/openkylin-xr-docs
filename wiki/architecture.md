@@ -8,20 +8,20 @@ title: 仓库架构与职责
 新增空间桌面上层的设计见 [UKUI XR 桌面软件栈]({{ '/wiki/xr-desktop-stack/' | relative_url }}) 与 [组件接口草案]({{ '/wiki/xr-desktop-protocol/' | relative_url }})。其中新 Shell、Dock、Kit 和窗口服务处于设计阶段，不能从下文既有仓库的发布状态推导其已经实现。
 
 
-后续内核开发以 `bigbits/xr-kernel` 为主，改动按子系统独立提交，保留可 rebase 的下游补丁栈。用户态按独立功能划分，连同内核、调试与系统生成，共八个代码仓库；工程 Wiki/Blog 独立放在第九个仓库 [openkylin-xr-docs](https://gitee.com/bigbits/openkylin-xr-docs)：
+后续内核开发以 `bigbits/xr-kernel` 为主，改动按子系统独立提交，保留可 rebase 的下游补丁栈。用户态按独立功能划分，连同内核、调试与系统生成，共八个代码仓库；工程 Wiki/Blog 独立放在第九个仓库 [openkylin-xr-docs](https://github.com/bitsk/openkylin-xr-docs)：
 
 | 仓库 | 维护内容 | 依赖与边界 |
 | --- | --- | --- |
-| [xr-kernel](https://gitee.com/bigbits/xr-kernel) | 驱动、binding/DTS、内核配置、内核/模块/DTB 构建入口 | 以 Linux 主线为基底，按子系统维护提交 |
-| [xr-device-io](https://gitee.com/bigbits/xr-device-io) | 相机/IMU 采集、原始手柄传输、时间戳与共享缓冲、设备访问接口 | 统一管理硬件所有权，向跟踪与诊断提供数据 |
-| [xr-head-tracking](https://gitee.com/bigbits/xr-head-tracking) | 头显跟踪后端、QVR/CDSP 适配、头姿与质量输出 | 消费统一采集层，输出带时间和坐标定义的姿态 |
-| [xr-controller-tracking](https://gitee.com/bigbits/xr-controller-tracking) | 手柄输入解码、光学/惯性跟踪、SDK/ABI helper | 消费统一采集数据和头部姿态，不依赖 VR runtime 回读头姿 |
-| [xr-monado](https://gitee.com/bigbits/xr-monado) | OpenXR/OpenVR 接入、设备 provider、合成/呈现与光学适配 | 消费跟踪输出；固定 Monado/Mesa 上游来源和补丁版本 |
-| [xr-session-manager](https://gitee.com/bigbits/xr-session-manager) | 服务编排、桌面/VR 切换、启动停止、资源清理与会话 CLI/API | 管理生命周期，提供调试控制入口 |
-| [xr-debug-console](https://gitee.com/bigbits/xr-debug-console) | 调试网页、后端 API、遥测、相机/屏幕预览、硬件编码与 WebRTC | 前后端同仓，订阅各生产者的数据，控制请求走会话 API |
-| [xr-image-tools](https://gitee.com/bigbits/xr-image-tools) | 多系统配方、软件包/系统服务、设备 overlay、固件导入清单、initramfs 与镜像封装 | 用固定提交/Release 与 SHA-256 装配所选组件 |
+| [xr-kernel](https://github.com/bitsk/xr-kernel) | 驱动、binding/DTS、内核配置、内核/模块/DTB 构建入口 | 以 Linux 主线为基底，按子系统维护提交 |
+| [xr-device-io](https://github.com/bitsk/xr-device-io) | 相机/IMU 采集、原始手柄传输、时间戳与共享缓冲、设备访问接口 | 统一管理硬件所有权，向跟踪与诊断提供数据 |
+| [xr-head-tracking](https://github.com/bitsk/xr-head-tracking) | 头显跟踪后端、QVR/CDSP 适配、头姿与质量输出 | 消费统一采集层，输出带时间和坐标定义的姿态 |
+| [xr-controller-tracking](https://github.com/bitsk/xr-controller-tracking) | 手柄输入解码、光学/惯性跟踪、SDK/ABI helper | 消费统一采集数据和头部姿态，不依赖 VR runtime 回读头姿 |
+| [xr-monado](https://github.com/bitsk/xr-monado) | OpenXR/OpenVR 接入、设备 provider、合成/呈现与光学适配 | 消费跟踪输出；固定 Monado/Mesa 上游来源和补丁版本 |
+| [xr-session-manager](https://github.com/bitsk/xr-session-manager) | 服务编排、桌面/VR 切换、启动停止、资源清理与会话 CLI/API | 管理生命周期，提供调试控制入口 |
+| [xr-debug-console](https://github.com/bitsk/xr-debug-console) | 调试网页、后端 API、遥测、相机/屏幕预览、硬件编码与 WebRTC | 前后端同仓，订阅各生产者的数据，控制请求走会话 API |
+| [xr-image-tools](https://github.com/bitsk/xr-image-tools) | 多系统配方、软件包/系统服务、设备 overlay、固件导入清单、initramfs 与镜像封装 | 用固定提交/Release 与 SHA-256 装配所选组件 |
 
-原厂二进制单独归入公开 [xr-vendor-assets](https://gitee.com/bigbits/xr-vendor-assets)，Git 保存按型号划分的来源/摘要清单，Release 保存固件、DSP runtime 和 SDK/Bionic 依赖包。rootfs 固定资产 ID、归档及逐文件 SHA-256，直接下载和装配，不把二进制塞进代码仓库，也不以原厂镜像提取作为日常构建步骤。每台设备的 persist 校准独立保管。详见 [原厂二进制归档]({{ '/wiki/vendor-assets/' | relative_url }})。
+原厂二进制单独归入公开 [xr-vendor-assets](https://github.com/bitsk/xr-vendor-assets)，Git 保存按型号划分的来源/摘要清单，Release 保存固件、DSP runtime 和 SDK/Bionic 依赖包。rootfs 固定资产 ID、归档及逐文件 SHA-256，直接下载和装配，不把二进制塞进代码仓库，也不以原厂镜像提取作为日常构建步骤。每台设备的 persist 校准独立保管。详见 [原厂二进制归档]({{ '/wiki/vendor-assets/' | relative_url }})。
 
 独立仓库以独立构建、版本和功能边界为依据，不强制每个仓库新增一个常驻进程。统一采集可以作为库嵌入唯一生产者，并通过共享缓冲/IPC 服务其他消费者。A081 头部与手柄跟踪共享四路相机输入；拆库后保持统一采集和曝光调度，保留帧身份、曝光时间、时钟域、缓冲生命周期和有效性信息。跟踪接口的 schema/客户端包由其所属功能仓库维护并单独标明版本，runtime 适配这些接口；拆分不放宽已有质量和时间门限。
 

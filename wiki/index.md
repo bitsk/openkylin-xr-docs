@@ -28,6 +28,6 @@ title: 工程 Wiki
 - [原厂二进制归档]({{ '/wiki/vendor-assets/' | relative_url }})
 - [构建与发布]({{ '/wiki/build-and-release/' | relative_url }})：组件构建、版本锁定与系统组合。
 - [r1 源码发布记录]({{ '/wiki/source-publication/' | relative_url }})：首次拆库的具体提交和导入范围。
-- [内核维护与 rebase](https://gitee.com/bigbits/xr-kernel/blob/main/devices/a081/MAINTAINING.md)。
+- [内核维护与 rebase](https://github.com/bitsk/xr-kernel/blob/main/devices/a081/MAINTAINING.md)。
 
 [开发 Blog]({{ '/blog/' | relative_url }}) 按阶段讲述工程进展。需要追溯资料时，参阅[来源附录]({{ '/wiki/evidence-sources/' | relative_url }})。

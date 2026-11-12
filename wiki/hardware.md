@@ -7,7 +7,7 @@ title: A081 硬件适配
 
 MIX 的 Linux 适配以实际板卡为中心：从原厂运行时 FDT、DTBO、固件和日志恢复硬件连接，再把它们表达为主线驱动、binding 与 DTS。SM8250 参考板及相近设备提供可复用的驱动结构，板级供电、GPIO、复位和面板参数则来自 A081 本身。
 
-主线源码现在由 [xr-kernel](https://gitee.com/bigbits/xr-kernel) 维护。A081 是其中一个型号；下游修改按子系统组织，便于更新 Linux 基底。
+主线源码现在由 [xr-kernel](https://github.com/bitsk/xr-kernel) 维护。A081 是其中一个型号；下游修改按子系统组织，便于更新 Linux 基底。
 
 ## 从能执行到能调试
 
@@ -41,9 +41,9 @@ CPU 调频还需要补上 EPSS L3 interconnect provider。完成后，8 个 CPU�
 
 ## 源码入口
 
-- [A081 DTS](https://gitee.com/bigbits/xr-kernel/tree/main/patches)：板级连线与资源。
-- [qcom-see](https://gitee.com/bigbits/xr-kernel/tree/main/patches)：SEE 到 IIO。
-- [Nordic 驱动](https://gitee.com/bigbits/xr-kernel/tree/main/patches)：原始传输与内核接口。
-- [A081 系统配置](https://gitee.com/bigbits/xr-image-tools/tree/b9a20b3186a54faea64edc4d2fbf9ecac488222d/devices/a081)：音频、传感器与温控配套。
+- [A081 DTS](https://github.com/bitsk/xr-kernel/tree/main/patches)：板级连线与资源。
+- [qcom-see](https://github.com/bitsk/xr-kernel/tree/main/patches)：SEE 到 IIO。
+- [Nordic 驱动](https://github.com/bitsk/xr-kernel/tree/main/patches)：原始传输与内核接口。
+- [A081 系统配置](https://github.com/bitsk/xr-image-tools/tree/b9a20b3186a54faea64edc4d2fbf9ecac488222d/devices/a081)：音频、传感器与温控配套。
 
 显示和相机的实现过程分别见[显示与 GPU]({{ '/wiki/display-and-gpu/' | relative_url }})、[相机与传感器]({{ '/wiki/cameras-and-sensors/' | relative_url }})。

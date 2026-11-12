@@ -33,7 +33,7 @@ Steam 客户端与主界面接通是系统集成成果；游戏和兼容层使�
 
 ## rootfs 保留更多系统的入口
 
-[xr-image-tools](https://gitee.com/bigbits/xr-image-tools) 把系统拆为三个可组合维度：
+[xr-image-tools](https://github.com/bitsk/xr-image-tools) 把系统拆为三个可组合维度：
 
 ```text
 systems/<system>/        基础来源与准备适配器
@@ -44,4 +44,4 @@ components.lock.json     精确组件提交与公共接口摘要
 
 Debian 和 SteamOS 是首批配方。新增系统接入统一适配器，新增型号复用组件与装配方式；维护、VR、调试 profile 选择需要的功能。基础归档与设备 overlay 分开保存，组合 manifest 记录实际来源和摘要。
 
-入口：[rootfs 组合工具](https://gitee.com/bigbits/xr-image-tools/blob/b9a20b3186a54faea64edc4d2fbf9ecac488222d/tools/rootfs.py)、[SteamOS 配方](https://gitee.com/bigbits/xr-image-tools/tree/b9a20b3186a54faea64edc4d2fbf9ecac488222d/systems/steamos)、[Debian 配方](https://gitee.com/bigbits/xr-image-tools/tree/b9a20b3186a54faea64edc4d2fbf9ecac488222d/systems/debian)。构建用法见[构建与发布]({{ '/wiki/build-and-release/' | relative_url }})。
+入口：[rootfs 组合工具](https://github.com/bitsk/xr-image-tools/blob/b9a20b3186a54faea64edc4d2fbf9ecac488222d/tools/rootfs.py)、[SteamOS 配方](https://github.com/bitsk/xr-image-tools/tree/b9a20b3186a54faea64edc4d2fbf9ecac488222d/systems/steamos)、[Debian 配方](https://github.com/bitsk/xr-image-tools/tree/b9a20b3186a54faea64edc4d2fbf9ecac488222d/systems/debian)。构建用法见[构建与发布]({{ '/wiki/build-and-release/' | relative_url }})。

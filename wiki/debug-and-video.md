@@ -9,7 +9,7 @@ title: 调试系统与视频
 
 ## 调试台的功能组织
 
-[xr-debug-console](https://gitee.com/bigbits/xr-debug-console) 将 frontend、backend、api 与原生视频 helper 放在一个仓库。前端提供会话、设备、头部/手柄、相机和视频控制页面，后端负责状态接口、WebSocket、会话桥接和视频连接。VR 与跟踪服务可以独立运行，网页按需接入。
+[xr-debug-console](https://github.com/bitsk/xr-debug-console) 将 frontend、backend、api 与原生视频 helper 放在一个仓库。前端提供会话、设备、头部/手柄、相机和视频控制页面，后端负责状态接口、WebSocket、会话桥接和视频连接。VR 与跟踪服务可以独立运行，网页按需接入。
 
 Spatial UI 把这些信息组织为适合桌面和移动端的调试台。r1 已完成设备部署和浏览器检查，随后主要后端路径统一到 Rust。资料：[D02]({{ '/wiki/evidence-sources/#d02' | relative_url }})、[D03]({{ '/wiki/evidence-sources/#d03' | relative_url }})。
 
@@ -45,4 +45,4 @@ WebRTC → 浏览器解码与显示
 
 这些阶段分开记录，方便定位瓶颈。11 月的一轮原生 H.264 任务完成 120 帧编码和 120 帧软件解码；浏览器持续呈现与长期视频会话另有自己的记录。资料：[P01]({{ '/wiki/evidence-sources/#p01' | relative_url }})。
 
-源码：[网页](https://gitee.com/bigbits/xr-debug-console/tree/48c7debf32affbe53c7bfafb954a8acbd49cbf54/frontend)、[Rust 后端](https://gitee.com/bigbits/xr-debug-console/tree/48c7debf32affbe53c7bfafb954a8acbd49cbf54/backend)、[接口索引](https://gitee.com/bigbits/xr-debug-console/blob/48c7debf32affbe53c7bfafb954a8acbd49cbf54/api/routes.json)、[原生视频源码](https://gitee.com/bigbits/xr-debug-console/tree/48c7debf32affbe53c7bfafb954a8acbd49cbf54/video)。构建用法以仓库 README 为准。
+源码：[网页](https://github.com/bitsk/xr-debug-console/tree/48c7debf32affbe53c7bfafb954a8acbd49cbf54/frontend)、[Rust 后端](https://github.com/bitsk/xr-debug-console/tree/48c7debf32affbe53c7bfafb954a8acbd49cbf54/backend)、[接口索引](https://github.com/bitsk/xr-debug-console/blob/48c7debf32affbe53c7bfafb954a8acbd49cbf54/api/routes.json)、[原生视频源码](https://github.com/bitsk/xr-debug-console/tree/48c7debf32affbe53c7bfafb954a8acbd49cbf54/video)。构建用法以仓库 README 为准。

@@ -45,10 +45,10 @@ XR 桌面最初使用 Openbox/tint2、TigerVNC、SDL2/LibVNCClient 和 OpenXR qu
 
 | 仓库 | 代码入口 |
 | --- | --- |
-| xr-device-io | [采集、时钟与输入接口](https://gitee.com/bigbits/xr-device-io/tree/fa2fc4267d82acfd13a26efece6296c791434529/include/xr/device) |
-| xr-head-tracking | [QVR 桥接与头部服务](https://gitee.com/bigbits/xr-head-tracking/tree/3ba08d9d24a2cc1d265624003923d8565c977fcf/src) |
-| xr-controller-tracking | [SDK helper 与 ABI 适配](https://gitee.com/bigbits/xr-controller-tracking/tree/f92ee08d919fca3c191da84b022456145e3a254e/src) |
-| xr-monado | [Monado 来源](https://gitee.com/bigbits/xr-monado/blob/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/upstream.json)、[下游补丁](https://gitee.com/bigbits/xr-monado/tree/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/patches) |
-| xr-session-manager | [会话与资源生命周期](https://gitee.com/bigbits/xr-session-manager/tree/0ba812ff2b5a68851999e3e604d5ea4c463da38c/src) |
+| xr-device-io | [采集、时钟与输入接口](https://github.com/bitsk/xr-device-io/tree/fa2fc4267d82acfd13a26efece6296c791434529/include/xr/device) |
+| xr-head-tracking | [QVR 桥接与头部服务](https://github.com/bitsk/xr-head-tracking/tree/3ba08d9d24a2cc1d265624003923d8565c977fcf/src) |
+| xr-controller-tracking | [SDK helper 与 ABI 适配](https://github.com/bitsk/xr-controller-tracking/tree/f92ee08d919fca3c191da84b022456145e3a254e/src) |
+| xr-monado | [Monado 来源](https://github.com/bitsk/xr-monado/blob/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/upstream.json)、[下游补丁](https://github.com/bitsk/xr-monado/tree/c0414dde83da89cbc3a2e0ba8d589bd40bf3d50b/patches) |
+| xr-session-manager | [会话与资源生命周期](https://github.com/bitsk/xr-session-manager/tree/0ba812ff2b5a68851999e3e604d5ea4c463da38c/src) |
 
 各阶段的软件接通、物理标定与使用体验范围，简要保留在对应开发记录和[来源附录]({{ '/wiki/evidence-sources/' | relative_url }})中。

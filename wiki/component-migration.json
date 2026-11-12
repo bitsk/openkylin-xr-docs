@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "scope": "Source migration and packaging ownership; prior device acceptance is not re-awarded by migration",
+  "features": [
+    {
+      "feature": "Shared camera producer",
+      "previous_owner": "qiyu-device-service",
+      "owner": "xr-device-io",
+      "migration": "OV7251/QCFT and shared hand tap retained; IMX capture, RAW snapshots and calibration exporter restored",
+      "boundary": "Original camera ownership and timing gates retained"
+    },
+    {
+      "feature": "Native device identity",
+      "previous_owner": "qiyu-device-service / qiyu-controller-tracking / qiyu-debug",
+      "owner": "xr-device-io / xr-controller-tracking / xr-debug-console",
+      "migration": "Restore actual board identity checks and openKylin radio support",
+      "boundary": "Display naming is independent of hardware/ABI identifiers"
+    },
+    {
+      "feature": "Head wire and motion audit",
+      "previous_owner": "qiyu-head-tracking",
+      "owner": "xr-head-tracking",
+      "migration": "Production v2 headers retained; wire contract and read-only motion audit added",
+      "boundary": "No replacement timestamps or fabricated poses"
+    },
+    {
+      "feature": "Controller namespace and SDK",
+      "previous_owner": "qiyu-vr-session",
+      "owner": "xr-session-manager / xr-controller-tracking",
+      "migration": "OpenKylin root marker and trusted system opt alias retained in packaged launcher",
+      "boundary": "One camera owner; original SDK bytes imported separately"
+    },
+    {
+      "feature": "Head tracking recovery",
+      "previous_owner": "qiyu-vr-runtime",
+      "owner": "xr-monado",
+      "migration": "Existing inertial/reacquisition implementation matches the old accepted header except owned SDK includes",
+      "boundary": "Position inference does not become optical tracking"
+    },
+    {
+      "feature": "Original controller models",
+      "previous_owner": "qiyu-rootfs",
+      "owner": "openkylin-xr-integration",
+      "migration": "Native model package recipe migrated; grip/aim remain separate from model frame",
+      "boundary": "Original model payload imported by digest"
+    },
+    {
+      "feature": "Camera preview phases",
+      "previous_owner": "qiyu-device-service",
+      "owner": "xr-device-io",
+      "migration": "ACP2 joined phase metadata restored; shared preview is nonblocking",
+      "boundary": "Restoration is not a new physical phase acceptance claim"
+    },
+    {
+      "feature": "Debug video recovery",
+      "previous_owner": "qiyu-debug",
+      "owner": "xr-debug-console",
+      "migration": "Existing backend NACK/RTX controls retained; GPU native keyframe input restored",
+      "boundary": "No timer-driven periodic keyframes enabled"
+    },
+    {
+      "feature": "Passthrough camera labels",
+      "previous_owner": "qiyu-debug",
+      "owner": "xr-debug-console",
+      "migration": "Existing measured camera role mapping retained",
+      "boundary": "No heuristic left/right renaming"
+    },
+    {
+      "feature": "Boot selector ordering",
+      "previous_owner": "qiyu-rootfs",
+      "owner": "xr-image-tools",
+      "migration": "Explicit one-shot Debian choice takes priority over persistent defaults; old and new config markers accepted",
+      "boundary": "No partition or running baseline changes"
+    },
+    {
+      "feature": "USB console lifecycle",
+      "previous_owner": "qiyu-rootfs",
+      "owner": "openkylin-xr-integration",
+      "migration": "No TTY reset/hangup configuration restored",
+      "boundary": "Avoid blocking PID1 on an unconnected ACM port"
+    },
+    {
+      "feature": "ALSA hardware alias",
+      "previous_owner": "qiyu-rootfs",
+      "owner": "openkylin-xr-integration",
+      "migration": "Actual Qiyu MIX card filename restored",
+      "boundary": "Hardware card matching names remain unchanged"
+    },
+    {
+      "feature": "Thermal configuration",
+      "previous_owner": "qiyu-rootfs",
+      "owner": "openkylin-xr-integration",
+      "migration": "Runtime equivalence checked; installer now accepts installed openKylin",
+      "boundary": "Factory policy retained"
+    },
+    {
+      "feature": "Python GPIO ABI",
+      "previous_owner": "qiyu-rootfs",
+      "owner": "openkylin-xr-integration",
+      "migration": "Pinned native CPython3.12 gpiod2.2.4 build recipe migrated",
+      "boundary": "Explicit native dependency package; not a host wheel substitution"
+    },
+    {
+      "feature": "Android Linux launchers",
+      "previous_owner": "qiyu-rootfs",
+      "owner": "openkylin-xr-integration",
+      "migration": "Source and controlled selector recipe migrated as an optional device utility",
+      "boundary": "Not installed or activated by this source migration"
+    },
+    {
+      "feature": "Scheduling and fixed PD kernel",
+      "previous_owner": "qiyu-kernel",
+      "owner": "xr-kernel build wrapper",
+      "migration": "Pin the verified canonical kernel commit with IFE-Lite, square crop, fixed5V PD and optional scheduling configs",
+      "boundary": "Driver/config implementation stays only in bitsk/qiyu-kernel"
+    },
+    {
+      "feature": "Graphics and runtime compatibility",
+      "previous_owner": "qiyu-vr-runtime",
+      "owner": "xr-monado / xr-mesa",
+      "migration": "Accepted display split remains in default Mesa patch; Gamescope/native interop adaptations migrated",
+      "boundary": "Negative performance candidates remain outside the default series"
+    },
+    {
+      "feature": "Session code installation",
+      "previous_owner": "qiyu-vr-session",
+      "owner": "xr-session-manager",
+      "migration": "Systemd and child processes execute installed module paths; profile/capsule preparation is explicit",
+      "boundary": "Private capsules carry data/libraries and package-derived native artifacts"
+    },
+    {
+      "feature": "Desktop source ownership",
+      "previous_owner": "local desktop repositories",
+      "owner": "xr-shell / xr-spatial-kit / xr-system-ui / xr-dock / xr-wayland / xr-environments",
+      "migration": "Components retain their single owners and are selected through one source lock",
+      "boundary": "Pre-existing unvalidated worktree edits are preserved separately"
+    },
+    {
+      "feature": "OEM assets",
+      "previous_owner": "qiyu-vendor",
+      "owner": "xr-vendor-assets",
+      "migration": "Single checksummed firmware/SDK cache and generated Debian packages retained",
+      "boundary": "No per-device calibration or model weights published"
+    },
+    {
+      "feature": "Quest hand backend",
+      "previous_owner": "new hand repository",
+      "owner": "xr-hand-tracking",
+      "migration": "Original-weight backend source and standard joint mappings retained",
+      "boundary": "Recurrent detector1042 and physical gesture/tap acceptance remain unresolved"
+    }
+  ]
+}

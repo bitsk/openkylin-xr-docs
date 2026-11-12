@@ -4,21 +4,21 @@
 
 | 仓库 | 维护形式 | 源码包 | 二进制包 |
 |---|---|---|---|
-| [xr-kernel](https://gitee.com/bigbits/xr-kernel) | patch-stack | `linux-xr` | `linux-image-<kernelrelease>`, `linux-headers-<kernelrelease>`, `xr-kernel-uapi-dev`, `linux-image-xr-arm64` |
-| [xr-mesa](https://gitee.com/bigbits/xr-mesa) | patch-stack | `mesa-xr` | `xr-mesa-vulkan-drivers` |
-| [xr-monado](https://gitee.com/bigbits/xr-monado) | upstream-derived | `monado-xr` | `xr-monado-steamvr-driver` |
-| [xr-hexagonrpc](https://gitee.com/bigbits/xr-hexagonrpc) | upstream-derived | `xr-hexagonrpc` | `libxr-hexagonrpc-dev`, `xr-hexagonrpc-source` |
-| [xr-device-io](https://gitee.com/bigbits/xr-device-io) | component | `xr-device-io` | `xr-device-tools`, `libxr-device-dev` |
-| [xr-head-tracking](https://gitee.com/bigbits/xr-head-tracking) | component | `xr-head-tracking` | `xr-head-tracking`, `xr-head-tracking-tools`, `libxr-head-dev` |
-| [xr-controller-tracking](https://gitee.com/bigbits/xr-controller-tracking) | component | `xr-controller-tracking` | `xr-controller-worker-bionic`, `libxr-controller-dev`, `xr-controller-tools` |
-| [xr-session-manager](https://gitee.com/bigbits/xr-session-manager) | component | `xr-session-manager` | `xr-session-manager` |
-| [xr-debug-console](https://gitee.com/bigbits/xr-debug-console) | component | `xr-debug-console` | `xr-debug-server`, `xr-debug-web`, `xr-debug-video`, `xr-debug-tools` |
-| [xr-vendor-assets](https://gitee.com/bigbits/xr-vendor-assets) | asset-catalog | `xr-firmware-a081`, `xr-vendor-a081` | `firmware-xr-a081`, `firmware-xr-a081-tracking`, `xr-vendor-a081-controller`, `xr-vendor-a081-dsp-host` |
-| [openkylin-xr-integration](https://gitee.com/bigbits/openkylin-xr-integration) | component | `openkylin-xr-integration` | `openkylin-xr-defaults`, `xr-device-a081`, `xr-device-a081-vr`, `openkylin-xr-base`, `openkylin-xr-streaming`, `openkylin-xr-debug`, `openkylin-xr-steamvr` |
-| [xr-image-tools](https://gitee.com/bigbits/xr-image-tools) | component | `xr-image-tools` | `xr-image-builder` |
-| [openkylin-xr-docs](https://gitee.com/bigbits/openkylin-xr-docs) | component | `openkylin-xr-docs` | `openkylin-xr-doc` |
+| [xr-kernel](https://github.com/bitsk/xr-kernel) | patch-stack | `linux-xr` | `linux-image-<kernelrelease>`, `linux-headers-<kernelrelease>`, `xr-kernel-uapi-dev`, `linux-image-xr-arm64` |
+| [xr-mesa](https://github.com/bitsk/xr-mesa) | patch-stack | `mesa-xr` | `xr-mesa-vulkan-drivers` |
+| [xr-monado](https://github.com/bitsk/xr-monado) | upstream-derived | `monado-xr` | `xr-monado-steamvr-driver` |
+| [xr-hexagonrpc](https://github.com/bitsk/xr-hexagonrpc) | upstream-derived | `xr-hexagonrpc` | `libxr-hexagonrpc-dev`, `xr-hexagonrpc-source` |
+| [xr-device-io](https://github.com/bitsk/xr-device-io) | component | `xr-device-io` | `xr-device-tools`, `libxr-device-dev` |
+| [xr-head-tracking](https://github.com/bitsk/xr-head-tracking) | component | `xr-head-tracking` | `xr-head-tracking`, `xr-head-tracking-tools`, `libxr-head-dev` |
+| [xr-controller-tracking](https://github.com/bitsk/xr-controller-tracking) | component | `xr-controller-tracking` | `xr-controller-worker-bionic`, `libxr-controller-dev`, `xr-controller-tools` |
+| [xr-session-manager](https://github.com/bitsk/xr-session-manager) | component | `xr-session-manager` | `xr-session-manager` |
+| [xr-debug-console](https://github.com/bitsk/xr-debug-console) | component | `xr-debug-console` | `xr-debug-server`, `xr-debug-web`, `xr-debug-video`, `xr-debug-tools` |
+| [xr-vendor-assets](https://github.com/bitsk/xr-vendor-assets) | asset-catalog | `xr-firmware-a081`, `xr-vendor-a081` | `firmware-xr-a081`, `firmware-xr-a081-tracking`, `xr-vendor-a081-controller`, `xr-vendor-a081-dsp-host` |
+| [openkylin-xr-integration](https://github.com/bitsk/openkylin-xr-integration) | component | `openkylin-xr-integration` | `openkylin-xr-defaults`, `xr-device-a081`, `xr-device-a081-vr`, `openkylin-xr-base`, `openkylin-xr-streaming`, `openkylin-xr-debug`, `openkylin-xr-steamvr` |
+| [xr-image-tools](https://github.com/bitsk/xr-image-tools) | component | `xr-image-tools` | `xr-image-builder` |
+| [openkylin-xr-docs](https://github.com/bitsk/openkylin-xr-docs) | component | `openkylin-xr-docs` | `openkylin-xr-doc` |
 
-机器可读目录见 [repositories.json](../repositories.json)。组件的精确提交与公开头文件摘要由 xr-image-tools 的 components.lock.json 固定，型号资产由集成仓库中的 vendor.lock.json 固定。
+机器可读目录见 [xr-image-tools/repositories.json](https://github.com/bitsk/xr-image-tools/blob/main/repositories.json)。组件的精确提交与公开头文件摘要由 xr-image-tools 的 components.lock.json 固定，型号资产由集成仓库中的 vendor.lock.json 固定。
 
 ## 当前验证范围
 

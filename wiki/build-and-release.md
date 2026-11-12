@@ -9,7 +9,7 @@ title: 构建与发布
 
 ## 内核
 
-xr-kernel 保留真实 Linux 主线历史，驱动、binding/DTS 和配置按子系统提交。A081 的构建与 rebase 入口在 [devices/a081/MAINTAINING.md](https://gitee.com/bigbits/xr-kernel/blob/main/devices/a081/MAINTAINING.md)；内核专用文档与源码一起维护。
+xr-kernel 保留真实 Linux 主线历史，驱动、binding/DTS 和配置按子系统提交。A081 的构建与 rebase 入口在 [devices/a081/MAINTAINING.md](https://github.com/bitsk/xr-kernel/blob/main/devices/a081/MAINTAINING.md)；内核专用文档与源码一起维护。
 
 ## 用户态组件
 

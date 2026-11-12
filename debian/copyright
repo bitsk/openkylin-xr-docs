@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: openkylin-xr-docs
-Source: https://gitee.com/bigbits/openkylin-xr-docs
+Source: https://github.com/bitsk/openkylin-xr-docs
 
 Files: *
 Copyright: See original source file and license notices
