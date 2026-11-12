@@ -14,6 +14,7 @@ The main kernel implementation remains in [bitsk/qiyu-kernel](https://github.com
 | Head tracking recovery | xr-monado | Existing inertial/reacquisition implementation matches the old accepted header except owned SDK includes. Position inference does not become optical tracking |
 | Original controller models | openkylin-xr-integration | Native model package recipe migrated; grip/aim remain separate from model frame. Original model payload imported by digest |
 | Camera preview phases | xr-device-io | ACP2 joined phase metadata restored; shared preview is nonblocking. Restoration is not a new physical phase acceptance claim |
+| WebRTC distribution dependencies | xr-debug-console | Five byte-preserved official openKylin plugins and copyright are pinned into an app-scoped package. Avoid the unrelated unavailable dependencies of the complete bad plugin set; system GStreamer paths remain unchanged |
 | Debug video recovery | xr-debug-console | Existing backend NACK/RTX controls retained; GPU native keyframe input restored. Installed GPU helpers are recognized as encoded streams; video assets, Mesa ICD and timing helpers use their owning package paths. No timer-driven periodic keyframes enabled |
 | Passthrough camera labels | xr-debug-console | Existing measured camera role mapping retained. No heuristic left/right renaming |
 | Boot selector ordering | xr-image-tools | Explicit one-shot Debian choice takes priority over persistent defaults; old and new config markers accepted. No partition or running baseline changes |

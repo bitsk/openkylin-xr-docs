@@ -14,7 +14,7 @@ The kernel implementation remains in [bitsk/qiyu-kernel](https://github.com/bits
 | xr-head-tracking | [xr-head-tracking](https://github.com/bitsk/xr-head-tracking) | xr-head-tracking, xr-head-tracking-tools, libxr-head-dev |
 | xr-controller-tracking | [xr-controller-tracking](https://github.com/bitsk/xr-controller-tracking) | xr-controller-worker-bionic, libxr-controller-dev, xr-controller-tools |
 | xr-session-manager | [xr-session-manager](https://github.com/bitsk/xr-session-manager) | xr-session-manager |
-| xr-debug-console | [xr-debug-console](https://github.com/bitsk/xr-debug-console) | xr-debug-server, xr-debug-web, xr-debug-video, xr-debug-tools |
+| xr-debug-console | [xr-debug-console](https://github.com/bitsk/xr-debug-console) | xr-debug-server, xr-debug-web, xr-debug-video, xr-debug-tools, xr-debug-gstreamer |
 | xr-vendor-assets | [xr-vendor-assets](https://github.com/bitsk/xr-vendor-assets) | firmware-xr-a081, firmware-xr-a081-tracking, xr-vendor-a081-controller, xr-vendor-a081-dsp-host |
 | openkylin-xr-integration | [openkylin-xr-integration](https://github.com/bitsk/openkylin-xr-integration) | openkylin-xr-defaults, xr-device-a081, xr-device-a081-vr, openkylin-xr-base, openkylin-xr-streaming, openkylin-xr-debug, openkylin-xr-steamvr, openkylin-xr-hands |
 | xr-image-tools | [xr-image-tools](https://github.com/bitsk/xr-image-tools) | xr-image-builder |
