@@ -26,6 +26,7 @@ The main kernel implementation remains in [bitsk/qiyu-kernel](https://github.com
 | Graphics and runtime compatibility | xr-monado / xr-mesa | Accepted display split remains in default Mesa patch; Gamescope/native interop adaptations migrated. Negative performance candidates remain outside the default series |
 | Session code installation | xr-session-manager | Systemd and child processes execute installed module paths; profile/capsule preparation is explicit. Private capsules carry data/libraries and package-derived native artifacts |
 | Desktop source ownership | xr-shell / xr-spatial-kit / xr-system-ui / xr-dock / xr-wayland / xr-environments | Components retain their single owners and are selected through one source lock. Pre-existing unvalidated worktree edits are preserved separately |
+| OpenXR loader dependency | openkylin-xr-integration | Exact upstream ARM64 package import is locked because the openKylin archive lacks the loader. The bundle carries it explicitly and pins transitive runtime package versions |
 | OEM assets | xr-vendor-assets | Single checksummed firmware/SDK cache and generated Debian packages retained. No per-device calibration or model weights published |
 | Quest hand backend | xr-hand-tracking | Original-weight backend source and standard joint mappings retained. Recurrent detector1042 and physical gesture/tap acceptance remain unresolved |
 
