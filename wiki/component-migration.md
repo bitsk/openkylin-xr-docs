@@ -9,6 +9,7 @@ The main kernel implementation remains in [bitsk/qiyu-kernel](https://github.com
 | Shared camera producer | xr-device-io | OV7251/QCFT and shared hand tap retained; IMX capture, RAW snapshots and calibration exporter restored. Original camera ownership and timing gates retained |
 | Native device identity | xr-device-io / xr-controller-tracking / xr-debug-console | Restore actual board identity checks and openKylin radio support. Display naming is independent of hardware/ABI identifiers |
 | Head wire and motion audit | xr-head-tracking | Production v2 headers retained; wire contract and read-only motion audit added. No replacement timestamps or fabricated poses |
+| Bounded SDK logs and FastRPC headers | xr-controller-tracking / xr-kernel | Recover the SDK log shim source from the archived build, package it with the ARM32 worker and consume the locked kernel FastRPC UAPI. Capsule checksums replace a historical binary hash |
 | Controller namespace and SDK | xr-session-manager / xr-controller-tracking | OpenKylin root marker and trusted system opt alias retained in packaged launcher. One camera owner; original SDK bytes imported separately |
 | Head tracking recovery | xr-monado | Existing inertial/reacquisition implementation matches the old accepted header except owned SDK includes. Position inference does not become optical tracking |
 | Original controller models | openkylin-xr-integration | Native model package recipe migrated; grip/aim remain separate from model frame. Original model payload imported by digest |

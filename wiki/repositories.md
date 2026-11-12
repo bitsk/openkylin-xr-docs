@@ -1,35 +1,11 @@
 # 仓库与软件包索引
 
-下列维护入口彼此独立；本地工作目录统一为 `openkylin-xr-repos/`。源码、打包和验收状态分别记录。新增组件继续按功能独立维护。
+当前 20 个组件仓库统一发布在 bitsk 的 GitHub。完整职责和软件包表见 [统一维护入口](../workspace.md)，机器可读目录只有 [xr-image-tools/repositories.json](https://github.com/bitsk/xr-image-tools/blob/main/repositories.json) 一份。
 
-| 仓库 | 维护形式 | 源码包 | 二进制包 |
-|---|---|---|---|
-| [xr-kernel](https://github.com/bitsk/xr-kernel) | patch-stack | `linux-xr` | `linux-image-<kernelrelease>`, `linux-headers-<kernelrelease>`, `xr-kernel-uapi-dev`, `linux-image-xr-arm64` |
-| [xr-mesa](https://github.com/bitsk/xr-mesa) | patch-stack | `mesa-xr` | `xr-mesa-vulkan-drivers` |
-| [xr-monado](https://github.com/bitsk/xr-monado) | upstream-derived | `monado-xr` | `xr-monado-steamvr-driver` |
-| [xr-hexagonrpc](https://github.com/bitsk/xr-hexagonrpc) | upstream-derived | `xr-hexagonrpc` | `libxr-hexagonrpc-dev`, `xr-hexagonrpc-source` |
-| [xr-device-io](https://github.com/bitsk/xr-device-io) | component | `xr-device-io` | `xr-device-tools`, `libxr-device-dev` |
-| [xr-head-tracking](https://github.com/bitsk/xr-head-tracking) | component | `xr-head-tracking` | `xr-head-tracking`, `xr-head-tracking-tools`, `libxr-head-dev` |
-| [xr-controller-tracking](https://github.com/bitsk/xr-controller-tracking) | component | `xr-controller-tracking` | `xr-controller-worker-bionic`, `libxr-controller-dev`, `xr-controller-tools` |
-| [xr-session-manager](https://github.com/bitsk/xr-session-manager) | component | `xr-session-manager` | `xr-session-manager` |
-| [xr-debug-console](https://github.com/bitsk/xr-debug-console) | component | `xr-debug-console` | `xr-debug-server`, `xr-debug-web`, `xr-debug-video`, `xr-debug-tools` |
-| [xr-vendor-assets](https://github.com/bitsk/xr-vendor-assets) | asset-catalog | `xr-firmware-a081`, `xr-vendor-a081` | `firmware-xr-a081`, `firmware-xr-a081-tracking`, `xr-vendor-a081-controller`, `xr-vendor-a081-dsp-host` |
-| [openkylin-xr-integration](https://github.com/bitsk/openkylin-xr-integration) | component | `openkylin-xr-integration` | `openkylin-xr-defaults`, `xr-device-a081`, `xr-device-a081-vr`, `openkylin-xr-base`, `openkylin-xr-streaming`, `openkylin-xr-debug`, `openkylin-xr-steamvr` |
-| [xr-image-tools](https://github.com/bitsk/xr-image-tools) | component | `xr-image-tools` | `xr-image-builder` |
-| [openkylin-xr-docs](https://github.com/bitsk/openkylin-xr-docs) | component | `openkylin-xr-docs` | `openkylin-xr-doc` |
+本地唯一应用源码工作区是 `openkylin-xr-repos/`。旧 build 路径是指向同目录的兼容链接；历史 qiyu 用户态仓库只用于归档与比对。已有候选工作树改动独立保留，固定提交构建不会混入它们。
 
-机器可读目录见 [xr-image-tools/repositories.json](https://github.com/bitsk/xr-image-tools/blob/main/repositories.json)。组件的精确提交与公开头文件摘要由 xr-image-tools 的 components.lock.json 固定，型号资产由集成仓库中的 vendor.lock.json 固定。
+内核实现继续在 [bitsk/qiyu-kernel](https://github.com/bitsk/qiyu-kernel) 维护；xr-kernel 负责锁定和打包该来源。Mesa 使用固定上游与适配补丁，Monado 与 FastRPC 保留各自上游历史。资产消费固定 [bitsk/qiyu-vendor](https://github.com/bitsk/qiyu-vendor) 的 Release 与逐文件摘要。
 
-## 当前验证范围
+`xr-image-tools/components.lock.json` 固定源码提交及公开接口摘要；`build-recipes.json` 规定 SDK 和消费组件的构建顺序。固件、相机标定、原权重模型及外部运行时的来源分别固定，不把私有资产混入公开源码。
 
-空间桌面新增组件与既有底座分别管理。`xr-shell`、`xr-dock`、`xr-spatial-kit`、`xr-wayland` 和 `xr-system-ui` 当前为设计中的维护入口，尚未发布实现；`xr-environments` 已准备独立的本地背景数据包。包边界和机器可读状态见 [桌面栈设计](xr-desktop-stack.md) 与 [desktop-stack.json](../desktop-stack.json)，不将这些提案加入上表作为已发布仓库。
-
-- 内核：14 个独立提交补丁重放通过，Image、125 个模块及型号 DTB 编译通过。启动镜像、目标发行版和实机验收分别进行。
-- 设备、FastRPC、头部跟踪：ARM64 交叉编译及开发接口消费通过。
-- 手柄：3 个 ARM32 worker 与 2 个兼容 shim 构建通过；执行能力和真实跟踪结果不由编译替代。
-- Monado：独立源码树的 ARM64 SteamVR driver 构建通过；OpenXR 后端单独推进。
-- 调试：ARM64 Rust 后端和 5 个原生 helper 构建通过，包含 CPU/GPU NV12 路径；实际视频链路与硬件编码分别验收。
-- 包装验证：多个数据、开发、工具和元包在主机 Debian 环境构建通过；厂商资产的 4 个独立包已生成。
-- 资产：已从 Gitee 下载并核验 247 个 OEM 文件；型号公共资产不含 per-device 校准。
-
-这些结果用于源码和打包迁移验证，不能视为目标 openKylin 发行线或新设备组合已经验收。
+旧功能迁移及已知限制见 [组件迁移清单](component-migration.md)。当前包构建结果以实际 build-manifest.json 和原始构建日志为准；源码发布、安装包生成、目标系统安装和硬件功能验收分别记录。手检测器1042仍是独立的待解决运行故障。

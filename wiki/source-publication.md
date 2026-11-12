@@ -1,9 +1,9 @@
 # 源码与交付入口
 
-以[仓库与软件包索引](repositories.md)为当前维护入口，代码、接口与打包规则分别归属对应仓库。
+[统一工作区](../workspace.md) 列出已发布的 20 个 bitsk GitHub 组件仓库。代码、接口和打包规则由各自唯一仓库维护；完整选择由 xr-image-tools 的组件锁与构建配方决定。
 
-内核与 Mesa 在 Gitee 维护锁定上游的源码补丁栈及打包入口。准备源码时检出真实上游历史，并逐条应用独立功能提交。Monado 与 FastRPC 保留上游派生的源码历史。定制改动不自动写入标准项目或发行版常规维护线。
+内核实现属于 [bitsk/qiyu-kernel](https://github.com/bitsk/qiyu-kernel)，xr-kernel 只保存固定来源和打包入口。Mesa 通过固定上游历史及适配补丁准备；Monado 与 FastRPC 保留其真实上游历史。旧 Gitee 仓库和历史发布保留，后续镜像同步不成为第二套维护来源。
 
-厂商数据归档在 xr-vendor-assets 的 a081-vendor-r1 Release；独立安装路径的包预览在 a081-packages-r1 Release。档案文件 SHA-256 固定 OEM 字节，消费锁中的 install_path 表达具体安装策略。固件包进入私有型号目录，目标启动配方显式选择该路径。
+型号公共 OEM 数据继续消费 [bitsk/qiyu-vendor](https://github.com/bitsk/qiyu-vendor) 的 a081-vendor-r1 Release。集成仓库 vendor.lock.json 固定资产 ID、压缩包和全部文件 SHA-256；xr-vendor-assets 从校验缓存构建型号软件包。公共包不包含 per-device 标定和手模型权重。
 
-本文档中的历史硬件文章是已有平台的参考记录。新仓库的构建、包安装、目标发行版适配和实机验收各自独立，历史测量不能替代迁移后组合的验收。
+当前 GitHub 源码不等于已经发布新的二进制 Release。构建产物由新的外部输出目录保存，其 manifest 记录精确提交和包摘要。构建、安装、服务运行和佩戴验收各自独立；历史测量不替代迁移后组合的验收。
