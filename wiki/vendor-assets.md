@@ -5,7 +5,7 @@ title: 原厂二进制归档
 
 # 原厂二进制归档
 
-[bigbits/xr-vendor-assets](https://github.com/bitsk/xr-vendor-assets) 是公开资产仓库，Git 保存来源清单和打包工具，二进制放在 [固定 Release](https://github.com/bitsk/xr-vendor-assets/releases/tag/a081-vendor-r1)。公开代码仓库只记录版本、资产 ID 和摘要；正常构建不再反复提取整份原厂镜像。
+[bigbits/xr-vendor-assets](https://github.com/bitsk/xr-vendor-assets) 是公开资产仓库，Git 保存来源清单和打包工具，二进制放在 [固定 Release](https://github.com/bitsk/qiyu-vendor/releases/tag/a081-vendor-r1)。公开代码仓库只记录版本、资产 ID 和摘要；正常构建不再反复提取整份原厂镜像。
 
 ## A081 首批快照
 
