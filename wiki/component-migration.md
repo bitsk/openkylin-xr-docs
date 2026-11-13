@@ -29,7 +29,7 @@ The main kernel implementation remains in [bitsk/qiyu-kernel](https://github.com
 | Desktop source ownership | xr-shell / xr-spatial-kit / xr-system-ui / xr-dock / xr-wayland / xr-environments | Components retain their single owners and are selected through one source lock. Pre-existing unvalidated worktree edits are preserved separately |
 | OpenXR loader dependency | openkylin-xr-integration | Exact upstream ARM64 package import is locked because the openKylin archive lacks the loader. The bundle carries it explicitly and pins transitive runtime package versions |
 | OEM assets | xr-vendor-assets | Single checksummed firmware/SDK cache and generated Debian packages retained. No per-device calibration or model weights published |
-| Quest hand backend | xr-hand-tracking | Original-weight backend source and standard joint mappings retained. Recurrent detector1042 and physical gesture/tap acceptance remain unresolved |
+| Quest hand backend | xr-hand-tracking | Original-weight backend and standard joint mappings retained. Internal V66 logs identified VTCM acquisition failure; a 16 KiB outer-graph hint passed identical-output replay and 1759 concurrent live computations. Positive live-hand accuracy and physical tap acceptance remain pending |
 
 ## Building and installing
 
@@ -39,4 +39,6 @@ The main kernel implementation remains in [bitsk/qiyu-kernel](https://github.com
 
 After package installation, `xr-session configure --profile EXISTING_PRIVATE_PROFILE --output NEW_PROFILE --capsule NEW_PRIVATE_CAPSULE` prepares a separate asset capsule and switches program references to the installed package entrypoints. It does not change boot selection or running services. Calibration, upstream SteamVR, original model weights and the externally licensed pose observer remain explicit private/upstream inputs.
 
-A complete clean image and hardware acceptance require applying packages/dependencies and device configuration. They are separate from successful package construction. The detector1042 fault is not repaired or hidden by repository migration.
+A complete clean image and hardware acceptance require applying packages/dependencies and device configuration. They are separate from successful package construction. Native package activation also requires the continuous head observer, DSP entropy mapping, installed exposure-table path, immutable installed controller plan, and stable private Mesa ICD filename. These paths are now exercised by the installed session.
+
+The hand backend uses the original DSP library and weights. A controlled concurrent run completed 1759 detector/backbone/fusion/host-decoder groups after reducing the outer VTCM hint, with no execution error. Both saved-hand outputs and an exact failed detector input matched the default configuration byte for byte. This is an execution/resource result; physical gestures and double-tap thresholds still require wearer validation. Root session controls subscribe to the existing IMU relay, and tracking reacquisition requires gesture release before accepting a new action.
