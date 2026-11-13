@@ -45,6 +45,8 @@ xr-perf-capture --output /tmp/xr-perf-sample \
   --seconds 15 --interval-ms 100 --shell-dir "$scene_dir"
 ```
 
+可用 `--json-source NAME=PATH` 订阅至多 8 个已有生产者 JSON 文件，保留来源原始时间戳和本次读取夹区间，不把读取时间当作曝光/推理完成时间；单份上限 1MiB。`--drm-fdinfo` 可记录所选进程暴露的 DRM GPU/内存累计计数，驱动不提供时为空。
+
 按需添加 `--trace`（通常需 root）与 `--perf`。时长上限 120 秒，采样间隔 20–2000ms；trace 每 CPU 4MiB，因此高事件率下仍会覆盖，必须检查 `capture.json` 的 buffer stats。tracefs instances 不可用时只记录缺失，不回退改全局 tracing。SIGINT/SIGTERM 停止采集并清理自己建立的 instance/perf 子进程。
 
 产物：`capture.json`（boot、PID/路径、时钟夹区间、能力/错误/覆盖计数）、`system.jsonl`、可选 `system.ftrace`、`perf.data`、结束系统采样后请求的 `timeline.json`。本地证据含进程与设备信息，公开前按工程隐私规则处理。`perf report -i perf.data --stdio -g` 可展开 CPU 调用栈；具体函数符号需要对应构建的调试符号。
