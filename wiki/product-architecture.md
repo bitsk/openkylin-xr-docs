@@ -47,6 +47,10 @@ MIX 的新实现位于 `xr-monado/compat/passthrough`，由 `xr-runtime-passthro
 
 HyperSpace 不包含相机实现，只使用运行时的 `ALPHA_BLEND` 与图层 alpha。系统会话显式选择私有标定和运行时层，沿用唯一相机生产者；控制中心依据当前会话新鲜的运行时状态开放开关。接口可用、相机双目新鲜和画面成功提交分别报告，超过 150 ms 的图像不会冻结显示为实时透视。关闭透视后停止快照读取。
 
-本实现先完成离线构建验证，尚未在 MIX 部署或验收。需要继续验证 HyperSpace 与独立 Vulkan2 OpenXR 应用的透视切换、源帧更新、重定位、输入连续性、退出和桌面恢复，以及佩戴时的画面对齐。出队时间补偿不等于曝光对齐，尚未实现深度/平移重投影。构建通过不代表这些实机项目通过。运行时接口与激活约束见 [XROS passthrough](https://github.com/bitsk/xr-monado/tree/codex/hand-input-integration/compat/passthrough)。
+ARM64 组合已在 MIX 部署：HyperSpace 的透视开关、双眼不同源帧递增、关闭后停止读取和重新开启通过；独立 Khronos `hello_xr` 的 Vulkan2／AlphaBlend 应用也接通双目透视并正常退出。用户短时佩戴确认真实环境和悬浮桌面可见，暂未发现异常。这是基础可见性反馈，不代表完成外参精度或长期舒适性验收。
+
+场景和运行时正常退出、桌面恢复及再次进入已验证，头部观测、手柄服务和手部服务可运行。现有跟踪采集进程退出仍返回非零，整会话的 `tracking_capture` 验证门槛未通过；场景清理通过且 FastRPC 对象已清零，不能据此隐去采集错误。运行时原点重置调用成功，但 HyperSpace 未观察到 OpenXR 重定位事件，该项仍待验证。当前组合尚未完成过期源故障实测、实体手势/手柄精度、曝光对齐及长期运动舒适性验收；尚未实现深度/平移重投影。运行时接口与激活约束见 [XROS passthrough](https://github.com/bitsk/xr-monado/tree/main/compat/passthrough)。
+
+启动选择按系统安装路径、配置和常规文件权限处理。自启动单元不固定驱动摘要；会话配置、实验组件选择和会话诊断均已移除内容摘要机制，软件包更新后直接使用安装的新版本。
 
 此版本按新接口集成，不提供旧环境变量或相机直读接口的兼容路径。新系统会话、系统面板、Vultra 与组装锁必须作为同一组合消费；不在未验收时替换现用设备基线。
