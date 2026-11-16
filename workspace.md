@@ -1,5 +1,7 @@
 # MIX openKylin XR workspace
 
+产品正式名称为 **openKylin XR 空间智能版本**；HyperSpace 是 XR 空间桌面，Vultra 是空间合成器，晴空是空间主题。参见[产品命名与系统边界](wiki/product-architecture.md)。
+
 The only maintained application/component sources are the repositories listed below. Source builds use `xr-image-tools/components.lock.json` and `xr-build-components`; historical qiyu component checkouts are audit/evidence archives.
 
 The kernel implementation remains in [bitsk/qiyu-kernel](https://github.com/bitsk/qiyu-kernel), selected and packaged by `xr-kernel`. OEM binaries remain in the existing [bitsk/qiyu-vendor](https://github.com/bitsk/qiyu-vendor) release archive, consumed by digest through `xr-vendor-assets`. These are upstream/source dependencies, not second openKylin implementations.
