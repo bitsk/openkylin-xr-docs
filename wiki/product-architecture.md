@@ -43,8 +43,10 @@ Vultra 的 `XR_ENVIRONMENT_MODE=passthrough` 要求运行时枚举 `ALPHA_BLEND`
 
 相机采集、RAW 解码、内外参、畸变校正、曝光时间对齐、透视重投影应归设备服务和 XR 运行时。WiVRn 可在支持的头显端合成透视，不代表主机获得原始相机访问权限。参见 [WiVRn](https://github.com/WiVRn/WiVRn) 和 [OpenXR 环境混合模式](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#environment_blend_mode)。
 
-**当前 MIX 运行时只报告 OPAQUE。** 新版移除了 Shell 内的 QSP1、RAW10、标定与手柄 Home 包解析，未把这些代码复制成另一份维护入口。旧实现保留在 Git 历史供运行时迁移参考。原生 MIX 彩透尚未完成运行时实现，系统控制器因此报告透视与双敲透视不可用；配置文件存在不算支持。
+MIX 的新实现位于 `xr-monado/compat/passthrough`，由 `xr-runtime-passthrough` 包提供。现用呈现链路是 SteamVR/OpenXR，Monado 提供设备驱动；新实现是 XROS 的显式 OpenXR 运行时适配层，在应用进程内消费已有 QSP1 快照，执行 RAW10 解码、标定投影与可选出队时间旋转补偿，再提交相机背景图层。最终图层合成和呈现仍由现用运行时负责，并未启用原生 Monado 合成器。
 
-运行时后续接入门槛：复用既有相机生产者、真实时间与标定；完成运行时环境合成；仅在能力可用时发布 ALPHA_BLEND 或相应扩展；验证独立应用和 HyperSpace 的透视、退出、姿态与佩戴效果。源码拆分或离线构建不构成这一项验收。
+HyperSpace 不包含相机实现，只使用运行时的 `ALPHA_BLEND` 与图层 alpha。系统会话显式选择私有标定和运行时层，沿用唯一相机生产者；控制中心依据当前会话新鲜的运行时状态开放开关。接口可用、相机双目新鲜和画面成功提交分别报告，超过 150 ms 的图像不会冻结显示为实时透视。关闭透视后停止快照读取。
+
+本实现先完成离线构建验证，尚未在 MIX 部署或验收。需要继续验证 HyperSpace 与独立 Vulkan2 OpenXR 应用的透视切换、源帧更新、重定位、输入连续性、退出和桌面恢复，以及佩戴时的画面对齐。出队时间补偿不等于曝光对齐，尚未实现深度/平移重投影。构建通过不代表这些实机项目通过。运行时接口与激活约束见 [XROS passthrough](https://github.com/bitsk/xr-monado/tree/codex/hand-input-integration/compat/passthrough)。
 
 此版本按新接口集成，不提供旧环境变量或相机直读接口的兼容路径。新系统会话、系统面板、Vultra 与组装锁必须作为同一组合消费；不在未验收时替换现用设备基线。
