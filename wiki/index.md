@@ -21,8 +21,11 @@ title: 工程 Wiki
 - [UKUI XR 桌面软件栈]({{ '/wiki/xr-desktop-stack/' | relative_url }})：Rust Shell、独立 Dock/组件、窗口服务、包与实施顺序。
 - [XR Shell 最小 v1 draft 合同]({{ '/wiki/xr-desktop-protocol/' | relative_url }})：版本/能力、generation/revision、场景、capture、shm 与 focus_epoch。
 - [UKUI XR 实施计划]({{ '/wiki/xr-desktop-implementation/' | relative_url }})：M0/M1 历史范围、空间视觉约束与原生 ARM64 上 M2–M4 待完成验收表。
+- [XR 空间开发约束与平面化已知问题]({{ '/wiki/xr-spatial-guidelines-and-issues/' | relative_url }})：2D/平面化开发病灶清单（ISSUE-XR-01..14）与全仓库 XR 空间人体工学、6DoF 交互、光学材质与渲染架构强制约束。
 
 ## 开发与维护
+
+- [桌面与应用协作开发]({{ '/wiki/desktop-development/' | relative_url }})：从仓库恢复环境、组件分工与跨仓接口协作。
 
 - [仓库架构与职责]({{ '/wiki/architecture/' | relative_url }})：八个代码仓库与独立文档仓库。
 - [原厂二进制归档]({{ '/wiki/vendor-assets/' | relative_url }})

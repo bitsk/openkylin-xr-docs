@@ -5,14 +5,15 @@ title: XR 空间开发约束、独立审计与画面防抖指南
 
 # XR 空间开发约束、独立审计与画面防抖指南
 
-本文档整合了 `openKylin XR` 空间桌面组件（`xr-shell`、`xr-spatial-kit`、`xr-dock`、`xr-system-ui`、`xr-wayland`）以及底层运行时（`xr-monado`、`xr-head-tracking`）的三个核心部分：
+本文档整合了 `openKylin XR` 空间桌面组件（`xr-shell`、`xr-spatial-kit`、`xr-dock`、`xr-system-ui`、`xr-wayland`）以及底层运行时（`xr-monado`、`xr-head-tracking`）的四个核心部分：
 1. **Shell 0.2.18 / Kit 0.2.5 / Dock 0.2.6 / System UI 0.2.12 审计基点及后续修复记录**；
 2. **转头画面抖动（Head-Turn Judder / Swim）的源码风险、运行时边界与实测门槛**；
-3. **全仓库 XR 空间开发与架构强制约束规范（含历史 14 项平面化问题对标）**。
+3. **XR 手柄交互实施规范与验收清单（设计要求，以后文落地记录区分实现状态）**；
+4. **全仓库 XR 空间开发与架构强制约束规范（含历史 14 项平面化问题对标）**。
 
 ---
 
-## 第一部分：当前候选版本独立代码审计报告
+## 第一部分：Shell 0.2.18 审计基点及后续修复记录
 
 ### 1.1 总体审计评级：**B+（空间化范式已完成转型，留有 1 处高优命中 Bug 与 5 处中低优体验尾项）**
 
@@ -244,7 +245,175 @@ OEM 模型/握持/瞄准参数和追踪生产链没有修改。实体双手复�
 
 ---
 
-## 第三部分：历史平面化问题对标表（`ISSUE-XR-01` ~ `ISSUE-XR-14`）
+## 第三部分：XR 手柄完整交互逻辑实施规范（Agent 专项开发指导书）
+
+### 3.1 现状诊断：当前手柄输入链路缺失了什么？
+
+通过对 `xr-shell/src/input.rs`、`xr-shell/src/desktop.rs`、`xr-wayland/src/server.rs` 与 `xr-controller-tracking` 的逐行审计，当前手柄交互存在以下 **5 大功能断层**：
+
+1. **扳机键（Trigger）与主选键（Select / A / X）混为一谈，且无模拟量迟滞（Hysteresis）**：
+   - `input.rs:515` 直接写 `let pressed = state.select || state.trigger > 0.5;`。
+   - **问题**：单阈值 `0.5` 在手指悬停半按扳机时极易发生临界抖动（Chatter），连续触发误点击；且将食指扳机（`trigger`）与拇指按键（`A/X`）完全混同，无法区分“主点击”与“辅助点击（右键）”。
+2. **抓握键（Squeeze / Grip，中指侧键）只采集未消费（Dead Code）**：
+   - `input.rs:342` 读取了 `squeeze`（对应 A081 硬件 `middle_finger_raw` 或 Oculus Touch `/input/squeeze/value`），并记录到了日志（第 396 行 `state.squeeze > 0.5`），但在 `update_routes` 中**没有任何消费逻辑**！
+   - **问题**：在 XR 空间交互标准中，用户指望用**中指抓握键（Squeeze）直接随时随地抓取/移动眼前的整个窗口（即使射线指在窗口内容区，无需费力去瞄准底部细小的 Grab 胶囊）**，而用**食指扳机键（Trigger）点击窗口内的 2D 按钮/文本**。目前缺失抓握键逻辑，导致用户移动窗口极其费力。
+3. **完全缺失鼠标右键（Right-Click / Context Menu，`BTN_RIGHT = 273`）**：
+   - `desktop.rs:1196, 1515, 1921` 硬编码了 `"button": 272`（Linux `BTN_LEFT`）。
+   - **问题**：在 Linux 桌面应用（如 Pluma 编辑器、Peony 文件管理器、Firefox 浏览器、终端）中，用户完全无法呼出右键上下文菜单！虽然 `xr-wayland/src/server.rs:671` 已经支持接收任意 `button` 编号并转发给 Smithay，但 `xr-shell` 从未发送过 `273`（`BTN_RIGHT`）或 `274`（`BTN_MIDDLE`）。
+4. **完全缺失空间防抖双击（Double-Click Stabilization）與长按右键辅助**：
+   - **问题**：在 6DoF 空中手持手柄连续按两次扳机键时，手腕不可避免会产生 $0.3^\circ \sim 1.0^\circ$ 的微小抖动，映射到 $1.8\text{m}$ 外的窗口上就是 $10\sim 30\text{px}$ 的坐标漂移。传统 X11/Wayland 应用（如 Peony 双击打开文件夹、Pluma 双击选中单词）要求两次点击之间指针位移 $\le 4\sim 5\text{px}$，导致在 XR 中用射线几乎无法成功双击！此外，窗口顶栏/伴随栏也缺乏双击最大化/恢复或双击归中的空间快捷语义。
+5. **摇杆（Thumbstick）交互粗糙且存在多窗口抢占**：
+   - `input.rs:599-606` 在任意一只手推动摇杆时，直接调用 `desktop.controller_scroll(scroll)` 发送给 `self.focus`（当前键盘焦点窗口），**完全不检查这只手的射线正指在哪个窗口或哪个组件面板上**！
+   - 当一只手抓握窗口（`grabbing == true`）时，摇杆 Y 轴调节深度，但摇杆 X 轴被静默丢弃（无法在抓握时用摇杆 X 轴快速水平环绕或调节窗口曲率/大小）；且摇杆点击（Thumbstick Click `/input/thumbstick/click`）未绑定。
+
+---
+
+### 3.2 XR 手柄按键与动作映射总表（Target Interaction Matrix）
+
+Agent 在修改 `xr-shell`、`xr-wayland` 及底层驱动时，**必须严格按以下交互矩阵实现**：
+
+| 物理输入源 | OpenXR Action 路径 | 迟滞阈值 (Press / Release) | 在应用窗口表面 (`Target::Window` / `SurfaceReference`) 的行为 | 在空间外框 / 伴随栏 / 系统 UI (`Target::Node` / `Companion`) 的行为 | 在抓握态 (`Target::Move` / `Squeeze Grab`) 下的行为 |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| **食指扳机**<br>*(Trigger)* | `/input/trigger/value`<br>`/input/trigger/click` | **按下 $\ge 0.65$**<br>**释放 $\le 0.35$** | **鼠标左键 (`BTN_LEFT = 272`)**：<br>• 单击：激活焦点 + 左键按下/释放<br>• 拖拽：左键框选文本 / 拖动应用内滑块<br>• **空间防抖双击**：400ms 内二次按下且抖动 $< 1.2^\circ$（或 $< 24\text{px}$）时，强制锁死在第一次点击的 $(x_1, y_1)$ 坐标发送第二次点击 | • 激活系统 UI 按钮 / 拖动音量滑块<br>• 在窗口 Grab 胶囊上：启动 6DoF 球面抓握移动<br>• 在窗口 Grab 胶囊上**双击**：切换窗口曲面/平面或标准尺寸复位 | 若另一只手已用抓握键抓住同一窗口，第二只手扣扳机或抓握键抓住该窗口即进入**双手捏合缩放（Bimanual Scale）** |
+| **中指抓握键**<br>*(Squeeze / Grip)* | `/input/squeeze/value`<br>`/input/squeeze/click` | **按下 $\ge 0.60$**<br>**释放 $\le 0.35$** | **任意位置直接 6DoF 空间抓握窗口（Direct Window Grab）**：<br>• 射线指在窗口**任意位置**按住抓握键，无需瞄准底部 Grab 胶囊，立即将该窗口切换为 `Target::Move` 6DoF 球面搬运模式（不向应用内发送左键点击，避免误触应用内容）<br>• 双手同时在窗口任意两处按住抓握键：立即进入**双手捏合缩放** | • 在可移动空间面板上：抓握移动或重锚定<br>• 在固定 UI 控件上：不触发误点击 | 保持抓握移动；释放抓握键（$\le 0.35$）结束窗口搬运或退出双手缩放 |
+| **副按键 (A / X)**<br>或 **扳机静止长按** | `/input/a/click` (右)<br>`/input/x/click` (左)<br>`/input/trackpad/click` | 布尔边沿<br>或长按 $650\text{ms}$ | **鼠标右键 (`BTN_RIGHT = 273`)**：<br>• 射线指向窗口时按下 A/X 键，立即激活窗口焦点并在当前射线交点发送 `pointer_motion` + `BTN_RIGHT (273)` 按下与释放，唤出应用右键菜单<br>• **无 A/X 键的简单手柄回退**：扳机键在窗口内按下后保持 $650\text{ms}$ 且射线位移 $< 0.8^\circ$（`< 12px`），自动取消左键并触发一次右键点击 + 中等触觉脉冲 | 预留快捷上下文操作（如在 Dock 图标上按右键直接打开该应用的“窗口选择器 `window-picker`”） | 抓握窗口期间按 A/X 键：将窗口立即重置为正对用户的标准垂直/水平距离并切换曲面 (`Curve`) |
+| **返回/菜单键**<br>*(B / Y / Menu)* | `/input/b/click` (右)<br>`/input/y/click` (左)<br>`/input/menu/click` | 布尔上升沿 | • 若存在活跃 Capture，先取消 Capture<br>• 若窗口有打开的 `xdg_popup`（如右键菜单）或对话框，向焦点窗口发送 `Escape (keycode = 1)` 关闭弹窗 | 收起当前打开的二级弹出面板（如 Wi-Fi 密码键盘、应用库、窗口选择器） | 立即取消当前窗口移动/缩放 Capture，将窗口还原至抓握前的位置与尺寸 |
+| **摇杆二维推杆**<br>*(Thumbstick XY)* | `/input/thumbstick`<br>`/input/trackpad` | 径向死区 $r \le 0.18$<br>指数曲线响应 | **射线指向目标优先滚动（Hovered-Target Scroll）**：<br>• 优先向**当前该手射线所指向的窗口**发送二维平滑滚动（`scroll dx, dy`），若射线未指向任何窗口才回退到当前 `focus` 窗口<br>• 支持非线性加速（微推慢滚逐行阅读，满推快滚翻页） | 当射线指向支持翻页的组件面板（如 `xr-dock` 应用库、`window-picker`、`xr-system-ui` Wi-Fi 列表）时，摇杆左右/上下超过 $\pm 0.65$ 触发带冷却（$280\text{ms}$）的翻页 | • **摇杆 Y（前后）**：推拉调节抓握窗口深度 $d \in [0.6\text{m}, 4.0\text{m}]$（速度 $1.2\text{m/s}$）<br>• **摇杆 X（左右）**：微调窗口宽度缩放或沿球面偏航角平移 |
+| **摇杆按下**<br>*(Thumbstick Click)* | `/input/thumbstick/click` | 布尔边沿 | **鼠标中键 (`BTN_MIDDLE = 274`)**：<br>• 在窗口内触发中键点击（用于 Linux Primary Selection 粘贴、浏览器中键打开/关闭标签页） | 在空闲空间双击或长按：快捷切换任务栏 `fixed / follow` 模式 | 抓握窗口时按下摇杆：将窗口距离一键复位至标准舒适阅读距离 $1.80\text{m}$ |
+| **Home 键长按** | `A081_CONTROLLER_POSE_SOCKET` (`home.rs`) | 持续按住 $1000\text{ms}$ | 全局空间归中（`recenter`）：重置水平参考空间原点与偏航角，取消所有进行中的手部 Capture | 同左 | 取消抓握并归中 |
+
+---
+
+### 3.3 分模块详细代码实现指南（供执行 Agent 逐步落实）
+
+#### 模块一：`xr-shell/src/input.rs` —— 动作集扩展、模拟量施密特触发器与双击/长按状态机
+
+1. **分离 Action 定义与硬件 Profile 绑定**
+   - **修正当前错误绑定**：当前 `input.rs:167-173` 将 Oculus Touch 的 `x/click` 和 `a/click` 绑到了 `select` 上，导致 `A/X` 键与扳机键完全混同。
+   - **正确绑定方式**：
+     - `trigger` (`Action<f32>`)：绑定 `/user/hand/{hand}/input/trigger/value`（Touch / Index / A081）及 `/input/trigger/click`（Vive）；
+     - `select` (`Action<bool>`)：仅用于 `/interaction_profiles/khr/simple_controller` 的 `/input/select/click`；
+     - **新增 `secondary` (`Action<bool>`)**：专门用于鼠标右键！绑定 Oculus Touch 的 `/user/hand/left/input/x/click` 与 `/user/hand/right/input/a/click`，以及 Vive 的 `/input/trackpad/click`；
+     - `squeeze` (`Action<f32>`)：绑定 `/user/hand/{hand}/input/squeeze/value`（Touch）以及 `/user/hand/{hand}/input/squeeze/click`（Vive）；
+     - **新增 `thumb_click` (`Action<bool>`)**：专门用于鼠标中键/复位！绑定 `/user/hand/{hand}/input/thumbstick/click`。
+
+2. **为 Trigger 和 Squeeze 引入施密特触发器（Schmitt Trigger Hysteresis）**
+   - 严禁使用单一阈值 `state.trigger > 0.5`。在 `Input` 中为每只手维护 `trigger_latched: [bool; 2]` 与 `squeeze_latched: [bool; 2]`：
+   ```rust
+   const TRIGGER_PRESS_THRESHOLD: f32 = 0.65;
+   const TRIGGER_RELEASE_THRESHOLD: f32 = 0.35;
+   const SQUEEZE_PRESS_THRESHOLD: f32 = 0.60;
+   const SQUEEZE_RELEASE_THRESHOLD: f32 = 0.35;
+
+   fn schmitt(latched: &mut bool, value: f32, press_th: f32, release_th: f32) -> bool {
+       if *latched {
+           if value <= release_th {
+               *latched = false;
+           }
+       } else if value >= press_th {
+           *latched = true;
+       }
+       *latched
+   }
+   ```
+
+3. **实现抓握键（Squeeze）独立路由通道**
+   - 当某只手 `squeeze_latched` 产生上升沿（`new_squeeze_press`）时：
+     - 调用 `desktop.ray_squeeze(ray.origin, ray.direction, "press", SOURCES[hand])`；
+     - 在 `desktop.rs` 中，若射线命中 `Target::Window(k)`、窗口的 `SurfaceReference` 或窗口伴随栏（`Grab / Orb`），**直接创建 `Target::Move(k)` 抓握 Capture**，而不向 Wayland 窗口发送鼠标点击！
+     - 若左、右两只手同时对同一个窗口 `k` 持有 `Target::Move(k)`（无论是通过底部 Grab 胶囊还是通过 Squeeze 键抓握窗口任意位置），立即激活现有的 `Bimanual` 双手缩放逻辑（`spatial_ui.rs:994-1012`）！
+     - 抓握成功瞬间触发一次沉稳的低频长触觉脉冲 `(amplitude: 0.55, duration_ms: 22)`，与普通按钮点击的清脆脉冲 `(0.35, 12ms)` 形成明显的触感区分。
+
+4. **摇杆非线性响应曲线与射线悬停目标路由**
+   - 将当前线性的死区映射升级为**二次方精细控制曲线（Quadratic Precision Curve）**，解决微推摇杆时滚动过快、满推时又不够快的问题：
+   ```rust
+   fn stick_curve(v: f32) -> f32 {
+       const DEADZONE: f32 = 0.18;
+       if !v.is_finite() || v.abs() <= DEADZONE {
+           0.0
+       } else {
+           let norm = (v.abs() - DEADZONE) / (1.0 - DEADZONE);
+           v.signum() * (0.35 * norm + 0.65 * norm * norm)
+       }
+   }
+   ```
+   - 滚动路由改为传入当前手的射线：`desktop.controller_scroll_at(SOURCES[hand], ray.origin, ray.direction, scroll)`，优先滚动当前手射线所指的窗口，无需先点击切换焦点即可边看参考文档边滚动。
+
+---
+
+#### 模块二：`xr-shell/src/desktop.rs` —— 鼠标左/右/中键、空间防抖双击与抓握仲裁
+
+1. **扩展 `pointer_surface` 支持多鼠标按键（左键 `272` / 右键 `273` / 中键 `274`）**
+   - Linux `input-event-codes.h` 定义：
+     - `BTN_LEFT = 272` (`0x110`)
+     - `BTN_RIGHT = 273` (`0x111`)
+     - `BTN_MIDDLE = 274` (`0x112`)
+   - 在 `Capture` 与 `pending_pointer` 中增加 `button: u32` 字段（默认 `272`）。
+   - 当用户按下副按键 `secondary`（A/X 键）或中键 `thumb_click` 时，通过 `desktop.ray_button(origin, direction, phase, source, button_code)` 路由：
+     - 若目标窗口尚未获得焦点（`!self.focus_applied`），`pending_pointer` 保存 `{"x": local[0], "y": local[1], "button": button_code}`，待 `FocusApplied` 到达后发送对应 `button` 的按下事件；
+     - 若目标窗口已获得焦点，直接发送 `pointer_motion` + `pointer_button(button_code, pressed)`；
+     - 当 `cancel_source` 取消 Capture 时，使用 `c.button` 发送对应的 `pressed: false` 释放事件（修复当前 `release_capture_surface` 硬编码释放 `272` 的问题）。
+
+2. **实现“空间防抖双击稳定器（Spatial Double-Click Stabilizer）”**
+   - **为什么必须由 Shell 实现**：Wayland 客户端（GTK/Qt/Xwayland）内部通过判断连续两次 `wl_pointer::button` 按下事件的时间差（通常 $\le 400\text{ms}$）和表面局部坐标差（通常 $|\Delta x|, |\Delta y| \le 4\text{px}$）来识别双击。6DoF 手柄射线在两次扣动扳机之间必然产生数像素到十余像素的抖动，如果不做空间防抖，应用会将双击拆成两次独立的单击。
+   - **数据结构与算法**：
+     在 `Desktop` 中维护每只手（`source`）最近一次成功释放点击的记录：
+     ```rust
+     struct ClickRecord {
+         target_key: String,       // 窗口 key 或 companion id
+         button: u32,              // 272 / 273 / 274
+         local_xy: [f32; 2],       // 第一次按下时的锁定表面坐标
+         ray_dir: [f32; 3],        // 第一次按下时的射线方向单位向量
+         pressed_at: Instant,      // 第一次按下时刻
+         count: u8,                // 连击计数 (1 -> 2)
+     }
+     ```
+     - **双击判定条件**：当同一 `source`、同一 `button`（如左键 `272`）在同一窗口 `target_key` 上再次触发 `press`，且满足：
+       1. 距离上次 `pressed_at` 时间差 $\Delta t \in [40\text{ms}, 420\text{ms}]$；
+       2. 当前射线方向与上次 `ray_dir` 的夹角 $\arccos(\mathbf{d}_1 \cdot \mathbf{d}_2) \le 1.5^\circ$ **或者** 表面局部坐标距离 $\|(x, y) - (x_1, y_1)\|_2 \le 24.0\text{px}$；
+     - **坐标钳位（Coordinate Clamping）**：一旦判定为双击（及紧随其后的双击释放），**强制将本次发送给 `pointer_surface` 的局部坐标替换为第一次点击的 `record.local_xy`**！这样 Wayland 应用收到的两次点击坐标误差为严格的 $(0.0, 0.0)$，100% 稳定触发双击打开文件、双击选中文本！
+     - **空间外框双击能力**：当在窗口底部的 `Grab` 胶囊上触发双击时，自动切换该窗口的 `curved`（平面/曲面）或将其恢复至视野正前方标准尺寸。
+
+3. **实现“长按静止触发右键（Hold-to-Right-Click）”可选辅助**
+   - 对于没有独立 A/X 键的控制器（或单手仅用扳机操作时），在窗口表面 `Capture` 处于 `drag` 阶段时：
+     - 若按住时长达到 $650\text{ms}$、尚未触发过长按右键、且从按下至今的最大表面位移 $\max \|(x, y) - \text{start}\|_2 \le 10.0\text{px}$：
+     - 自动发送一次左键释放（`button: 272, pressed: false`），紧接着在原位发送一次右键点击对（`button: 273, pressed: true` -> `pressed: false`），并触发一次双脉冲触觉反馈，提示用户右键菜单已弹出。
+
+---
+
+#### 模块三：`xr-controller-tracking` & `xr-monado` —— 打通 A081 真实硬件按键与摇杆到 OpenXR
+
+当前 `xr-controller-tracking/include/xr/controller/a081_controller_controls.h` 已经完整解码了 A081 手柄的底层无线报文，而 `xr-shell/src/home.rs` 证明了 `a081_controller_pose_wire.h` v2 协议在偏移 `60` 处已包含 `controls: u32` 字段（`let controls = u32_at(60);`）。Agent 在衔接底层硬件与 OpenXR Action 时须对齐以下硬件映射：
+
+1. **A081 原厂手柄报文到语义控件的映射关系（参考 `controls-contract.json`）**：
+   - `index_finger_raw`（`p[28] & 0x0f`，范围 `0..15`）$\longrightarrow$ **扳机键模拟量 `trigger`**（归一化为 `index_finger_raw as f32 / 15.0`）；
+   - `middle_finger_raw`（`p[28] >> 4`，范围 `0..15`）$\longrightarrow$ **抓握键模拟量 `squeeze`**（归一化为 `middle_finger_raw as f32 / 15.0`）；
+   - `joystick_raw[2]`（Mode 2 `signed8(p[28]), signed8(p[27])`，按左右手 JNI 规则交换/取反并限制在 `[-80, 80]`）$\longrightarrow$ **摇杆二维向量 `stick`**（归一化为 `[-1.0, 1.0]`）；
+   - `buttons_raw`（Mode 1 `p[27] & 0xf0`）：
+     - Home / System 键位（`0x40`）由运行时与 `home.rs`（长按 1s 归中）消费；
+     - A/B（右手）与 X/Y（左手）、Menu、摇杆下按位分别映射到 OpenXR `/interaction_profiles/oculus/touch_controller` 的 `a/click` (`secondary`)、`b/click` (`back`)、`x/click` (`secondary`)、`y/click` (`back`)、`menu/click` (`menu`) 与 `thumbstick/click` (`thumb_click`)。
+2. **安全门限（Safety Gates）保持不变**：
+   - 任何按钮、扳机、抓握或摇杆值必须在 `a081_controller_controls_valid_mask(now, 100_000_000)` 校验新鲜度（$< 100\text{ms}$）且 `stock_enable == 1` 时才作为有效输入上报；
+   - 超时、断连或会话失焦时，必须立即清零模拟量并释放所有按键，严禁卡键（Stuck Button）或持续自动滚屏。
+
+---
+
+### 3.4 手柄交互验收测试用例（Agent 自测与回归清单）
+
+Agent 完成代码修改后，必须通过以下 6 项端到端验证（含 `xr-shell` 单元测试与 `DebugInput` / 实机验证）：
+
+| 测试编号 | 验证项目 | 输入操作 | 预期输出与验收标准 |
+| :--- | :--- | :--- | :--- |
+| **TEST-CTRL-01** | **扳机键施密特防抖** | 扳机值按 `0.0 -> 0.52 -> 0.68 -> 0.48 -> 0.30` 序列输入 | `0.52` 不触发按下；`0.68`（$\ge 0.65$）触发一次 `press`；回落到 `0.48`（$> 0.35$）保持 `drag` 不误释放；降至 `0.30`（$\le 0.35$）触发 `release`。 |
+| **TEST-CTRL-02** | **抓握键直接搬运窗口** | 射线指向 Pluma 窗口正中央文本区，按住中指抓握键（`squeeze = 0.8`）并移动射线 | 窗口进入 `Target::Move` 球面跟随移动并自动 `user_facing` 转向用户；**Pluma 内部不产生鼠标左键点击或文本选区变化**；双手同时 `squeeze` 同一窗口可缩放大小。 |
+| **TEST-CTRL-03** | **鼠标右键呼出菜单** | 射线指向 Pluma 文本区或桌面应用，按下手柄 `A` / `X` 键（或 `DebugInput` `button: 273`） | `xr-wayland` 收到 `SurfaceInput` `pointer_button { button: 273, pressed: true/false }`，应用在射线落点弹出真实 `xdg_popup` 右键上下文菜单。 |
+| **TEST-CTRL-04** | **空间防抖双击** | 在 $220\text{ms}$ 内连续两次扣动扳机，第二次按下时射线方向故意偏移 $0.8^\circ$（表面偏移约 $14\text{px}$） | Shell 识别为空间双击，第二次点击的 `pointer_motion` 与 `pointer_button` 坐标被严格钳位至第一次点击坐标 $(x_1, y_1)$，应用成功触发双击选词/打开目录。 |
+| **TEST-CTRL-05** | **摇杆悬停滚动与抓握推拉** | 1. 焦点在窗口 A，射线悬停在窗口 B 上推摇杆；<br>2. 按住抓握键抓起窗口 B 后推拉摇杆 Y | 1. 滚动事件送达悬停窗口（或焦点同步后滚动），支持快慢非线性速度；<br>2. 抓握期间推拉摇杆 Y 只改变窗口距离 $d \in [0.6\text{m}, 4.0\text{m}]$，不向窗口内发送滚轮事件。 |
+| **TEST-CTRL-06** | **失焦/断连安全释放** | 按住扳机或右键拖动中途触发 `focus_lost`、按 `B/Y` 返回键或控制器位姿失效 | 立即向组件发送 `Cancel`，向 Wayland 发送对应 `button`（`272` 或 `273`）的 `pressed: false`，且 `require_release` 置位防止恢复追踪后自动重按。 |
+
+---
+
+## 第四部分：历史平面化问题对标表（`ISSUE-XR-01` ~ `ISSUE-XR-14`）
 
 | 编号 | 原平面化问题描述 | 0.2.18 审计状态 | 现状说明与剩余门槛 |
 | :--- | :--- | :---: | :--- |
@@ -265,7 +434,7 @@ OEM 模型/握持/瞄准参数和追踪生产链没有修改。实体双手复�
 
 ---
 
-## 第四部分：全仓库 XR 空间开发与架构强制约束规范
+## 第五部分：全仓库 XR 空间开发与架构强制约束规范
 
 `openkylin-xr-repos` 下所有涉及空间桌面、UI 组件、窗口服务、跟踪与运行时合成的改动，必须持续遵守以下六条硬性工程约束：
 
@@ -279,16 +448,19 @@ OEM 模型/握持/瞄准参数和追踪生产链没有修改。实体双手复�
 3. **基于当前水平视线（Horizon-Relative Spawn）的动态生成**
    - **禁止**新启动的应用窗口或按需唤出的系统面板直接硬编码生成在绝对 `STAGE` 原点前方。必须以唤出瞬间用户的水平视线方向（Horizon-projected Head Yaw）与当前眼高为基准生成，再锁定到世界空间。
 
-### 约束 2：6DoF 空间操纵与多模态输入规则（6DoF Manipulation & Input）
-1. **球面极坐标拖拽与深度推拉（Spherical Grab & Depth Control）**
-   - 窗口抓握移动必须沿 3D 射线保持抓握距离与局部锚点、实时面向用户旋转，并支持手柄推拉与摇杆深度调节（$d \in [0.6\text{m}, 4.0\text{m}]$）；双手缩放窗口释放后应同步协调应用逻辑分辨率重绘。
-2. **双指针独立并发（Dual-Hand Concurrent Ray & Capture）**
-   - 左右手控制器必须拥有各自独立的 `PointerId`、独立的 Hover 状态、独立的射线/准星渲染反馈与独立的 `Capture` 槽位。
-3. **空间热区角尺寸下限与同平面优先级（Angular Hit-Target & Priority）**
-   - 所有远场射线可点击控件在基准距离下的**最小有效命中角尺寸不得小于 $2.2^\circ$**。
-   - **同平面命中仲裁法则**：在同一面板或近似相等射线距离（`|\Delta t| < 1e-4`）下，**真实几何边界内部命中（Direct Hit）必须绝对优先于扩展热区命中（Slop Hit）**，严禁相邻控件的扩展 `slop` 吞噬邻近控件的真实点击区域。
-4. **三维按压行程与触觉反馈（3D Z-Travel & Haptics）**
-   - 所有可交互控件（含窗口伴随控制栏按钮）必须具备默认抬升、`Hover` 浮起、`Press` 下压的三维深度行程，并在跨越边界、按下、释放时触发 OpenXR `xrApplyHapticFeedback` 触觉脉冲。
+### 约束 2：6DoF 空间操纵与手柄多模态交互规则（6DoF Manipulation & Controller Input）
+1. **扳机点选与抓握搬运职责分离（Trigger-to-Click vs. Squeeze-to-Grab）**
+   - **食指扳机（Trigger）** 负责精细点选、文本拖拽与 UI 控件激活（映射为鼠标左键 `BTN_LEFT = 272`），必须具备双阈值施密特迟滞（按下 $\ge 0.65$，释放 $\le 0.35$）；
+   - **中指抓握键（Squeeze / Grip）** 负责直接抓取与空间搬运（映射为对指向窗口的直接 `Target::Move` 6DoF 球面拖拽与双手捏合缩放），按住抓握键移动窗口时严禁向应用内部误发鼠标点击事件。
+2. **完整桌面鼠标语义（右键、中键、空间防抖双击、摇杆滚动）**
+   - 必须支持**鼠标右键（`BTN_RIGHT = 273`）**（通过手柄 `A/X` 副按键或扳机静止长按触发）与**鼠标中键（`BTN_MIDDLE = 274`）**（摇杆下按）；
+   - 必须在 Shell 层实现**空间防抖双击稳定器**（在 $\le 420\text{ms}$ 且射线抖动 $\le 1.5^\circ$ 或 $\le 24\text{px}$ 时将第二次点击坐标钳位至首次点击坐标）；
+   - **摇杆（Thumbstick）** 在非抓握态下采用二次方精细曲线驱动悬停目标的 2D 滚动或组件翻页，在抓握态下驱动窗口深度推拉（$0.6\sim 4.0\text{m}$）。
+3. **双指针独立并发与同平面热区优先级（Dual-Hand Concurrent Ray & Hit Priority）**
+   - 左右手控制器必须拥有各自独立的 `PointerId`、Hover 状态、射线渲染反馈与 `Capture` 槽位；
+   - 所有远场射线可点击控件在基准距离下的**最小有效命中角尺寸不得小于 $2.2^\circ$**；在同一平面（`|\Delta t| < 1e-4`）下，**真实几何内部命中（Direct Hit）必须绝对优先于扩展热区命中（Slop Hit）**。
+4. **三维按压行程与分级触觉反馈（3D Z-Travel & Haptics）**
+   - 所有可交互控件（含窗口伴随控制栏按钮）必须具备默认抬升、`Hover` 浮起、`Press` 下压的三维深度行程，并在悬停边界、左键点击、右键呼出与窗口抓握时触发不同强度的 OpenXR `xrApplyHapticFeedback` 触觉脉冲。
 
 ### 约束 3：空间光学、材质与真实深度线索（Spatial Optics & Depth Cues）
 1. **严禁“假折射穿模”与 2D 静态贴皮高光**

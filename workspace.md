@@ -29,6 +29,10 @@ The kernel implementation remains in [bitsk/qiyu-kernel](https://github.com/bits
 | xr-system-ui | [xr-system-ui](https://github.com/bitsk/xr-system-ui) | xr-system-ui |
 | xr-wayland | [xr-wayland](https://github.com/bitsk/xr-wayland) | xr-window-server |
 
+## Desktop collaboration
+
+[桌面与应用协作开发](wiki/desktop-development.md) collects repository ownership, the locked desktop checkout, public dependencies, build commands and application entry points.
+
 ## Build and migration
 
 [Migration ledger](https://github.com/bitsk/openkylin-xr-docs/blob/main/wiki/component-migration.md) records the old capabilities, their single maintained owners and acceptance limits. The machine registry belongs to `xr-image-tools/repositories.json`; the workspace-level registry is a link to that maintained file.
