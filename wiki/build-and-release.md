@@ -13,33 +13,35 @@ qiyu-kernel 保留真实 Linux 主线历史，驱动、binding/DTS 和配置按�
 
 ## 用户态组件
 
-| 组件 | 当前入口 | 主要外部输入 |
-| --- | --- | --- |
-| device-service | CMakeLists.txt | xr-kernel 的 UAPI |
-| head-tracking | CMakeLists.txt | 相邻 device-service、目标编译器 |
-| controller-tracking | tools/build.py | Android NDK、外部 ARM32 C++ ABI 库 |
-| vr-runtime | tools/build.py | 固定 Monado 上游、头部/手柄接口、工具链 |
-| vr-session | tools/package.py | 会话源码与运行计划 |
-| debug | tools/build.py、tools/build_helpers.py | GStreamer/WebRTC sysroot、共享设备接口、OpenVR 头 |
-
-例如，在相邻检出功能仓库后，头部服务可这样交叉构建：
+openKylin 的组件源码只从独立仓库的准确 Git 提交导出。
+`xr-image-tools/components.lock.json` 固定提交与公共头摘要，`build-recipes.json`
+决定构建顺序；正式产物通过 `xr-build-components` 构建，放在源码工作区之外。
+工作树编辑、之前的构建目录和已安装 prefix 都不是项目代码输入。
 
 ```sh
-cmake -S xr-head-tracking -B build/head \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
-  -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
-  -DXR_KERNEL_DIR=/absolute/path/to/xr-kernel
-cmake --build build/head -j4
+python3 xr-image-tools/tools/components.py build \
+  --profile vr-hands --source-cache /workspace/components \
+  --environment /private/toolchain.json --output /build/new-components
 ```
 
-不同组件可能针对 ARM64/glibc 或 ARM32/Bionic，分别使用其 README 中的依赖和编译方式。SDK、原厂固件与运行库由设备资料或合法来源单独提供，源码仓库保存适配代码、接口与来源说明。
+工具链配置可声明外部 SDK、发行版依赖和交叉编译器，不能替换本次构建的组件接口。
+组件专用编译选项只能扩展当前 include 路径。公共协议由唯一所属组件提供，
+接口变更同步更新生产者、消费者、组件锁和部署。
 
-## 固定上游和接口
+## 实际编译输入
 
-vr-runtime 的 upstream.json 固定 Monado 提交、补丁摘要以及来自 head/controller 仓库的协议头。构建器导出干净上游、应用补丁并核对下游文件，再生成 provider。公共头由所属组件维护，rootfs 锁文件记录选用版本。
+源码提交、包版本和包内头文件正确，并不证明编译器使用了这些头文件。
+构建器检查实际编译依赖文件中的 `include/xr/` 路径和摘要：项目接口必须来自
+本轮隔离源码或 sysroot。运行时消费的头姿接口必须出现在依赖记录中，并匹配
+组件锁。部署导出再次检查这些记录，缺少证据的产物不能进入组合包。
 
-首次公开导入的组件提交见[源码发布记录]({{ '/wiki/source-publication/' | relative_url }})。后续组合以 xr-image-tools 的 components.lock.json 为准。
+构建后的 `build-manifest.json` 保存 `compiler_project_headers`。
+不能用复制公共头文件、匹配包版本或核对安装后摘要替代这项检查。
+真实进程的路径和摘要仍须与部署包核对；离线构建、实机遥测与佩戴确认分别记录。
+
+Monado、Mesa 和内核的上游来源继续固定到真实历史；适配补丁只在各自仓库维护。
+原厂库和模型通过独立资产锁导入，私有标定不进入公开源码。历史修改由 Git 保存，
+项目不维护并行协议、兼容实现或回退包。
 
 ## 系统、型号与功能组合
 

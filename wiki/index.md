@@ -34,3 +34,5 @@ title: 工程 Wiki
 - [内核维护与 rebase](https://github.com/bitsk/xr-kernel/blob/main/devices/a081/MAINTAINING.md)。
 
 [开发 Blog]({{ '/blog/' | relative_url }}) 按阶段讲述工程进展。需要追溯资料时，参阅[来源附录]({{ '/wiki/evidence-sources/' | relative_url }})。
+
+- [头追发布、回抽与最终呈现]({{ '/wiki/tracking-and-presentation/' | relative_url }})：真实编译输入、姿态门禁、回抽归因与呈现证据。
