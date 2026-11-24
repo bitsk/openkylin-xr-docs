@@ -33,6 +33,10 @@ The kernel implementation remains in [bitsk/qiyu-kernel](https://github.com/bits
 
 [桌面与应用协作开发](wiki/desktop-development.md) collects repository ownership, the locked desktop checkout, public dependencies, build commands and application entry points.
 
+## Publishing changes
+
+The [workspace agent rules](workspace-AGENTS.md#publish-completed-changes-to-github-main) define when to publish completed changes, how to update cross-repository locks, and how to verify GitHub `main`.
+
 ## Build and migration
 
 [Migration ledger](https://github.com/bitsk/openkylin-xr-docs/blob/main/wiki/component-migration.md) records the old capabilities, their single maintained owners and acceptance limits. The machine registry belongs to `xr-image-tools/repositories.json`; the workspace-level registry is a link to that maintained file.
