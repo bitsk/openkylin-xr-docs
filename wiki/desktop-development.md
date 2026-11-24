@@ -20,9 +20,9 @@ title: XR 桌面与应用协作开发
 | 桌面应用兼容 | [xr-wayland](https://github.com/bitsk/xr-wayland) | 私有 Wayland/Xwayland、窗口/弹出层、seat、SHM、选择与输入法；`compat/` 维护应用装饰适配 |
 | 环境与美术 | [xr-environments](https://github.com/bitsk/xr-environments) | `environments/qingkong/` 含完整运行纹理、格式、方向与摘要；使用条款见仓库内美术说明 |
 | 调试与性能 | [xr-debug-console](https://github.com/bitsk/xr-debug-console) | 前端、后端、API、帧时间线；设备专用采集不是桌面开发前置条件 |
-| 构建与场景启动 | [xr-image-tools](https://github.com/bitsk/xr-image-tools/tree/codex/desktop-handoff) | 唯一仓库清单、提交锁、配方、`xr-shell-session` / `xr-shell-wivrn` |
+| 构建与场景启动 | [xr-image-tools](https://github.com/bitsk/xr-image-tools) | 唯一仓库清单、提交锁、配方、`xr-shell-session` / `xr-shell-wivrn` |
 | 通用诊断辅助 | [xr-session-manager](https://github.com/bitsk/xr-session-manager) | 本组合只安装 `xr-diagnostic-tools`；设备会话管理包不属于主机桌面安装集 |
-| 跨仓接口与协作 | [openkylin-xr-docs](https://github.com/bitsk/openkylin-xr-docs/tree/codex/desktop-collaboration) | 产品边界、协议设计、空间规范与共同开发入口 |
+| 跨仓接口与协作 | [openkylin-xr-docs](https://github.com/bitsk/openkylin-xr-docs) | 产品边界、协议设计、空间规范与共同开发入口 |
 
 机器可读的仓库来源只维护在 `xr-image-tools/repositories.json`；
 版本由 `components.lock.json` 固定，构建顺序由 `build-recipes.json` 管理。
@@ -31,12 +31,12 @@ title: XR 桌面与应用协作开发
 ## 从空目录取得同一组源码
 
 桌面协作基点固定构建工具提交为
-`b5c3c1b787f4f9bf47d6778d40e9fc558147e086`。该提交在 `codex/desktop-handoff`
+`2c2042521d2b376e4a75bf7718978ab9301f9de6`。该提交在 `main`
 分支可取得；每个组件的准确提交继续从它的组件锁读取。
 
 ```sh
-git clone --branch codex/desktop-handoff https://github.com/bitsk/xr-image-tools.git
-git -C xr-image-tools checkout --detach b5c3c1b787f4f9bf47d6778d40e9fc558147e086
+git clone --branch main https://github.com/bitsk/xr-image-tools.git
+git -C xr-image-tools checkout --detach 2c2042521d2b376e4a75bf7718978ab9301f9de6
 builder="$PWD/xr-image-tools"
 out="$PWD/xr-desktop-build"
 python3 "$builder/tools/components.py" checkout \
@@ -117,7 +117,7 @@ xr-shell-wivrn
 `xr-shell-session`。场景入口创建私有 Wayland/Xwayland 与 D-Bus；安装包本身不启动场景。
 
 没有头显时，可以先做编译、协议与组件工作。模拟运行的构建和启动入口见
-[xr-image-tools/tools/qemu](https://github.com/bitsk/xr-image-tools/tree/codex/desktop-handoff/tools/qemu)。
+[xr-image-tools/tools/qemu](https://github.com/bitsk/xr-image-tools/tools/qemu)。
 其中 VM 装配流程要求显式准备辅助机，不提供预制开发盘；模拟结果不表示串流或真实佩戴通过。
 
 - **普通 2D 应用**：维护应用自己的源码和 `.desktop` 文件，经 `xr-wayland` 启动，
