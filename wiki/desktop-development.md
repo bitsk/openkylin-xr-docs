@@ -31,12 +31,12 @@ title: XR 桌面与应用协作开发
 ## 从空目录取得同一组源码
 
 桌面协作基点固定构建工具提交为
-`2c2042521d2b376e4a75bf7718978ab9301f9de6`。该提交在 `main`
+`9c80c2e2f895f148d9e3235e5a4a42fd77edfd4c`。该提交在 `main`
 分支可取得；每个组件的准确提交继续从它的组件锁读取。
 
 ```sh
 git clone --branch main https://github.com/bitsk/xr-image-tools.git
-git -C xr-image-tools checkout --detach 2c2042521d2b376e4a75bf7718978ab9301f9de6
+git -C xr-image-tools checkout --detach 9c80c2e2f895f148d9e3235e5a4a42fd77edfd4c
 builder="$PWD/xr-image-tools"
 out="$PWD/xr-desktop-build"
 python3 "$builder/tools/components.py" checkout \
