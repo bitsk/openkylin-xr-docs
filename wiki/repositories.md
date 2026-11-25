@@ -1,6 +1,6 @@
 # 仓库与软件包索引
 
-当前 20 个组件仓库统一发布在 bitsk 的 GitHub。完整职责和软件包表见 [统一维护入口](../workspace.md)，机器可读目录只有 [xr-image-tools/repositories.json](https://github.com/bitsk/xr-image-tools/blob/main/repositories.json) 一份。
+当前 21 个组件仓库统一发布在 bitsk 的 GitHub。完整职责和软件包表见 [统一维护入口](../workspace.md)，机器可读目录只有 [xr-image-tools/repositories.json](https://github.com/bitsk/xr-image-tools/blob/main/repositories.json) 一份。
 
 本地唯一应用源码工作区是 `openkylin-xr-repos/`。旧 build 路径是指向同目录的兼容链接；历史 qiyu 用户态仓库只用于归档与比对。已有候选工作树改动独立保留，固定提交构建不会混入它们。
 

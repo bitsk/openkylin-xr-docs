@@ -1,6 +1,6 @@
 # 源码与交付入口
 
-[统一工作区](../workspace.md) 列出已发布的 20 个 bitsk GitHub 组件仓库。代码、接口和打包规则由各自唯一仓库维护；完整选择由 xr-image-tools 的组件锁与构建配方决定。
+[统一工作区](../workspace.md) 列出已发布的 21 个 bitsk GitHub 组件仓库。代码、接口和打包规则由各自唯一仓库维护；完整选择由 xr-image-tools 的组件锁与构建配方决定。
 
 内核实现属于 [bitsk/qiyu-kernel](https://github.com/bitsk/qiyu-kernel)，xr-kernel 只保存固定来源和打包入口。Mesa 通过固定上游历史及适配补丁准备；Monado 与 FastRPC 保留其真实上游历史。旧 Gitee 仓库和历史发布保留，后续镜像同步不成为第二套维护来源。
 
