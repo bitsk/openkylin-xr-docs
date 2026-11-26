@@ -6,39 +6,34 @@ permalink: /wiki/mix-spatial-alpha/
 
 # openKylin 3.0 空间智能 Alpha · 奇遇 MIX 安装指南
 
-本版面向奇遇 MIX（A081、SM8250）。默认启动到 UKUI Wayland 桌面。空间桌面、原生 XR 应用和调试工具随镜像安装。进入立体空间会话还需要下文列出的外部运行时。
+本版供奇遇 MIX（A081、SM8250）使用。从 Android 进入 recovery 后，openKylin 会自动启动空间桌面。镜像已内置原生 ARM64 SteamVR 2.17.10、配套 Gamescope、姿态观察器、Monado 驱动和 XR Shell。安装和首次启动均可离线完成。
 
 ## 安装条件
 
 - 头显能正常进入已取得 Magisk root 的 Android B，已开启 USB 调试并授权电脑。核对型号为 A081。
 - 头显已有名为 `osstore` 的 GPT 分区，文件系统为 ext4，至少有 24 GiB 加 64 MiB 可用。系统镜像保存在该分区的独立目录中。仅有原厂分区布局的机器不能直接使用本安装流程。遇到这一情况请停在检查步骤。
-- 使用 Linux 电脑，准备 Python 3.8 或更高版本、Android Platform Tools（`adb`）、OpenSSL、zstd 和 GNU Coreutils。电脑至少预留 32 GiB，用于下载、解压和保存本机原 recovery。给头显充足电，保持 USB 连线稳定。
+- 使用 Linux 电脑，准备 Python 3.8 或更高版本、Android Platform Tools（`adb`）、OpenSSL、GNU tar、XZ Utils 和 GNU Coreutils。电脑至少预留 36 GiB，用于下载、解压和保存本机原 recovery。给头显充足电，保持 USB 连线稳定。
 - 原 Android 和已有 osstore 文件应另有备份。安装器在电脑保存这台头显原有的完整 `recovery_b`。每台头显使用独立备份目录。若原来通过 recovery 启动 Debian 等系统，安装 Alpha 会更换该启动入口。恢复本机原 recovery 后可重新使用。
 
 ## 下载和解压
 
-从同一个发布目录下载以下文件，放在同一空目录。另可下载发布说明、构建清单和软件包清单。
-
-| 文件 | 用途 |
-| --- | --- |
-| `openKylin-3.0-Spatial-Alpha-MIX-arm64.img.zst` | 压缩的可写 ext4 根文件系统，解压得到 24 GiB 的 `.img` |
-| `openKylin-3.0-Spatial-Alpha-MIX-recovery.img` | A081 专用启动镜像，100 MiB |
-| `install-mix.py` | 检查设备、安装系统、恢复原 recovery |
-| `SHA256SUMS` | 发布文件 SHA-256 |
-
-本批次压缩系统镜像的 SHA-256 为 `6fced2a48fdf68caa8aaa69b4ef0b5b5cfe873f007c9cc5809e33df1da7294d1`，解压后的原始镜像为 `f37a7611a9344086805a9a52f2d29e6e740d972150f04f9ac114627661acf3ab`，recovery 为 `8605b996ef3311859c3688b32510ceeb204a19f20d75c1f6d7dc5bf6ff6551f9`。
-
-先与官网下载页公布的 SHA-256 比对，再执行以下命令。网站若同时提供原始 `arm64.img`，可直接下载原始文件并跳过解压。
+下载同一版本的 `openKylin-3.0-Spatial-Alpha-MIX.tar.xz` 和旁边的 `.sha256` 文件，在空目录中执行以下命令。解压后进入的目录包含两份镜像、安装器、校验清单、发布说明和软件清单。
 
 ```sh
-sha256sum -c --ignore-missing SHA256SUMS
-zstd -d --sparse openKylin-3.0-Spatial-Alpha-MIX-arm64.img.zst
-sha256sum -c --ignore-missing SHA256SUMS
+sha256sum -c openKylin-3.0-Spatial-Alpha-MIX.tar.xz.sha256
+tar -xJf openKylin-3.0-Spatial-Alpha-MIX.tar.xz
+cd openKylin-3.0-Spatial-Alpha-MIX
+sha256sum -c SHA256SUMS
 adb devices -l
 python3 install-mix.py check
 ```
 
-`check` 只读挂载 osstore 并报告容量。设备型号、Android 插槽、root、分区或文件系统检查报错时，先解决该项再继续。多台设备同时连接时，对每个安装器命令都传 `--serial <ADB序列号>`。
+| 包内镜像 | 用途 |
+| --- | --- |
+| `openKylin-3.0-Spatial-Alpha-MIX-arm64.img` | 24 GiB 可写 ext4 系统盘，安装器把它放在 osstore 的独立目录 |
+| `openKylin-3.0-Spatial-Alpha-MIX-recovery.img` | 100 MiB 启动镜像，由安装器写入并读回校验 `recovery_b` |
+
+`check` 只读挂载 osstore 并报告容量。设备型号、Android 插槽、root、分区、文件系统、原厂标定或传感器注册表检查报错时，先解决该项再继续。多台设备同时连接时，对每个安装器命令都传 `--serial <ADB序列号>`。
 
 ## 安装和首次启动
 
@@ -54,52 +49,31 @@ python3 install-mix.py install --backup ./mix-device-backup
 adb reboot recovery
 ```
 
-启动程序按 GPT 分区名寻找 `osstore`，从 `/systems/openkylin-alpha/rootfs.img` 启动。首次启动会生成本机身份，并应用安装时设置的密码。桌面账户是 `mix`。如果 USB ACM 串口可用，可从 Linux 电脑用串口终端连接对应的 `/dev/ttyACM*`，以同一用户和密码登录。在头显系统内运行以下检查。
+启动程序按 GPT 分区名找到 `osstore`，挂载 `/systems/openkylin-alpha/rootfs.img`。首次开机会应用安装时设置的密码和该头显的原厂标定。默认目标 `mix-alpha-xr.target` 等待头显面板和 DSP 就绪，然后通过 `xr-session` 启动追踪、合成器和空间桌面。会话持续运行，到用户退出或关机为止。
+
+## 空间会话与诊断
+
+正常启动后应在双眼中看到空间桌面。移动头部检查视角，再用物理手柄打开任务栏或 XR 影院。可使用自己的媒体文件和 SaberV 曲谱。可选手部追踪使用独立模型，其导入方式见[手部追踪说明](https://github.com/bitsk/xr-hand-tracking)。
+
+若没有画面，可从 Linux 电脑连接头显的 USB ACM 串口，以 `mix` 和安装时设置的密码登录，运行以下命令检查启动目标、设备和会话日志。
 
 ```sh
-cat /etc/a081-rootfs-id
+systemctl get-default
 findmnt /
 findmnt /osstore
-systemctl status display-manager.service --no-pager
-dpkg-query -W xr-shell-session xr-cinema rvvr-saberv
-```
-
-应看到标记 `a081-openkylin-3.0-arm64`，根文件系统来自 loop 设备，外层 ext4 挂载在 `/osstore`。请分别检查实际画面、头姿、手柄按键、控制器射线和应用有效帧。软件包存在只说明已安装。
-
-## 空间会话和内容
-
-系统已安装 Monado 驱动、Turnip、传感器与头部/手柄追踪、手部后端、空间窗口和任务栏、青空环境、XR 影院、SaberV 以及调试工具。影院可使用自己的媒体文件。SaberV 需要用户导入有权使用的曲目。手部模型通过 `sudo xr-hand-import-assets --from-bundle <本地模型包目录>` 导入，还需按手部跟踪组件说明配置本机标定并启用手部会话。
-
-立体会话需要自行准备有权使用且版本相配的以下文件。缺少其中任一项时，请先使用 UKUI 桌面。
-
-| 本机路径 | 内容和检查 |
-| --- | --- |
-| `/opt/steamvr/` | 原生 Linux ARM64 SteamVR 运行时，包含 `bin/linuxarm64/vrserver`、`vrstartup` 和 `steamxr_linuxarm64.json`。工程基线使用 2.17.10 |
-| `/usr/bin/gamescope`、`/usr/bin/gamescopereaper` | 配套 ARM64 构建。Gamescope 须支持 `--allow-deferred-backend --backend openvr --vr-session-manager` |
-| `/usr/lib/aarch64-linux-gnu/xr/monado/pose-watch` | 与本版 xr-monado 源码锁相符、由用户在本地构建的姿态观察器。构建入口见对应组件的 `tools/pose-watch/README.md` |
-| `/opt/mix-alpha-xr/tracking/input-config/calibration.xml` 与 `/usr/share/qcom/sm8250/iqiyi/a081/sensors/registry/` | 只能使用正在安装的这台头显的标定和注册表。安装器会从可读的原厂 persist 数据导入，并按需在同一台设备上复制可用的 SLPI 直接通道库 |
-
-可以从已挂载的本地介质复制用户自行准备的运行时。下例假定本地目录中分别有完整的 `steamvr/`、`gamescope/bin/` 和用户构建的 `pose-watch`。先用 `df -h /` 确认剩余容量，并保留 SteamVR 文件原有的子目录和符号链接。
-
-```sh
-cd /你的本地介质目录
-sudo cp -a steamvr /opt/steamvr
-sudo chown -R root:root /opt/steamvr
-sudo install -m 0755 gamescope/bin/gamescope gamescope/bin/gamescopereaper /usr/bin/
-sudo install -m 0755 pose-watch /usr/lib/aarch64-linux-gnu/xr/monado/pose-watch
-ldd /usr/bin/gamescope
-gamescope --allow-deferred-backend --vr-session-manager --help
-```
-
-首次配置时使用以上路径。若已安装其他版本，请先备份原文件，按所用 Gamescope 构建说明安装配套库与资源。确认依赖库和本机标定后，从本机终端启动限时会话。
-
-```sh
-sudo env QIYU_VR_SESSION_PROFILE=/etc/xr/session.json xr-session start --seconds 60
+systemctl status mix-alpha-xr.service qiyu-openkylin-xr.service --no-pager
+sudo journalctl -b -u mix-alpha-xr.service -u qiyu-openkylin-xr-tracking.service -u qiyu-openkylin-xr.service --no-pager
 sudo env QIYU_VR_SESSION_PROFILE=/etc/xr/session.json xr-session status
-sudo env QIYU_VR_SESSION_PROFILE=/etc/xr/session.json xr-session shutdown
 ```
 
-[姿态观察器构建说明](https://github.com/bitsk/xr-monado/tree/main/tools/pose-watch) · [手部跟踪与本机模型导入](https://github.com/bitsk/xr-hand-tracking) · [空间会话管理](https://github.com/bitsk/xr-session-manager)
+`mix-alpha-xr.service` 负责发起会话，实际运行由 `qiyu-openkylin-xr.service` 托管。确认空间会话可用时应同时检查有效追踪和头显双眼画面。
+
+如需临时使用 UKUI 普通桌面，可在会话正常运行时执行下列命令。下一次从 Android 进入 recovery，仍会自动进入 XR。
+
+```sh
+sudo env QIYU_VR_SESSION_PROFILE=/etc/xr/session.json xr-session stop
+sudo systemctl start display-manager.service
+```
 
 ## 返回 Android 或恢复
 
@@ -115,4 +89,4 @@ python3 install-mix.py restore --backup ./mix-device-backup
 
 ## 验证范围
 
-通用安装流程依赖目标机已有 ext4 osstore。本批次通过 ext4 全盘只读检查。通用 ARM64 QEMU 已使用公开版 ramdisk 和最终根镜像进入登录，用安装密码登录并通过 sudo，确认根目录、osstore、UID 1000 以及 LightDM 服务。完成关机后，两层 ext4 均通过全盘只读检查，无待回放日志。构建清单记录软件包、镜像摘要与离线验证。真机显示、空间会话、手柄/手势、音视频和 Android 往返仍以本批次完整镜像的实机验收为准。现场反馈请附型号、镜像摘要、失败步骤和脱敏日志。请保留本机标定、备份与密码在设备所有者手中。
+所有内置运行时均来自锁定输入。ARM64 QEMU 用发布版 ramdisk 启动了完整根镜像。虚拟机确认默认 XR 服务自动运行、普通桌面未启动，服务在发现缺少真实头显标定时输出诊断。账户登录、sudo 和关机卸载通过。本批次尚待 MIX 真机验证冷启动后的双眼有效帧、头部和手柄跟踪、退出和返回 Android。反馈请附型号、镜像摘要和脱敏日志，妥善保管原厂标定及本机备份。
