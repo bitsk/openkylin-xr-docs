@@ -9,6 +9,8 @@ title: 工程 Wiki
 
 ## 硬件与基础系统
 
+- [openKylin 3.0 空间智能 Alpha · 奇遇 MIX 安装指南]({{ '/wiki/mix-spatial-alpha/' | relative_url }})
+
 - [A081 硬件适配]({{ '/wiki/hardware/' | relative_url }})：原厂依据、主线接入、电源、无线与音频。
 - [显示与 GPU]({{ '/wiki/display-and-gpu/' | relative_url }})：双 DSI、DSC、PHY、Mesa/Turnip 与呈现优化。
 - [相机、IMU 与共享采集]({{ '/wiki/cameras-and-sensors/' | relative_url }})：六颗相机、SEE/IIO、QCFT 和共享输入。
