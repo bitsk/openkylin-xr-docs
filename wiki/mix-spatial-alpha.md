@@ -17,12 +17,11 @@ permalink: /wiki/mix-spatial-alpha/
 
 ## 下载和解压
 
-下载同一版本的 `openKylin-3.0-Spatial-Alpha-MIX.tar.xz` 和旁边的 `.sha256` 文件，在空目录中执行以下命令。解压后进入的目录包含两份镜像、安装器、校验清单、发布说明和软件清单。
+从发布页下载同一版本的镜像包 `openKylin-3.0-Spatial-Alpha-MIX.tar.xz`、整包校验文件 `openKylin-3.0-Spatial-Alpha-MIX.tar.xz.sha256`、镜像校验清单 `SHA256SUMS` 和安装器 `install-mix.py`。将这四个文件放进一个空目录，在该目录执行以下命令。压缩包根目录只有主镜像和 recovery 两个文件，解压后它们与安装器位于同一目录。
 
 ```sh
 sha256sum -c openKylin-3.0-Spatial-Alpha-MIX.tar.xz.sha256
 tar -xJf openKylin-3.0-Spatial-Alpha-MIX.tar.xz
-cd openKylin-3.0-Spatial-Alpha-MIX
 sha256sum -c SHA256SUMS
 adb devices -l
 python3 install-mix.py check
