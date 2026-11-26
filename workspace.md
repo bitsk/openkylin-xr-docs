@@ -29,6 +29,7 @@ The kernel implementation remains in [bitsk/qiyu-kernel](https://github.com/bits
 | xr-system-ui | [xr-system-ui](https://github.com/bitsk/xr-system-ui) | xr-system-ui |
 | xr-wayland | [xr-wayland](https://github.com/bitsk/xr-wayland) | xr-window-server |
 | xr-cinema · 空间影院 | [xr-cinema](https://github.com/bitsk/xr-cinema) | xr-cinema |
+| xr-files · 空间文件 | [xr-files](https://github.com/bitsk/xr-files) | xr-files |
 
 ## Desktop collaboration
 
