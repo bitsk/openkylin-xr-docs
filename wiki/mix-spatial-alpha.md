@@ -13,7 +13,7 @@ permalink: /wiki/mix-spatial-alpha/
 - 头显能正常进入已取得 Magisk root 的 Android B，已开启 USB 调试并授权电脑。核对型号为 A081。
 - 头显已有名为 `osstore` 的 GPT 分区，文件系统为 ext4，至少有 24 GiB 加 64 MiB 可用。系统镜像保存在该分区的独立目录中。仅有原厂分区布局的机器不能直接使用本安装流程。遇到这一情况请停在检查步骤。
 - 使用 Linux 电脑，准备 Python 3.8 或更高版本、Android Platform Tools（`adb`）、OpenSSL、zstd 和 GNU Coreutils。电脑至少预留 32 GiB，用于下载、解压和保存本机原 recovery。给头显充足电，保持 USB 连线稳定。
-- 原 Android 和已有 osstore 文件应另有备份。安装器在电脑保存这台头显原有的完整 `recovery_b`。每台头显使用独立备份目录。
+- 原 Android 和已有 osstore 文件应另有备份。安装器在电脑保存这台头显原有的完整 `recovery_b`。每台头显使用独立备份目录。若原来通过 recovery 启动 Debian 等系统，安装 Alpha 会更换该启动入口。恢复本机原 recovery 后可重新使用。
 
 ## 下载和解压
 
@@ -26,7 +26,7 @@ permalink: /wiki/mix-spatial-alpha/
 | `install-mix.py` | 检查设备、安装系统、恢复原 recovery |
 | `SHA256SUMS` | 发布文件 SHA-256 |
 
-本批次压缩系统镜像的 SHA-256 为 `6fced2a48fdf68caa8aaa69b4ef0b5b5cfe873f007c9cc5809e33df1da7294d1`，解压后的原始镜像为 `f37a7611a9344086805a9a52f2d29e6e740d972150f04f9ac114627661acf3ab`，recovery 为 `1cf9df52553acbe09a450c36c4b2eacc90e1b877cce3543643d6340040729778`。
+本批次压缩系统镜像的 SHA-256 为 `6fced2a48fdf68caa8aaa69b4ef0b5b5cfe873f007c9cc5809e33df1da7294d1`，解压后的原始镜像为 `f37a7611a9344086805a9a52f2d29e6e740d972150f04f9ac114627661acf3ab`，recovery 为 `8605b996ef3311859c3688b32510ceeb204a19f20d75c1f6d7dc5bf6ff6551f9`。
 
 先与官网下载页公布的 SHA-256 比对，再执行以下命令。网站若同时提供原始 `arm64.img`，可直接下载原始文件并跳过解压。
 
@@ -48,13 +48,13 @@ python3 install-mix.py install --backup ./mix-device-backup
 
 先核对型号、剩余空间和备份。依提示输入 `INSTALL`，为本机的 `mix` 用户设置密码。安装器先传输完整根镜像并在头显读回 SHA-256，然后才更新 `recovery_b` 并读回全分区。传输 24 GiB 和两次校验可能耗时较长。原 Android 的标定文件和传感器注册表存在时，安装器会在这台头显内复制，供该机首次启动使用。请保管 `mix-device-backup/`。
 
-看到“系统和 recovery 均已读回校验”后执行：
+看到“系统和 recovery 均已读回校验”后执行下面的命令。
 
 ```sh
 adb reboot recovery
 ```
 
-启动程序按 GPT 分区名寻找 `osstore`，从 `/systems/openkylin-alpha/rootfs.img` 启动。首次启动会生成本机身份，并应用安装时设置的密码。桌面账户是 `mix`。如果 USB ACM 串口可用，可从 Linux 电脑用串口终端连接对应的 `/dev/ttyACM*`，以同一用户和密码登录。在头显系统内核对：
+启动程序按 GPT 分区名寻找 `osstore`，从 `/systems/openkylin-alpha/rootfs.img` 启动。首次启动会生成本机身份，并应用安装时设置的密码。桌面账户是 `mix`。如果 USB ACM 串口可用，可从 Linux 电脑用串口终端连接对应的 `/dev/ttyACM*`，以同一用户和密码登录。在头显系统内运行以下检查。
 
 ```sh
 cat /etc/a081-rootfs-id
@@ -91,7 +91,7 @@ ldd /usr/bin/gamescope
 gamescope --allow-deferred-backend --vr-session-manager --help
 ```
 
-首次配置时使用以上路径。若已安装其他版本，请先备份原文件，按所用 Gamescope 构建说明安装配套库与资源。确认依赖库和本机标定后，从本机终端启动限时会话：
+首次配置时使用以上路径。若已安装其他版本，请先备份原文件，按所用 Gamescope 构建说明安装配套库与资源。确认依赖库和本机标定后，从本机终端启动限时会话。
 
 ```sh
 sudo env QIYU_VR_SESSION_PROFILE=/etc/xr/session.json xr-session start --seconds 60
@@ -105,7 +105,7 @@ sudo env QIYU_VR_SESSION_PROFILE=/etc/xr/session.json xr-session shutdown
 
 从 openKylin 执行 `sudo systemctl reboot` 正常重启，默认进 Android B。要再次进入 openKylin，从 Android 执行 `adb reboot recovery`。
 
-要恢复安装前的 recovery，先进入同一台头显的 Android B，连接 USB，保留本版安装器、校验清单和原备份：
+要恢复安装前的 recovery，先进入同一台头显的 Android B，连接 USB，保留本版安装器、校验清单和原备份。
 
 ```sh
 python3 install-mix.py restore --backup ./mix-device-backup
@@ -115,4 +115,4 @@ python3 install-mix.py restore --backup ./mix-device-backup
 
 ## 验证范围
 
-通用安装流程依赖目标机已有 ext4 osstore。本批次通过 ext4 全盘只读检查。通用 ARM64 QEMU 已使用公开版 ramdisk 和最终根镜像进入登录，确认根目录、osstore、UID 1000 以及 LightDM 服务。构建清单记录软件包、镜像摘要与离线验证。真机显示、空间会话、手柄/手势、音视频和 Android 往返仍以本批次完整镜像的实机验收为准。现场反馈请附型号、镜像摘要、失败步骤和脱敏日志；请保留本机标定、备份与密码在设备所有者手中。
+通用安装流程依赖目标机已有 ext4 osstore。本批次通过 ext4 全盘只读检查。通用 ARM64 QEMU 已使用公开版 ramdisk 和最终根镜像进入登录，用安装密码登录并通过 sudo，确认根目录、osstore、UID 1000 以及 LightDM 服务。完成关机后，两层 ext4 均通过全盘只读检查，无待回放日志。构建清单记录软件包、镜像摘要与离线验证。真机显示、空间会话、手柄/手势、音视频和 Android 往返仍以本批次完整镜像的实机验收为准。现场反馈请附型号、镜像摘要、失败步骤和脱敏日志。请保留本机标定、备份与密码在设备所有者手中。
