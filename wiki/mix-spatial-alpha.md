@@ -33,7 +33,7 @@ python3 install-mix.py repair
 python3 install-mix.py update-recovery --backup ./mix-device-backup
 ```
 
-4. 执行 `adb reboot recovery`，等待第一次启动安装离线软件包。登录 openKylin 后运行以下命令。应看到 `Result=success`、`xr-head-tracking 0.1.18` 和 `xr-session-manager 0.3.25`。若更新中断，查看服务日志；下次启动会再次处理尚未完成的更新。
+4. 通过下文的 Android 应用「进入 openKylin」或执行 `adb reboot recovery`，等待第一次启动安装离线软件包。登录 openKylin 后运行以下命令。应看到 `Result=success`、`xr-head-tracking 0.1.18` 和 `xr-session-manager 0.3.25`。若更新中断，查看服务日志；下次启动会再次处理尚未完成的更新。
 
 ```sh
 systemctl show -p Result mix-alpha-repair.service
@@ -154,11 +154,13 @@ python3 install-mix.py install --backup ./mix-device-backup
 
 先核对型号、剩余空间和备份。依提示输入 `INSTALL`，为本机的 `mix` 用户设置密码。安装器先传输完整根镜像并在头显读回 SHA-256，然后才更新刚才确认的 recovery 分区并读回全分区。传输 24 GiB 和两次校验可能耗时较长。安装器在头显内复制该机的原厂标定、传感器注册表，以及原厂提供的注册表版本、索引和传感器配置。请保管 `mix-device-backup/`。
 
-看到“系统和 recovery 均已读回校验”后执行下面的命令。
+看到“系统和 recovery 均已读回校验”后，先留在 Android。在电脑的文档脚本包解压目录运行以下命令，为头显安装「进入 openKylin」。官网首版和 R2 共用同一个 APK。若连接了多台设备，请用 `adb -s <ADB序列号> install -r openkylin.apk` 指定头显。
 
 ```sh
-adb reboot recovery
+adb install -r openkylin.apk
 ```
+
+在奇遇 Home 的应用列表打开 **进入 openKylin**，首次打开时在 Magisk 中授予此应用 root 权限。用手柄点 **重启进入 openKylin**，再点 **确认重启进入 openKylin**。以后可直接使用这个图标。它与电脑执行 `adb reboot recovery` 进入同一个当前槽位的 recovery。若已恢复原厂 recovery，图标也会进入原厂 recovery。
 
 启动程序按 GPT 分区名找到 `osstore`，挂载 `/systems/openkylin-alpha/rootfs.img`。首次开机会应用安装时设置的密码和该头显的原厂标定。默认目标 `mix-alpha-xr.target` 等待头显面板和 DSP 就绪，然后通过 `xr-session` 启动追踪、合成器和空间桌面。会话持续运行，到用户退出或关机为止。
 
@@ -201,7 +203,7 @@ sudo systemctl start display-manager.service
 
 ## 返回 Android 或恢复
 
-从 openKylin 执行 `sudo systemctl reboot` 正常重启，通常返回原 Android 槽位。要再次进入 openKylin，从 Android 执行 `adb reboot recovery`。
+从 openKylin 执行 `sudo systemctl reboot` 正常重启，通常返回原 Android 槽位。要再次进入 openKylin，在 Android 打开「进入 openKylin」并确认重启，也可以从电脑执行 `adb reboot recovery`。
 
 要恢复安装前的 recovery，先回到创建备份时的同一台头显、同一 Android 槽位，连接 USB，保留本版安装器、校验清单和原备份。
 
