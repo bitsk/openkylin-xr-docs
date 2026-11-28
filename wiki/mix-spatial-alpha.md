@@ -144,7 +144,7 @@ sha256sum -c SHA256SUMS
 | `openKylin-3.0-Spatial-Alpha-MIX-arm64.img` | 24 GiB 可写 ext4 系统盘，安装器把它放在 osstore 的独立目录 |
 | `openKylin-3.0-Spatial-Alpha-MIX-recovery.img` | 100 MiB 启动镜像，由安装器写入并读回校验当前槽位的 recovery |
 
-`check` 只读挂载 osstore 并报告容量。设备型号、Android 插槽、root、分区、文件系统、原厂标定或传感器注册表检查报错时，先解决该项再继续。若连接了多台设备，从 `adb devices -l` 选择目标，对每个安装器命令都传 `--serial <ADB序列号>`，后续重启也用 `adb -s <ADB序列号> reboot recovery`。已在 A 槽取得 root 的用户可直接留在 A 槽。整个安装流程均从正常启动的 Android 发起，无需进入 fastboot 或 EDL。
+`check` 只读挂载 osstore 并报告容量。设备型号、Android 插槽、root、分区、文件系统、原厂标定或传感器注册表检查报错时，先解决该项再继续。若连接了多台设备，从 `adb devices -l` 选择目标，对每个安装器命令都传 `--serial <ADB序列号>`，后续重启也用 `adb -s <ADB序列号> reboot recovery`。已在 A 槽取得 root 的用户可直接留在 A 槽。已有 osstore 时，系统安装与原地修复均从正常启动的 Android 发起，无需进入 fastboot 或 EDL。
 
 ## 安装和首次启动
 
